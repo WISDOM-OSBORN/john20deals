@@ -44,7 +44,6 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
               <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto bg-white p-1 rounded" />
-              <span className="text-xl font-bold tracking-tight">John20 Deals</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
               Your Smart Tech Plug. We provide high-quality gadgets, computers, and accessories to power your digital life.

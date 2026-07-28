@@ -48,7 +48,7 @@ export default function Home() {
 
       if (error) throw error;
 
-      if (products) {
+      if (products && products.length > 0) {
         // Categories to feature
         const categories = ['Laptops', 'Phones', 'Audio', 'Accessories'];
         const timeIndex = Math.floor(Date.now() / (30 * 60 * 1000)); // Change every 30 mins
@@ -67,9 +67,45 @@ export default function Home() {
         }).filter(Boolean) as Product[];
 
         setFeaturedProducts(selectedProducts);
+      } else {
+        throw new Error('No products found');
       }
     } catch (error) {
-      console.error('Error fetching featured products:', error);
+      console.warn('Using fallback products due to fetch error');
+      setFeaturedProducts([
+        {
+          id: 'mock-1',
+          name: 'MacBook Pro 16" M3 Max',
+          category: 'Laptops',
+          price: 3499.99,
+          image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
+          condition: 'New'
+        } as Product,
+        {
+          id: 'mock-2',
+          name: 'iPhone 15 Pro Max',
+          category: 'Phones',
+          price: 1199.99,
+          image_url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=2070&auto=format&fit=crop',
+          condition: 'New'
+        } as Product,
+        {
+          id: 'mock-3',
+          name: 'Sony WH-1000XM5',
+          category: 'Audio',
+          price: 398.00,
+          image_url: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1888&auto=format&fit=crop',
+          condition: 'New'
+        } as Product,
+        {
+          id: 'mock-4',
+          name: 'Logitech MX Master 3S',
+          category: 'Accessories',
+          price: 99.99,
+          image_url: 'https://images.unsplash.com/photo-1615663245857-ac1e653815f7?q=80&w=1964&auto=format&fit=crop',
+          condition: 'New'
+        } as Product
+      ]);
     } finally {
       setLoading(false);
     }
@@ -83,101 +119,122 @@ export default function Home() {
         <meta property="og:title" content="John20 Deals | Your Smart Tech Plug" />
         <meta property="og:description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana." />
       </Helmet>
-      {/* Hero Section */}
-      <section className="relative bg-slate-900 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-900/50 z-10"></div>
-        <div className="absolute inset-0 z-0">
-           <img 
-            src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop" 
-            alt="Tech Background" 
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover opacity-40"
-          />
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 py-24 lg:py-32">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-2xl"
-          >
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-              Your Smart <span className="text-blue-500">Tech Plug</span>
-            </h1>
-            <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
-              Discover the latest gadgets, high-performance computers, and premium accessories. 
-              Quality tech at unbeatable prices.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link 
-                to="/shop" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-full font-bold text-lg transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20"
-              >
-                Shop Now <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link 
-                to="/shop?category=Deals" 
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/20 px-8 py-3.5 rounded-full font-bold text-lg transition-all"
-              >
-                View Deals
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Our Services */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Our Services</h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-            Everything you need in one place. We offer complete tech solutions for our customers.
-          </p>
+      <section className="relative py-16 overflow-hidden bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-800">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" 
+            alt="Gadgets Background" 
+            className="w-full h-full object-cover opacity-[0.04] dark:opacity-[0.07]"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 via-transparent to-slate-50 dark:from-slate-950/50 dark:to-slate-950"></div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full mb-4 text-blue-600 dark:text-blue-400">
-              <ShoppingBag className="h-8 w-8" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Buy</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Latest gadgets at the best prices</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">All in One <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Tech Plug</span></h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
+              Discover the latest gadgets, high-performance computers, and premium accessories. Quality tech at unbeatable prices.
+            </p>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-            <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-full mb-4 text-green-600 dark:text-green-400">
-              <Tag className="h-8 w-8" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Sell</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Get top value for your old devices</p>
+          
+          {/* Desktop Grid */}
+          <div className="hidden md:grid md:grid-cols-4 gap-6">
+            <motion.div 
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+            >
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full mb-4 text-blue-600 dark:text-blue-400">
+                <ShoppingBag className="h-7 w-7" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Buy</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Latest gadgets at best prices</p>
+            </motion.div>
+            <motion.div 
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 0.5 }}
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+            >
+              <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-full mb-4 text-green-600 dark:text-green-400">
+                <Tag className="h-7 w-7" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Sell</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Top value for old devices</p>
+            </motion.div>
+            <motion.div 
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 }}
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+            >
+              <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-full mb-4 text-purple-600 dark:text-purple-400">
+                <RefreshCw className="h-7 w-7" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Swap</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Trade-in & upgrade instantly</p>
+            </motion.div>
+            <motion.div 
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1.5 }}
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+            >
+              <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-full mb-4 text-orange-600 dark:text-orange-400">
+                <Wrench className="h-7 w-7" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Repair</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Expert repair services</p>
+            </motion.div>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-            <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-full mb-4 text-purple-600 dark:text-purple-400">
-              <RefreshCw className="h-8 w-8" />
+
+          {/* Mobile Marquee */}
+          <div className="md:hidden relative w-full overflow-hidden -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-50 dark:from-[#0b1120] z-10 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-50 dark:from-[#0b1120] z-10 pointer-events-none"></div>
+            <div className="flex w-max animate-marquee py-2">
+              {[0, 1].map((set) => (
+                <div key={set} className="flex gap-3 pr-3 w-max">
+                  {[
+                    { icon: ShoppingBag, title: 'Buy', desc: 'Latest gadgets', color: 'blue' },
+                    { icon: Tag, title: 'Sell', desc: 'Top value', color: 'green' },
+                    { icon: RefreshCw, title: 'Swap', desc: 'Trade-in easily', color: 'purple' },
+                    { icon: Wrench, title: 'Repair', desc: 'Expert services', color: 'orange' },
+                  ].map((item, idx) => (
+                    <div 
+                      key={idx}
+                      className="w-[140px] shrink-0 bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center"
+                    >
+                      <div className={`p-3 rounded-full mb-3 ${
+                        item.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
+                        item.color === 'green' ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' :
+                        item.color === 'purple' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :
+                        'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                      }`}>
+                        <item.icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{item.title}</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Swap</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Trade-in and upgrade instantly</p>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-            <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-full mb-4 text-orange-600 dark:text-orange-400">
-              <Wrench className="h-8 w-8" />
+
+          <div className="mt-8 bg-slate-900 dark:bg-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between text-white shadow-lg border border-slate-800 dark:border-slate-700 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-transparent"></div>
+            <div className="flex items-center gap-4 mb-4 sm:mb-0 relative z-10">
+              <div className="bg-white/10 p-3 rounded-full">
+                <Truck className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-lg">Nationwide Delivery</h4>
+                <p className="text-slate-300 text-sm">Fast and secure delivery across Ghana.</p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Repair</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Expert repair services for your gadgets</p>
+            <Link to="/shop" className="relative z-10 bg-white text-slate-900 px-6 py-2 rounded-full font-bold hover:bg-slate-100 transition-colors whitespace-nowrap">
+              Shop Now
+            </Link>
           </div>
-        </div>
-        <div className="mt-8 bg-slate-900 dark:bg-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between text-white shadow-lg border border-slate-800 dark:border-slate-700">
-          <div className="flex items-center gap-4 mb-4 sm:mb-0">
-            <div className="bg-white/10 p-3 rounded-full">
-              <Truck className="h-6 w-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-lg">Nationwide Delivery</h4>
-              <p className="text-slate-300 text-sm">Fast and secure delivery across Ghana.</p>
-            </div>
-          </div>
-          <Link to="/shop" className="bg-white text-slate-900 px-6 py-2 rounded-full font-bold hover:bg-slate-100 transition-colors whitespace-nowrap">
-            Shop Now
-          </Link>
         </div>
       </section>
 

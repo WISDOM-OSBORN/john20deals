@@ -33,8 +33,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
-              <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto" />
-              <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white hidden sm:block">John20 Deals</span>
+              <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto rounded-md" />
             </Link>
           </div>
 
