@@ -32,7 +32,10 @@ export const handler: Handler = async (event) => {
       ContentType: contentType,
     });
 
-    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
+    const signedUrl = await getSignedUrl(s3Client, command, { 
+      expiresIn: 300,
+      signableHeaders: new Set(['content-type'])
+    });
 
     const publicUrl = process.env.R2_PUBLIC_URL 
       ? `${process.env.R2_PUBLIC_URL}/${uniqueFileName}`
