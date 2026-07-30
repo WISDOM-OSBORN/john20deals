@@ -2,12 +2,15 @@ import express from "express";
 import path from "path";
 import multer from "multer";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createServer as createViteServer } from "vite";
 import 'dotenv/config';
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  
+  app.use(express.json());
 
   // Initialize S3 Client for Cloudflare R2
   // Make sure these environment variables are set
@@ -20,44 +23,37 @@ async function startServer() {
     },
   });
 
-  const upload = multer({ storage: multer.memoryStorage() });
+  app.use(express.json());
 
-  // API route for upload
-  app.post("/api/upload", upload.single("file"), async (req, res) => {
+  // API route for generating a presigned URL (Used in dev environment)
+  app.post("/api/upload", async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
+      const { filename, contentType } = req.body;
+      if (!filename || !contentType) {
+        return res.status(400).json({ error: "filename and contentType are required" });
       }
 
-      const file = req.file;
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.originalname}`;
+      const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(7)}-${filename}`;
       const bucketName = process.env.R2_BUCKET_NAME || '';
 
       const command = new PutObjectCommand({
         Bucket: bucketName,
-        Key: fileName,
-        Body: file.buffer,
-        ContentType: file.mimetype,
+        Key: uniqueFileName,
+        ContentType: contentType,
       });
 
-      await s3Client.send(command);
+      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
 
-      // Cloudflare R2 Public URL setup
-      // You must provide R2_PUBLIC_URL in your .env if you have a custom domain 
-      // or a public R2.dev domain set up.
-      // E.g., R2_PUBLIC_URL=https://pub-xxxxxxxxxxxxxxxx.r2.dev
       const publicUrl = process.env.R2_PUBLIC_URL 
-        ? `${process.env.R2_PUBLIC_URL}/${fileName}`
-        : `https://${bucketName}.r2.cloudflarestorage.com/${fileName}`; // Fallback, usually not public by default
+        ? `${process.env.R2_PUBLIC_URL}/${uniqueFileName}`
+        : `https://${bucketName}.r2.cloudflarestorage.com/${uniqueFileName}`; 
 
-      res.json({ url: publicUrl });
+      res.json({ uploadUrl: signedUrl, publicUrl });
     } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ error: "Failed to upload file" });
+      console.error("Presigned URL error:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
     }
   });
-
-  app.use(express.json());
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

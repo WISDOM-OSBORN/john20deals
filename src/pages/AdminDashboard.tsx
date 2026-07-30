@@ -147,26 +147,43 @@ export default function AdminDashboard() {
       }
 
       const file = e.target.files[0];
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
+      
+      // 1. Get presigned URL from our backend
+      const urlResponse = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type
+        }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload image');
+      if (!urlResponse.ok) {
+        const errorData = await urlResponse.json();
+        throw new Error(errorData.error || 'Failed to get upload URL');
       }
 
-      const data = await response.json();
+      const { uploadUrl, publicUrl } = await urlResponse.json();
+
+      // 2. Upload directly to Cloudflare R2 using the presigned URL
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type
+        },
+        body: file,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image to storage');
+      }
 
       if (imageIndex === 1) {
-        setImageUrl(data.url);
+        setImageUrl(publicUrl);
       } else {
-        setImageUrl2(data.url);
+        setImageUrl2(publicUrl);
       }
       toast.success(`Image ${imageIndex} uploaded successfully!`);
     } catch (error: any) {
