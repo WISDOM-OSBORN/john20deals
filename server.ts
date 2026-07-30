@@ -21,6 +21,7 @@ async function startServer() {
       accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
     },
+    requestChecksumCalculation: "WHEN_SUPPORTED",
   });
 
   app.use(express.json());
@@ -42,10 +43,7 @@ async function startServer() {
         ContentType: contentType,
       });
 
-      const signedUrl = await getSignedUrl(s3Client, command, { 
-        expiresIn: 300,
-        signableHeaders: new Set(['content-type'])
-      });
+      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
 
       const publicUrl = process.env.R2_PUBLIC_URL 
         ? `${process.env.R2_PUBLIC_URL}/${uniqueFileName}`

@@ -191,7 +191,8 @@ export default function AdminDashboard() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload image to storage');
+        const errorText = await uploadResponse.text();
+        throw new Error(`Upload failed status ${uploadResponse.status}: ${errorText}`);
       }
 
       if (imageIndex === 1) {
