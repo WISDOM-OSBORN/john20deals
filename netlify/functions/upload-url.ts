@@ -12,16 +12,38 @@ const s3Client = new S3Client({
   requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
 export const handler: Handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: corsHeaders,
+      body: '',
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return {
+      statusCode: 405,
+      headers: corsHeaders,
+      body: 'Method Not Allowed',
+    };
   }
 
   try {
-    const { filename, contentType } = JSON.parse(event.body || '{}');
-    
+    const { filename, contentType } = JSON.parse(event.body || '');
+
     if (!filename || !contentType) {
-      return { statusCode: 400, body: JSON.stringify({ error: "filename and contentType are required" }) };
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "filename and contentType are required" }),
+      };
     }
 
     const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(7)}-${filename}`;
@@ -35,16 +57,21 @@ export const handler: Handler = async (event) => {
 
     const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
 
-    const publicUrl = process.env.R2_PUBLIC_URL 
+    const publicUrl = process.env.R2_PUBLIC_URL
       ? `${process.env.R2_PUBLIC_URL}/${uniqueFileName}`
-      : `https://${bucketName}.r2.cloudflarestorage.com/${uniqueFileName}`; 
+      : `https://${bucketName}.r2.cloudflarestorage.com/${uniqueFileName}`;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ uploadUrl: signedUrl, publicUrl })
+      headers: corsHeaders,
+      body: JSON.stringify({ uploadUrl: signedUrl, publicUrl }),
     };
   } catch (error) {
     console.error("Presigned URL generation error:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: "Failed to generate upload URL" }) };
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Failed to generate upload URL" }),
+    };
   }
 };
