@@ -143,7 +143,7 @@ export default function Home() {
             <motion.div 
               animate={{ y: [0, -6, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
             >
               <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full mb-4 text-blue-600 dark:text-blue-400">
                 <ShoppingBag className="h-7 w-7" />
@@ -154,7 +154,7 @@ export default function Home() {
             <motion.div 
               animate={{ y: [0, -6, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 0.5 }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
             >
               <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-full mb-4 text-green-600 dark:text-green-400">
                 <Tag className="h-7 w-7" />
@@ -165,7 +165,7 @@ export default function Home() {
             <motion.div 
               animate={{ y: [0, -6, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
             >
               <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-full mb-4 text-purple-600 dark:text-purple-400">
                 <RefreshCw className="h-7 w-7" />
@@ -176,7 +176,7 @@ export default function Home() {
             <motion.div 
               animate={{ y: [0, -6, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1.5 }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 transition-transform"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
             >
               <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-full mb-4 text-orange-600 dark:text-orange-400">
                 <Wrench className="h-7 w-7" />

@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-    if (mappedUser?.email === 'johndarkwah20@gmail.com') {
+    if (mappedUser?.email === 'rockwellsan7@gmail.com' || mappedUser?.email === 'johndarkwah20@gmail.com') {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);

@@ -147,23 +147,26 @@ export default function AdminDashboard() {
       }
 
       const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, file);
+      const formData = new FormData();
+      formData.append('file', file);
 
-      if (uploadError) {
-        throw uploadError;
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upload image');
       }
 
-      const { data } = supabase.storage.from('product-images').getPublicUrl(filePath);
+      const data = await response.json();
+
       if (imageIndex === 1) {
-        setImageUrl(data.publicUrl);
+        setImageUrl(data.url);
       } else {
-        setImageUrl2(data.publicUrl);
+        setImageUrl2(data.url);
       }
       toast.success(`Image ${imageIndex} uploaded successfully!`);
     } catch (error: any) {
