@@ -9,7 +9,7 @@ const s3Client = new S3Client({
     accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
   },
-  requestChecksumCalculation: "WHEN_SUPPORTED",
+  requestChecksumCalculation: "WHEN_REQUIRED",
 });
 
 export const handler: Handler = async (event) => {
