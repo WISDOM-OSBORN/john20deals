@@ -149,7 +149,8 @@ export default function AdminDashboard() {
       const file = e.target.files[0];
       
       // 1. Get presigned URL from our backend
-      const urlResponse = await fetch('/api/upload', {
+      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
+      const urlResponse = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -161,11 +162,24 @@ export default function AdminDashboard() {
       });
 
       if (!urlResponse.ok) {
-        const errorData = await urlResponse.json();
-        throw new Error(errorData.error || 'Failed to get upload URL');
+        let errorMessage = 'Failed to get upload URL';
+        try {
+          const errorData = await urlResponse.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = `Server returned ${urlResponse.status}: ${urlResponse.statusText}. Please check if the function is deployed correctly.`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const { uploadUrl, publicUrl } = await urlResponse.json();
+      let uploadUrl, publicUrl;
+      try {
+        const data = await urlResponse.json();
+        uploadUrl = data.uploadUrl;
+        publicUrl = data.publicUrl;
+      } catch (e) {
+        throw new Error('Server returned an invalid response. Ensure the backend function is deployed correctly.');
+      }
 
       // 2. Upload directly to Cloudflare R2 using the presigned URL
       const uploadResponse = await fetch(uploadUrl, {
