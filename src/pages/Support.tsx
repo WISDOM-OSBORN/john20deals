@@ -100,7 +100,7 @@ export default function Support() {
         <h2 className="text-2xl font-bold mb-2">Still have questions?</h2>
         <p className="text-blue-100 mb-6">We're available 24/7 on WhatsApp to assist you.</p>
         <a 
-          href="https://wa.me/233554831090" 
+          href="https://wa.me/233505694171" 
           target="_blank" 
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all"

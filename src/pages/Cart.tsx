@@ -65,7 +65,7 @@ export default function Cart() {
     }
 
     // 3. Redirect to WhatsApp
-    const adminPhone = '233554831090'; // Updated admin number
+    const adminPhone = '233505694171'; // Updated admin number
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodedMessage}`;
     
