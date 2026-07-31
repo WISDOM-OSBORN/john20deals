@@ -17,8 +17,10 @@ export interface Database {
           description: string | null
           price: number
           image_url: string | null
+          image_url_2: string | null
           category: string
           stock: number
+          condition: string | null
         }
         Insert: {
           id?: string
@@ -27,8 +29,10 @@ export interface Database {
           description?: string | null
           price: number
           image_url?: string | null
+          image_url_2?: string | null
           category: string
           stock?: number
+          condition?: string | null
         }
         Update: {
           id?: string
@@ -37,8 +41,10 @@ export interface Database {
           description?: string | null
           price?: number
           image_url?: string | null
+          image_url_2?: string | null
           category?: string
           stock?: number
+          condition?: string | null
         }
         Relationships: []
       }
@@ -147,6 +153,59 @@ export interface Database {
             foreignKeyName: "reviews_user_id_fkey"
             columns: ["user_id"]
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      
+      swap_requests: {
+        Row: {
+          id: string
+          created_at: string
+          status: string
+          user_id: string
+          user_name: string | null
+          user_phone: string | null
+          product_id: string | null
+          product_name: string | null
+          offer_description: string | null
+          image_url_1: string | null
+          image_url_2: string | null
+          image_url_3: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          status?: string
+          user_id: string
+          user_name?: string | null
+          user_phone?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          offer_description?: string | null
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          status?: string
+          user_id?: string
+          user_name?: string | null
+          user_phone?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          offer_description?: string | null
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swap_requests_product_id_fkey"
+            columns: ["product_id"]
+            referencedRelation: "products"
             referencedColumns: ["id"]
           }
         ]

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Users, Upload, Send, Mail, Tag, Info, Layers, X, CreditCard, CheckCircle, Clock, BarChart3, User, MapPin, Truck } from 'lucide-react';
+import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Users, Upload, Send, Mail, Tag, Info, Layers, X, CreditCard, CheckCircle, Clock, BarChart3, User, MapPin, Truck, RefreshCw } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import toast from 'react-hot-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
@@ -40,6 +40,19 @@ interface Customer {
   last_order: string | null;
 }
 
+interface SwapRequest {
+  id: string;
+  created_at: string;
+  status: string;
+  user_name: string;
+  user_phone: string;
+  product_name: string;
+  offer_description: string;
+  image_url_1: string | null;
+  image_url_2: string | null;
+  image_url_3: string | null;
+}
+
 interface Subscriber {
   id: string;
   email: string;
@@ -48,11 +61,12 @@ interface Subscriber {
 
 export default function AdminDashboard() {
   const { isAdmin, loading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'newsletter' | 'customers' | 'analytics'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'newsletter' | 'customers' | 'analytics' | 'swaps'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [swapRequests, setSwapRequests] = useState<SwapRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Analytics State
@@ -87,9 +101,11 @@ export default function AdminDashboard() {
     const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
     const { data: profilesData } = await supabase.from('profiles').select('*');
     const { data: subscribersData } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
+    const { data: swapData } = await supabase.from('swap_requests').select('*').order('created_at', { ascending: false });
     
     if (productsData) setProducts(productsData);
     if (subscribersData) setSubscribers(subscribersData);
+      if (swapData) setSwapRequests(swapData as SwapRequest[]);
     if (ordersData) {
       setOrders(ordersData);
       
@@ -436,6 +452,19 @@ export default function AdminDashboard() {
           }`}
         >
           Orders
+        </button>
+        <button
+          onClick={() => setActiveTab('swaps')}
+          className={`pb-3 px-1 font-medium text-sm transition-colors border-b-2 whitespace-nowrap ${
+            activeTab === 'swaps' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Swaps
+          {swapRequests.filter(s => s.status === 'pending').length > 0 && (
+            <span className="ml-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 py-0.5 px-2 rounded-full text-xs font-bold">
+              {swapRequests.filter(s => s.status === 'pending').length}
+            </span>
+          )}
         </button>
         <button
           onClick={() => setActiveTab('customers')}

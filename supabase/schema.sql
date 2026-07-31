@@ -28,8 +28,10 @@ CREATE TABLE public.products (
     description TEXT,
     price NUMERIC NOT NULL,
     image_url TEXT,
+    image_url_2 TEXT,
     category TEXT NOT NULL,
-    stock INTEGER DEFAULT 0
+    stock INTEGER DEFAULT 0,
+    condition TEXT
 );
 
 CREATE TABLE public.orders (
@@ -58,6 +60,21 @@ CREATE TABLE public.newsletter_subscribers (
     email TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE public.swap_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    status TEXT DEFAULT 'pending',
+    user_id TEXT NOT NULL,
+    user_name TEXT,
+    user_phone TEXT,
+    product_id UUID REFERENCES public.products(id) ON DELETE CASCADE,
+    product_name TEXT,
+    offer_description TEXT,
+    image_url_1 TEXT,
+    image_url_2 TEXT,
+    image_url_3 TEXT
+);
+
 -- 3. Set up RLS (Row Level Security)
 -- Note: Since we are using Clerk for auth, Supabase does not know who is logged in natively
 -- unless you configure a custom JWT integration. For prototyping, we will disable RLS.
@@ -68,6 +85,7 @@ ALTER TABLE public.products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.newsletter_subscribers DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.swap_requests DISABLE ROW LEVEL SECURITY;
 
 
 -- 4. Set up Storage for Product Images
