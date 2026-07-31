@@ -19,6 +19,7 @@ interface Product {
   description: string | null;
   stock: number;
   condition?: string;
+  swap_allowed?: boolean;
 }
 
 export default function ProductDetails() {
@@ -161,7 +162,7 @@ export default function ProductDetails() {
         <meta name="description" content={product.description || `Buy ${product.name} at John20 Deals. High-quality gadgets and accessories.`} />
         <meta property="og:title" content={`${product.name} | John20 Deals`} />
         <meta property="og:description" content={product.description || `Buy ${product.name} at John20 Deals.`} />
-        <meta property="og:image" content={product.image_url || 'https://via.placeholder.com/600'} />
+        <meta property="og:image" content={product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} />
       </Helmet>
       <button 
         onClick={() => navigate(-1)}
@@ -170,12 +171,12 @@ export default function ProductDetails() {
         <ArrowLeft className="h-4 w-4" /> Back to Shop
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Image Gallery */}
         <div className="flex flex-col gap-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-8 flex items-center justify-center aspect-square lg:aspect-auto h-full max-h-[500px]">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center overflow-hidden aspect-square lg:aspect-auto h-full max-h-[500px]">
             <img
-              src={activeImage || product.image_url || 'https://via.placeholder.com/600'}
+              src={activeImage || product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'}
               alt={product.name}
               className="w-full h-full object-contain max-h-[400px]"
             />
@@ -186,13 +187,13 @@ export default function ProductDetails() {
             <div className="flex gap-4 overflow-x-auto pb-2">
               <button 
                 onClick={() => setActiveImage(product.image_url)}
-                className={`w-20 h-20 rounded-xl border-2 overflow-hidden flex-shrink-0 bg-white dark:bg-slate-900 ${activeImage === product.image_url ? 'border-blue-600' : 'border-slate-200 dark:border-slate-800 hover:border-blue-400'}`}
+                className={`w-16 h-16 rounded-xl border-2 overflow-hidden flex-shrink-0 bg-white dark:bg-slate-900 ${activeImage === product.image_url ? 'border-blue-600' : 'border-slate-200 dark:border-slate-800 hover:border-blue-400'}`}
               >
-                <img src={product.image_url || 'https://via.placeholder.com/100'} alt="Thumbnail 1" className="w-full h-full object-cover" />
+                <img src={product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} alt="Thumbnail 1" className="w-full h-full object-cover" />
               </button>
               <button 
                 onClick={() => setActiveImage(product.image_url_2 || null)}
-                className={`w-20 h-20 rounded-xl border-2 overflow-hidden flex-shrink-0 bg-white dark:bg-slate-900 ${activeImage === product.image_url_2 ? 'border-blue-600' : 'border-slate-200 dark:border-slate-800 hover:border-blue-400'}`}
+                className={`w-16 h-16 rounded-xl border-2 overflow-hidden flex-shrink-0 bg-white dark:bg-slate-900 ${activeImage === product.image_url_2 ? 'border-blue-600' : 'border-slate-200 dark:border-slate-800 hover:border-blue-400'}`}
               >
                 <img src={product.image_url_2} alt="Thumbnail 2" className="w-full h-full object-cover" />
               </button>
@@ -254,6 +255,7 @@ export default function ProductDetails() {
                 <ShoppingCart className="h-5 w-5" />
                 Add to Cart
               </button>
+              {product.swap_allowed !== false && (
               <button
                 onClick={() => setShowSwapModal(true)}
                 className="w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-700 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
@@ -261,6 +263,7 @@ export default function ProductDetails() {
                 <RefreshCw className="h-5 w-5" />
                 Propose Swap
               </button>
+            )}
             </div>
 
             <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8">
@@ -312,7 +315,7 @@ export default function ProductDetails() {
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Upload Images (Max 3)</label>
                 <div className="flex gap-3">
                   {swapImages.map((img, i) => (
-                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group">
+                    <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group">
                       <img src={img} className="w-full h-full object-cover" />
                       <button type="button" onClick={() => setSwapImages(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                         <X className="w-3 h-3" />
@@ -320,7 +323,7 @@ export default function ProductDetails() {
                     </div>
                   ))}
                   {swapImages.length < 3 && (
-                    <label className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                       <Upload className="w-5 h-5 text-slate-400 mb-1" />
                       <span className="text-[10px] text-slate-500">Add Photo</span>
                       <input type="file" accept="image/*" onChange={handleSwapUpload} className="hidden" disabled={swapUploading} />

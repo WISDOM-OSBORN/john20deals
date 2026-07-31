@@ -83,7 +83,7 @@ export default function Cart() {
           <ShoppingCart className="h-12 w-12 text-slate-400 dark:text-slate-500" />
         </div>
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Your cart is empty</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-8 text-center max-w-md">
+        <p className="text-slate-500 dark:text-slate-400 mb-6 text-center max-w-md">
           Looks like you haven't added anything to your cart yet.
         </p>
         <Link 
@@ -97,20 +97,20 @@ export default function Cart() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <Helmet>
         <title>Shopping Cart | John20 Deals</title>
       </Helmet>
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Shopping Cart</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-6">
           {items.map((item) => (
             <div key={item.id} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex gap-4 items-center">
               <div className="h-24 w-24 bg-slate-50 dark:bg-slate-800 rounded-xl flex-shrink-0 overflow-hidden">
                 <img 
-                  src={item.image_url || 'https://via.placeholder.com/100'} 
+                  src={item.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} 
                   alt={item.name} 
                   className="w-full h-full object-contain"
                 />

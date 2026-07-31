@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Laptop, Mail, Phone, MapPin, Send, Ghost } from 'lucide-react';
+import { Laptop, Mail, Phone, MapPin, Send, Ghost, Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -37,21 +37,37 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-slate-900 text-white pt-16 pb-8">
+    <footer className="bg-slate-900 text-white pt-10 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto bg-white p-1 rounded" />
+              <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto" />
             </div>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
               Your Smart Tech Plug. We provide high-quality gadgets, computers, and accessories to power your digital life.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3">
               <a href="https://snapchat.com/add/john_darkwah20" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors">
                 <Ghost className="h-5 w-5" />
                 <span className="text-sm">john_darkwah20</span>
+              </a>
+              <a href="https://wa.me/+233505694171" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-green-400 transition-colors">
+                <MessageCircle className="h-5 w-5" />
+                <span className="text-sm">WhatsApp</span>
+              </a>
+              <a href="https://instagram.com/john20deals" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-pink-500 transition-colors">
+                <Instagram className="h-5 w-5" />
+                <span className="text-sm">john20deals</span>
+              </a>
+                            <a href="https://facebook.com/john20deals" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-blue-500 transition-colors">
+                <Facebook className="h-5 w-5" />
+                <span className="text-sm">John20 Deals</span>
+              </a>
+              <a href="https://tiktok.com/@john20deals" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-indigo-400 transition-colors">
+                <Music className="h-5 w-5" />
+                <span className="text-sm">@john20deals</span>
               </a>
             </div>
           </div>

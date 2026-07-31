@@ -48,7 +48,7 @@ export default function Profile() {
     setLoadingOrders(false);
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (loading) return <div className="p-6">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,12 +81,12 @@ export default function Profile() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md sticky top-24">
-            <div className="bg-slate-50/50 dark:bg-slate-800/50 p-8 flex flex-col items-center gap-4 border-b border-slate-100 dark:border-slate-800 text-center">
+            <div className="bg-slate-50/50 dark:bg-slate-800/50 p-6 flex flex-col items-center gap-4 border-b border-slate-100 dark:border-slate-800 text-center">
               <div className="relative group">
-                <div className="h-24 w-24 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center overflow-hidden border-4 border-white dark:border-slate-900 shadow-md">
+                <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center overflow-hidden border-4 border-white dark:border-slate-900 shadow-md">
                   {formData.avatar_url ? (
                     <img 
                       src={formData.avatar_url} 
@@ -97,11 +97,7 @@ export default function Profile() {
                     <User className="h-10 w-10 text-blue-600" />
                   )}
                 </div>
-                {isEditing && (
-                  <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <Camera className="h-6 w-6 text-white" />
-                  </div>
-                )}
+
               </div>
               <div>
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white">{user.user_metadata.full_name}</h2>
@@ -109,7 +105,7 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="p-8">
+            <div className="p-6">
               {isEditing ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">

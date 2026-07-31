@@ -14,6 +14,7 @@ interface Product {
   price: number;
   category: string;
   condition?: string;
+  swap_allowed?: boolean;
   stock: number;
   image_url: string | null;
   image_url_2?: string | null;
@@ -86,8 +87,6 @@ export default function AdminDashboard() {
   const [showOrderModal, setShowOrderModal] = useState(false);
 
   // Newsletter State
-  const [broadcastMessage, setBroadcastMessage] = useState('');
-  const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
   useEffect(() => {
     if (isAdmin) {
@@ -249,6 +248,7 @@ export default function AdminDashboard() {
       image_url: imageUrl || (formData.get('image_url') as string),
       image_url_2: imageUrl2 || (formData.get('image_url_2') as string) || null,
       stock: parseInt(formData.get('stock') as string) || 0,
+      swap_allowed: formData.get('swap_allowed') === 'on',
     };
 
     let error;
@@ -278,45 +278,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleBroadcast = async () => {
-    if (!broadcastMessage.trim()) {
-      toast.error('Please enter a message to broadcast');
-      return;
-    }
-
-    setSendingBroadcast(true);
-    try {
-      // In a real app, this would call a server function to send emails/messages
-      // For now, we'll simulate it by fetching all users and logging
-      const { data: profiles } = await supabase.from('profiles').select('email, phone_number');
-      const { data: subs } = await supabase.from('newsletter_subscribers').select('email');
-      
-      const allEmails = new Set([
-        ...(profiles?.map(p => p.email) || []),
-        ...(subs?.map(s => s.email) || [])
-      ]);
-      
-      console.log('Broadcasting to:', Array.from(allEmails));
-      console.log('Message:', broadcastMessage);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast.success(`Broadcast sent to ${allEmails.size} unique recipients!`);
-      setBroadcastMessage('');
-    } catch (error: any) {
-      toast.error('Failed to send broadcast: ' + error.message);
-    } finally {
-      setSendingBroadcast(false);
-    }
-  };
-
-  const generateProductBroadcast = (product: Product) => {
-    const msg = `🔥 NEW ARRIVAL: ${product.name}\n💰 Price: ${formatCurrency(product.price)}\n\nCheck it out at John20 Deals!`;
-    setBroadcastMessage(msg);
-    setActiveTab('newsletter');
-  };
-
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     const { error } = await supabase
       .from('orders')
@@ -334,15 +295,15 @@ export default function AdminDashboard() {
   const getStatusStyles = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-400 dark:border-yellow-800/50';
       case 'paid':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-400 dark:border-blue-800/50';
       case 'delivered':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-400 dark:border-green-800/50';
       case 'cancelled':
-        return 'bg-red-100 text-red-700 border-red-200';
+        return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-400 dark:border-red-800/50';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
     }
   };
 
@@ -350,12 +311,12 @@ export default function AdminDashboard() {
   if (!isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <Helmet>
         <title>Admin Dashboard | John20 Deals</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
         <button 
           onClick={() => {
@@ -374,7 +335,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
         <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl">
+            <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-2xl">
               <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
@@ -385,7 +346,7 @@ export default function AdminDashboard() {
         </div>
         <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-4">
-            <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-2xl">
+            <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded-2xl">
               <ShoppingBag className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
@@ -396,7 +357,7 @@ export default function AdminDashboard() {
         </div>
         <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-4">
-            <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-2xl">
+            <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-2xl">
               <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
@@ -488,28 +449,29 @@ export default function AdminDashboard() {
             activeTab === 'newsletter' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
           }`}
         >
-          Broadcast
+          Subscribers
         </button>
       </div>
 
       {/* Content */}
       {activeTab === 'products' ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
               <tr>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Product Name</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Category</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Condition</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Price</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Stock</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Product Name</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Category</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Condition</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Price</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Stock</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {products.map((product) => (
                 <tr key={product.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                  <td className="px-6 py-3 font-bold text-slate-900 dark:text-white flex items-center gap-3">
                     {product.image_url && (
                       <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                         <img src={product.image_url} alt="" className="w-full h-full object-cover" />
@@ -517,31 +479,24 @@ export default function AdminDashboard() {
                     )}
                     <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{product.name}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
                       {product.category}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
                       {product.condition || 'New'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-white font-black">{formatCurrency(product.price)}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3 text-slate-900 dark:text-white font-black">{formatCurrency(product.price)}</td>
+                  <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${product.stock > 5 ? 'bg-green-500' : 'bg-red-500'}`}></div>
                       <span className="text-slate-600 dark:text-slate-400 font-medium">{product.stock}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right flex justify-end gap-1">
-                    <button 
-                      onClick={() => generateProductBroadcast(product)}
-                      className="p-2 text-slate-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-xl transition-all"
-                      title="Broadcast this product"
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
+                  <td className="px-6 py-3 text-right flex justify-end gap-1">
                     <button 
                       onClick={() => {
                         setCurrentProduct(product);
@@ -565,30 +520,32 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       ) : activeTab === 'orders' ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
               <tr>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Order ID</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Date</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Total</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Status</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Order ID</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Date</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Total</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {orders.map((order) => (
                 <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                  <td className="px-6 py-3 font-bold text-slate-900 dark:text-white">
                     <span className="text-blue-600 dark:text-blue-400">#</span>{order.id.slice(0, 8).toUpperCase()}
                   </td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">
+                  <td className="px-6 py-3 text-slate-500 dark:text-slate-400 font-medium">
                     {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-white font-black">{formatCurrency(order.total_price)}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3 text-slate-900 dark:text-white font-black">{formatCurrency(order.total_price)}</td>
+                  <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
                       <select
                         value={order.status}
@@ -608,7 +565,7 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right flex justify-end gap-2">
+                  <td className="px-6 py-3 text-right flex justify-end gap-2">
                     <button
                       onClick={() => {
                         setSelectedOrder(order);
@@ -631,6 +588,7 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       ) : activeTab === 'analytics' ? (
         <div className="space-y-6">
@@ -640,7 +598,7 @@ export default function AdminDashboard() {
                 <h3 className="font-bold text-slate-900 dark:text-white">Revenue Trend (Last 30 Days)</h3>
                 <DollarSign className="h-5 w-5 text-slate-400 dark:text-slate-500" />
               </div>
-              <div className="h-80 w-full">
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <LineChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
@@ -679,7 +637,7 @@ export default function AdminDashboard() {
                 <h3 className="font-bold text-slate-900 dark:text-white">Order Volume</h3>
                 <ShoppingBag className="h-5 w-5 text-slate-400 dark:text-slate-500" />
               </div>
-              <div className="h-80 w-full">
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <BarChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
@@ -719,20 +677,21 @@ export default function AdminDashboard() {
         </div>
       ) : activeTab === 'customers' ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
               <tr>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Customer</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Orders</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Total Spend</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px]">Last Order</th>
-                <th className="px-6 py-5 font-bold uppercase tracking-wider text-[10px] text-right">Status</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Customer</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Orders</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Total Spend</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Last Order</th>
+                <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {customers.map((customer) => (
                 <tr key={customer.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
                         {customer.full_name?.charAt(0) || customer.email.charAt(0).toUpperCase()}
@@ -743,14 +702,14 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <span className="font-medium text-slate-700 dark:text-slate-300">{customer.order_count} orders</span>
                   </td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-white font-black">{formatCurrency(customer.total_spend)}</td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">
+                  <td className="px-6 py-3 text-slate-900 dark:text-white font-black">{formatCurrency(customer.total_spend)}</td>
+                  <td className="px-6 py-3 text-slate-500 dark:text-slate-400 font-medium">
                     {customer.last_order ? new Date(customer.last_order).toLocaleDateString() : 'Never'}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-3 text-right">
                     {customer.total_spend > 5000 ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 uppercase tracking-tighter">
                         VIP
@@ -765,10 +724,11 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       ) : activeTab === 'newsletter' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 gap-8">
+          <div className="lg:col-span-1">
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 dark:text-white">Newsletter Subscribers</h3>
@@ -780,9 +740,9 @@ export default function AdminDashboard() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 sticky top-0 z-10">
                     <tr>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">Email Address</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">Joined Date</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px] text-right">Action</th>
+                      <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Email Address</th>
+                      <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Joined Date</th>
+                      <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -795,11 +755,11 @@ export default function AdminDashboard() {
                     ) : (
                       subscribers.map((sub) => (
                         <tr key={sub.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{sub.email}</td>
-                          <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                          <td className="px-6 py-3 font-medium text-slate-900 dark:text-white">{sub.email}</td>
+                          <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
                             {new Date(sub.created_at).toLocaleDateString()}
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-6 py-3 text-right">
                             <button 
                               onClick={async () => {
                                 if (confirm('Remove this subscriber?')) {
@@ -825,45 +785,121 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-md sticky top-24">
-              <div className="text-center mb-8">
-                <div className="bg-blue-50 dark:bg-blue-900/30 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1">Broadcast</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Send to all users & subscribers</p>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Message Content</label>
-                  <textarea
-                    value={broadcastMessage}
-                    onChange={(e) => setBroadcastMessage(e.target.value)}
-                    rows={5}
-                    className="w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all p-4 text-sm text-slate-700 dark:text-slate-300"
-                    placeholder="Type your announcement..."
-                  />
-                </div>
-                <button
-                  onClick={handleBroadcast}
-                  disabled={sendingBroadcast}
-                  className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-70 flex items-center justify-center gap-2"
-                >
-                  {sendingBroadcast ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" /> Send Now
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+
+        </div>
+      ) : activeTab === 'swaps' ? (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <RefreshCw className="h-5 w-5 text-blue-500" />
+              Swap Requests
+            </h3>
+            <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold">
+              {swapRequests.length} Total
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
+                <tr>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Date</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Customer</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Store Product</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Offer Details</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {swapRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                      <RefreshCw className="h-8 w-8 mx-auto mb-3 opacity-20" />
+                      No swap requests found.
+                    </td>
+                  </tr>
+                ) : (
+                  swapRequests.map((swap) => (
+                    <tr key={swap.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-6 py-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
+                        {new Date(swap.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <div className="font-medium text-slate-900 dark:text-white">{swap.user_name}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{swap.user_phone}</div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="font-medium text-slate-900 dark:text-white max-w-[150px] truncate">{swap.product_name}</div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 max-w-[200px] truncate mb-2">
+                          {swap.offer_description}
+                        </div>
+                        <div className="flex gap-2">
+                          {swap.image_url_1 && (
+                            <a href={swap.image_url_1} target="_blank" rel="noopener noreferrer">
+                              <img src={swap.image_url_1} className="w-8 h-8 object-cover rounded-md border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform" />
+                            </a>
+                          )}
+                          {swap.image_url_2 && (
+                            <a href={swap.image_url_2} target="_blank" rel="noopener noreferrer">
+                              <img src={swap.image_url_2} className="w-8 h-8 object-cover rounded-md border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform" />
+                            </a>
+                          )}
+                          {swap.image_url_3 && (
+                            <a href={swap.image_url_3} target="_blank" rel="noopener noreferrer">
+                              <img src={swap.image_url_3} className="w-8 h-8 object-cover rounded-md border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform" />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <select
+                          value={swap.status}
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            const { error } = await supabase.from('swap_requests').update({ status: newStatus }).eq('id', swap.id);
+                            if (error) toast.error('Failed to update status');
+                            else {
+                              toast.success('Status updated');
+                              fetchData();
+                            }
+                          }}
+                          className={`text-xs font-bold rounded-full px-3 py-1 outline-none cursor-pointer appearance-none ${
+                            swap.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                            swap.status === 'reviewed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                            swap.status === 'accepted' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                            'bg-red-100 text-red-700 border-red-200'
+                          } border`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="reviewed">Reviewed</option>
+                          <option value="accepted">Accepted</option>
+                          <option value="declined">Declined</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-right">
+                        <button
+                           onClick={async () => {
+                            if (confirm('Delete this swap request?')) {
+                              const { error } = await supabase.from('swap_requests').delete().eq('id', swap.id);
+                              if (error) toast.error('Failed to delete request');
+                              else {
+                                toast.success('Request deleted');
+                                fetchData();
+                              }
+                            }
+                          }}
+                          className="text-slate-400 hover:text-red-600 transition-colors p-2"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       ) : null}
@@ -892,12 +928,12 @@ export default function AdminDashboard() {
                     defaultValue={currentProduct?.name} 
                     required 
                     placeholder="e.g. MacBook Pro M3"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Price</label>
                   <div className="relative">
@@ -909,7 +945,7 @@ export default function AdminDashboard() {
                       defaultValue={currentProduct?.price} 
                       required 
                       placeholder="0.00"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                     />
                   </div>
                 </div>
@@ -922,13 +958,13 @@ export default function AdminDashboard() {
                       type="number" 
                       defaultValue={currentProduct?.stock || 10} 
                       required 
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Category</label>
                   <div className="relative">
@@ -936,7 +972,7 @@ export default function AdminDashboard() {
                     <select 
                       name="category" 
                       defaultValue={currentProduct?.category || 'Laptops'} 
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
                     >
                       <option value="Laptops">Laptops</option>
                       <option value="Phones">Phones</option>
@@ -953,7 +989,7 @@ export default function AdminDashboard() {
                     <select 
                       name="condition" 
                       defaultValue={currentProduct?.condition || 'New'} 
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
                     >
                       <option value="New">New</option>
                       <option value="Open Box">Open Box</option>
@@ -961,6 +997,22 @@ export default function AdminDashboard() {
                       <option value="Used - (UK USED)">Used - (UK USED)</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <input
+                  type="checkbox"
+                  name="swap_allowed"
+                  id="swap_allowed"
+                  defaultChecked={currentProduct ? currentProduct.swap_allowed !== false : true}
+                  className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
+                />
+                <div>
+                  <label htmlFor="swap_allowed" className="text-sm font-bold text-slate-900 dark:text-white block">
+                    Allow Swaps
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">If checked, customers can propose to trade in items for this product.</p>
                 </div>
               </div>
               
@@ -1004,7 +1056,7 @@ export default function AdminDashboard() {
                         name="image_url" 
                         defaultValue={currentProduct?.image_url} 
                         placeholder="Or paste image URL here..." 
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" 
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" 
                         disabled={!!imageUrl}
                       />
                     </div>
@@ -1049,7 +1101,7 @@ export default function AdminDashboard() {
                         name="image_url_2" 
                         defaultValue={currentProduct?.image_url_2} 
                         placeholder="Or paste image URL here..." 
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" 
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" 
                         disabled={!!imageUrl2}
                       />
                     </div>
@@ -1064,7 +1116,7 @@ export default function AdminDashboard() {
                   defaultValue={currentProduct?.description} 
                   rows={4} 
                   placeholder="Tell customers about this product..."
-                  className="w-full p-4 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
+                  className="w-full p-4 rounded-xl border-slate-200 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                 />
               </div>
             </form>
@@ -1147,7 +1199,7 @@ export default function AdminDashboard() {
                   {selectedOrder.products?.map((item: any, idx: number) => (
                     <div key={idx} className="flex items-center gap-4 p-4 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
                       <div className="h-16 w-16 bg-slate-50 dark:bg-slate-700 rounded-xl flex-shrink-0 overflow-hidden border border-slate-100 dark:border-slate-600">
-                        <img src={item.image_url || 'https://via.placeholder.com/100'} alt={item.name} className="w-full h-full object-contain" />
+                        <img src={item.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} alt={item.name} className="w-full h-full object-contain" />
                       </div>
                       <div className="flex-grow">
                         <p className="font-bold text-slate-900 dark:text-white text-sm">{item.name}</p>

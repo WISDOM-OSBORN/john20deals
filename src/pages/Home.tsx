@@ -13,6 +13,7 @@ interface Product {
   image_url: string | null;
   category: string;
   condition?: string;
+  swap_allowed?: boolean;
 }
 
 export default function Home() {
@@ -68,51 +69,18 @@ export default function Home() {
 
         setFeaturedProducts(selectedProducts);
       } else {
-        throw new Error('No products found');
+        setFeaturedProducts([]);
       }
     } catch (error) {
-      console.warn('Using fallback products due to fetch error');
-      setFeaturedProducts([
-        {
-          id: 'mock-1',
-          name: 'MacBook Pro 16" M3 Max',
-          category: 'Laptops',
-          price: 3499.99,
-          image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2026&auto=format&fit=crop',
-          condition: 'New'
-        } as Product,
-        {
-          id: 'mock-2',
-          name: 'iPhone 15 Pro Max',
-          category: 'Phones',
-          price: 1199.99,
-          image_url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=2070&auto=format&fit=crop',
-          condition: 'New'
-        } as Product,
-        {
-          id: 'mock-3',
-          name: 'Sony WH-1000XM5',
-          category: 'Audio',
-          price: 398.00,
-          image_url: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1888&auto=format&fit=crop',
-          condition: 'New'
-        } as Product,
-        {
-          id: 'mock-4',
-          name: 'Logitech MX Master 3S',
-          category: 'Accessories',
-          price: 99.99,
-          image_url: 'https://images.unsplash.com/photo-1615663245857-ac1e653815f7?q=80&w=1964&auto=format&fit=crop',
-          condition: 'New'
-        } as Product
-      ]);
+      console.warn('Error fetching featured products:', error);
+      setFeaturedProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-16 pb-16">
+    <div className="space-y-12 pb-12">
       <Helmet>
         <title>John20 Deals | Your Smart Tech Plug</title>
         <meta name="description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana. Quality tech at unbeatable prices." />
@@ -139,55 +107,51 @@ export default function Home() {
           </div>
           
           {/* Desktop Grid */}
-          <div className="hidden md:grid md:grid-cols-4 gap-6">
-            <motion.div 
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+          <div className="hidden md:grid md:grid-cols-4 gap-5">
+            <Link 
+              to="/shop"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-full mb-4 text-blue-600 dark:text-blue-400">
                 <ShoppingBag className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Buy</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">Latest gadgets at best prices</p>
-            </motion.div>
-            <motion.div 
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 0.5 }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+            </Link>
+            <Link 
+              to="/support"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-full mb-4 text-green-600 dark:text-green-400">
                 <Tag className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Sell</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">Top value for old devices</p>
-            </motion.div>
-            <motion.div 
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+            </Link>
+            <Link 
+              to="/shop"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-full mb-4 text-purple-600 dark:text-purple-400">
                 <RefreshCw className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Swap</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">Trade-in & upgrade instantly</p>
-            </motion.div>
-            <motion.div 
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1.5 }}
-              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-6 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:scale-105 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+            </Link>
+            <Link 
+              to="/support"
+              className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-full mb-4 text-orange-600 dark:text-orange-400">
                 <Wrench className="h-7 w-7" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Repair</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">Expert repair services</p>
-            </motion.div>
+            </Link>
           </div>
 
           {/* Mobile Marquee */}
-          <div className="md:hidden relative w-full overflow-hidden -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="md:hidden relative w-full overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-50 dark:from-[#0b1120] z-10 pointer-events-none"></div>
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-50 dark:from-[#0b1120] z-10 pointer-events-none"></div>
             <div className="flex w-max animate-marquee py-2">
@@ -264,7 +228,7 @@ export default function Home() {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
-                <h3 className="text-white font-bold text-xl">{cat.name}</h3>
+                <h3 className="text-white font-bold text-lg">{cat.name}</h3>
               </div>
             </Link>
           ))}
@@ -279,13 +243,13 @@ export default function Home() {
         </div>
         
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 h-80 animate-pulse"></div>
+              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 h-64 animate-pulse"></div>
             ))}
           </div>
         ) : featuredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {featuredProducts.map((product) => (
               <Link 
                 key={product.id} 
@@ -294,7 +258,7 @@ export default function Home() {
               >
                 <div className="aspect-[4/3] bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
                   <img 
-                    src={product.image_url || 'https://via.placeholder.com/300'} 
+                    src={product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} 
                     alt={product.name} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

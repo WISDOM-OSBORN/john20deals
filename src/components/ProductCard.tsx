@@ -59,14 +59,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       to={`/product/${product.id}`}
       className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-xl hover:shadow-blue-900/5 dark:hover:shadow-blue-900/20 transition-all duration-300 flex flex-col h-full"
     >
-      <div className="relative aspect-[4/3] bg-slate-50 dark:bg-slate-800 overflow-hidden p-4 flex items-center justify-center">
+      <div className="relative aspect-[4/3] bg-slate-50 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
         <img
-          src={product.image_url || 'https://via.placeholder.com/300'}
+          src={product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'}
           alt={product.name}
-          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         {product.condition && (
-          <div className="absolute top-3 left-3">
+          <div className="absolute bottom-3 left-3">
             <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm ${
               product.condition === 'New' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
               product.condition === 'Open Box' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :

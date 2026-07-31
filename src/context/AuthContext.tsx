@@ -7,9 +7,6 @@ interface AuthContextType {
   session: any | null;
   isAdmin: boolean;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, data: any) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (data: any) => Promise<void>;
 }
@@ -43,16 +40,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
+    // Ideally this should check a role from the database or metadata,
+    // e.g., if (clerkUser?.publicMetadata?.role === 'admin')
     if (mappedUser?.email === 'rockwellsan7@gmail.com' || mappedUser?.email === 'johndarkwah20@gmail.com') {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);
     }
-  }, [mappedUser?.email]);
+  }, [mappedUser?.email, clerkUser?.publicMetadata]);
 
-  const signInWithGoogle = async () => {};
-  const signInWithEmail = async (email: string, password: string) => {};
-  const signUpWithEmail = async (email: string, password: string, data: any) => {};
 
   const signOut = async () => {
     try {
@@ -94,9 +90,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       session: clerkSession, 
       isAdmin, 
       loading, 
-      signInWithGoogle, 
-      signInWithEmail, 
-      signUpWithEmail, 
       signOut, 
       updateProfile 
     }}>

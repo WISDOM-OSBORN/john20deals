@@ -29,7 +29,7 @@ export default function Support() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Helmet>
         <title>Help & Support | John20 Deals</title>
         <meta name="description" content="Get help and support for your John20 Deals orders. FAQs, shipping info, and contact details." />
@@ -39,22 +39,22 @@ export default function Support() {
         <p className="text-slate-500 text-lg">Everything you need to know about shopping with John20 Deals.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
           <div className="bg-blue-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Truck className="h-6 w-6 text-blue-600" />
           </div>
           <h3 className="font-bold text-slate-900 mb-2">Shipping</h3>
           <p className="text-sm text-slate-500">Fast nationwide delivery across Ghana.</p>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
           <div className="bg-green-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Shield className="h-6 w-6 text-green-600" />
           </div>
           <h3 className="font-bold text-slate-900 mb-2">Secure</h3>
           <p className="text-sm text-slate-500">Your data and payments are always protected.</p>
         </div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
           <div className="bg-purple-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <RefreshCw className="h-6 w-6 text-purple-600" />
           </div>
@@ -72,7 +72,7 @@ export default function Support() {
             <div key={idx} className="group">
               <button
                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <div className="bg-slate-100 p-2 rounded-lg group-hover:bg-white transition-colors">

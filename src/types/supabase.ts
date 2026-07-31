@@ -21,6 +21,7 @@ export interface Database {
           category: string
           stock: number
           condition: string | null
+          swap_allowed: boolean | null
         }
         Insert: {
           id?: string

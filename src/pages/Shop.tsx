@@ -15,11 +15,27 @@ interface Product {
   stock: number;
   created_at: string;
   condition?: string;
+  swap_allowed?: boolean;
 }
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const { data } = await supabase.from('products').select('category');
+      if (data) {
+        const counts: Record<string, number> = { All: data.length };
+        data.forEach(p => {
+          counts[p.category] = (counts[p.category] || 0) + 1;
+        });
+        setCategoryCounts(counts);
+      }
+    };
+    fetchCounts();
+  }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
@@ -109,13 +125,13 @@ export default function Shop() {
   const categories = ['All', 'Laptops', 'Phones', 'Accessories', 'Gadgets', 'Deals'];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <Helmet>
         <title>Shop | John20 Deals</title>
         <meta name="description" content="Browse our wide selection of gadgets, laptops, phones, and accessories." />
       </Helmet>
       {/* Header & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Shop</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -136,6 +152,22 @@ export default function Shop() {
             />
           </div>
           
+          {/* Categories (Mobile) */}
+          <div className="relative lg:hidden">
+            <select 
+              value={categoryFilter || 'All'}
+              onChange={(e) => setSearchParams({ category: e.target.value === 'All' ? '' : e.target.value })}
+              className="pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-slate-800 font-medium text-sm text-slate-700 dark:text-slate-300 w-full sm:w-48"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Filter className="h-4 w-4 text-slate-400" />
+            </div>
+          </div>
+
           {/* Sorting */}
           <div className="relative">
             <select 
@@ -154,10 +186,10 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar Categories (Desktop) */}
-        <aside className="hidden lg:block w-64 flex-shrink-0">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 sticky top-24 shadow-sm">
+        <aside className="hidden lg:block w-56 flex-shrink-0">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 sticky top-24 shadow-sm">
             <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <Filter className="h-4 w-4" /> Filters
             </h3>
@@ -166,13 +198,13 @@ export default function Shop() {
                 <button
                   key={cat}
                   onClick={() => setSearchParams({ category: cat === 'All' ? '' : cat })}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     (categoryFilter === cat) || (!categoryFilter && cat === 'All')
                       ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  {cat}
+                  {cat} {categoryCounts[cat] !== undefined && <span className="ml-auto text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">{categoryCounts[cat]}</span>}
                 </button>
               ))}
             </div>
@@ -197,7 +229,7 @@ export default function Shop() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="mt-12 flex justify-center items-center gap-2">
+                <div className="mt-8 flex justify-center items-center gap-2">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
