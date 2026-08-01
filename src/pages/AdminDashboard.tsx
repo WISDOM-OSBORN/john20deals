@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Upload, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import toast from 'react-hot-toast';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Helmet } from 'react-helmet-async';
 
 interface Product {
