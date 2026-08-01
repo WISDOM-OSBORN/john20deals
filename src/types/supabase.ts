@@ -341,6 +341,37 @@ export interface Database {
         }
         Relationships: []
       }
+
+      notifications: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string
+          type: string
+          title: string
+          message: string | null
+          read: boolean
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id: string
+          type?: string
+          title: string
+          message?: string | null
+          read?: boolean
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string
+          type?: string
+          title?: string
+          message?: string | null
+          read?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

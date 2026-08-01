@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Upload, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench } from 'lucide-react';
+import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Upload, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench, MessageCircle, Search } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import toast from 'react-hot-toast';
+import { createNotification } from '../lib/notifications';
+import StatCard from '../components/StatCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Helmet } from 'react-helmet-async';
 
@@ -45,6 +47,7 @@ interface SwapRequest {
   id: string;
   created_at: string;
   status: string;
+  user_id: string;
   user_name: string;
   user_phone: string;
   product_name: string;
@@ -62,6 +65,7 @@ interface SellRequest {
   id: string;
   created_at: string;
   status: string;
+  user_id: string;
   user_name: string;
   user_phone: string;
   device_type: string | null;
@@ -79,6 +83,7 @@ interface RepairRequest {
   id: string;
   created_at: string;
   status: string;
+  user_id: string;
   user_name: string;
   user_phone: string;
   device_type: string | null;
@@ -124,6 +129,7 @@ export default function AdminDashboard() {
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageUrl2, setImageUrl2] = useState('');
+  const [productSearch, setProductSearch] = useState('');
 
   // Order Details Modal State
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -298,6 +304,16 @@ export default function AdminDashboard() {
     setAcceptTerms(swap.terms || '');
   };
 
+  const openWhatsApp = (phone: string | null, messageLines: string[]) => {
+    const phoneNum = (phone || '').replace(/[^+\d]/g, '');
+    if (!phoneNum) {
+      toast.error('No phone number on record');
+      return;
+    }
+    const whatsappUrl = `https://wa.me/${phoneNum}?text=${encodeURIComponent(messageLines.join('\n'))}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
+
   const handleAcceptSwap = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!acceptingSwap) return;
@@ -328,7 +344,13 @@ export default function AdminDashboard() {
     setAcceptingSwap(null);
     fetchData();
 
-    const phone = acceptingSwap.user_phone?.replace(/[^+\d]/g, '') || '';
+    await createNotification({
+      userId: acceptingSwap.user_id,
+      type: 'swap',
+      title: 'Swap accepted!',
+      message: `Your swap request for ${acceptingSwap.product_name} has been accepted. We've sent the details to your WhatsApp.`,
+    });
+
     const messageLines = [
       `Hello ${acceptingSwap.user_name || 'there'}!`,
       `Great news — your swap request for *${acceptingSwap.product_name}* at John20 Deals has been *accepted*!`,
@@ -343,8 +365,7 @@ export default function AdminDashboard() {
       messageLines.push(`Terms: ${acceptTerms.trim()}`);
     }
     messageLines.push('Reply to this message or visit our shop to proceed. Thank you!');
-    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(messageLines.join('\n'))}`;
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    openWhatsApp(acceptingSwap.user_phone, messageLines);
   };
 
   const handleSaveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -408,6 +429,27 @@ export default function AdminDashboard() {
       toast.error('Failed to update order status');
     } else {
       toast.success(`Order status updated to ${newStatus}`);
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        const messages: Record<string, string> = {
+          paid: 'Your payment has been confirmed. We are preparing your order.',
+          delivered: 'Your order has been delivered. Enjoy!',
+          cancelled: 'Your order was cancelled.',
+        };
+        const titleMap: Record<string, string> = {
+          paid: 'Payment confirmed',
+          delivered: 'Order delivered',
+          cancelled: 'Order cancelled',
+        };
+        if (messages[newStatus]) {
+          await createNotification({
+            userId: order.user_id,
+            type: 'order',
+            title: titleMap[newStatus] || 'Order update',
+            message: messages[newStatus],
+          });
+        }
+      }
       fetchData();
     }
   };
@@ -453,67 +495,36 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-2xl">
-              <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">Total Products</p>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">{products.length}</h3>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded-2xl">
-              <ShoppingBag className="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">Total Orders</p>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">{orders.length}</h3>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-2xl">
-              <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">Revenue (Est)</p>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
-                {formatCurrency(orders.filter(o => o.status !== 'cancelled').reduce((acc, order) => acc + order.total_price, 0))}
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-2xl">
-              <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">Pending</p>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
-                {orders.filter(o => o.status === 'pending').length}
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-2xl">
-              <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider">Delivered</p>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
-                {orders.filter(o => o.status === 'delivered').length}
-              </h3>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          label="Total Products"
+          value={products.length}
+          icon={<Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+          accent="bg-blue-50 dark:bg-blue-900/30"
+        />
+        <StatCard
+          label="Total Orders"
+          value={orders.length}
+          icon={<ShoppingBag className="h-6 w-6 text-green-600 dark:text-green-400" />}
+          accent="bg-green-50 dark:bg-green-900/30"
+        />
+        <StatCard
+          label="Revenue (Est)"
+          value={formatCurrency(orders.filter(o => o.status !== 'cancelled').reduce((acc, order) => acc + order.total_price, 0))}
+          icon={<DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
+          accent="bg-purple-50 dark:bg-purple-900/30"
+        />
+        <StatCard
+          label="Pending Orders"
+          value={orders.filter(o => o.status === 'pending').length}
+          icon={<Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />}
+          accent="bg-yellow-50 dark:bg-yellow-900/30"
+        />
+        <StatCard
+          label="Delivered"
+          value={orders.filter(o => o.status === 'delivered').length}
+          icon={<CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />}
+          accent="bg-emerald-50 dark:bg-emerald-900/30"
+        />
       </div>
 
       {/* Tabs */}
@@ -602,6 +613,18 @@ export default function AdminDashboard() {
       {/* Content */}
       {activeTab === 'products' ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+          <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Search products..."
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border-none text-sm focus:ring-2 focus:ring-blue-500 dark:text-white dark:placeholder-slate-400"
+              />
+            </div>
+          </div>
           <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50/80 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
@@ -615,7 +638,11 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {products.map((product) => (
+              {products.filter((p) =>
+                !productSearch.trim() ||
+                p.name.toLowerCase().includes(productSearch.trim().toLowerCase()) ||
+                (p.category || '').toLowerCase().includes(productSearch.trim().toLowerCase())
+              ).map((product) => (
                 <tr key={product.id} onClick={() => openEditProduct(product)} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer">
                   <td className="px-6 py-3 font-bold text-slate-900 dark:text-white flex items-center gap-3">
                     {product.image_url && (
@@ -994,38 +1021,68 @@ export default function AdminDashboard() {
                         </div>
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap">
-                        <select
-                          value={swap.status}
-                          onChange={async (e) => {
-                            const newStatus = e.target.value;
-                            const { error } = await supabase.from('swap_requests').update({ status: newStatus }).eq('id', swap.id);
-                            if (error) toast.error('Failed to update status');
-                            else {
-                              toast.success('Status updated');
-                              fetchData();
-                            }
-                          }}
-                          className={`text-xs font-bold rounded-full px-3 py-1 outline-none cursor-pointer appearance-none ${
-                            swap.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                            swap.status === 'reviewed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                            swap.status === 'accepted' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                            'bg-red-100 text-red-700 border-red-200'
-                          } border`}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="reviewed">Reviewed</option>
-                          <option value="accepted">Accepted</option>
-                          <option value="declined">Declined</option>
-                        </select>
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                          swap.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                          swap.status === 'reviewed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                          swap.status === 'accepted' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                          'bg-red-100 text-red-700 border-red-200'
+                        } border`}>
+                          {swap.status === 'accepted' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                          {swap.status}
+                        </span>
+                        {swap.status === 'accepted' && swap.trade_in_value != null && (
+                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">Trade-in: {formatCurrency(swap.trade_in_value)}</p>
+                        )}
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap text-right">
-                        {swap.status !== 'accepted' && swap.status !== 'declined' && (
+                        {swap.status === 'accepted' ? (
                           <button
-                            onClick={() => openAcceptSwap(swap)}
+                            onClick={() => openWhatsApp(
+                              swap.user_phone,
+                              [
+                                `Hello ${swap.user_name || 'there'}!`,
+                                `Your swap request for *${swap.product_name}* at John20 Deals is *accepted*!`,
+                                swap.trade_in_value != null ? `Trade-in value for your device: *GH₵ ${swap.trade_in_value.toLocaleString()}*` : '',
+                                swap.cash_difference != null ? `Cash difference to complete the swap: *GH₵ ${swap.cash_difference.toLocaleString()}*` : '',
+                                swap.terms ? `Terms: ${swap.terms}` : '',
+                                'Reply to this message or visit our shop to proceed. Thank you!',
+                              ].filter(Boolean)
+                            )}
                             className="mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
+                            title="Re-send WhatsApp notification"
                           >
-                            <CheckCircle className="h-3.5 w-3.5" /> Accept
+                            <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
                           </button>
+                        ) : swap.status === 'declined' ? null : (
+                          <>
+                            <button
+                              onClick={() => openAcceptSwap(swap)}
+                              className="mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
+                            >
+                              <CheckCircle className="h-3.5 w-3.5" /> Accept
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (confirm(`Decline swap request from ${swap.user_name}?`)) {
+                                  const { error } = await supabase.from('swap_requests').update({ status: 'declined' }).eq('id', swap.id);
+                                  if (error) toast.error('Failed to decline request');
+                                  else {
+                                    toast.success('Swap declined');
+                                    await createNotification({
+                                      userId: swap.user_id,
+                                      type: 'swap',
+                                      title: 'Swap declined',
+                                      message: `We're sorry, your swap request for ${swap.product_name} was not accepted this time.`,
+                                    });
+                                    fetchData();
+                                  }
+                                }
+                              }}
+                              className="mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
+                            >
+                              <X className="h-3.5 w-3.5" /> Decline
+                            </button>
+                          </>
                         )}
                         <button
                            onClick={async () => {
@@ -1124,6 +1181,21 @@ export default function AdminDashboard() {
                             if (error) toast.error('Failed to update status');
                             else {
                               toast.success('Status updated');
+                              if (newStatus === 'purchased') {
+                                await createNotification({
+                                  userId: sell.user_id,
+                                  type: 'sell',
+                                  title: 'Device purchased!',
+                                  message: `Good news! We've purchased your ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'device'}${sell.offer_price ? ` for ${formatCurrency(sell.offer_price)}` : ''}.`,
+                                });
+                              } else if (newStatus === 'declined') {
+                                await createNotification({
+                                  userId: sell.user_id,
+                                  type: 'sell',
+                                  title: 'Sell request declined',
+                                  message: `We're sorry, your sell request for ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'your device'} was not accepted this time.`,
+                                });
+                              }
                               fetchData();
                             }
                           }}
@@ -1141,6 +1213,22 @@ export default function AdminDashboard() {
                         </select>
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap text-right">
+                        {sell.status === 'purchased' && (
+                          <button
+                            onClick={() => openWhatsApp(
+                              sell.user_phone,
+                              [
+                                `Hello ${sell.user_name || 'there'}!`,
+                                `Great news — we've *purchased* your ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'device'}${sell.offer_price ? ` for *GH₵ ${sell.offer_price.toLocaleString()}*` : ''}!`,
+                                'Reply to this message to arrange payment and delivery. Thank you!',
+                              ]
+                            )}
+                            className="mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
+                            title="Send WhatsApp notification"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                          </button>
+                        )}
                         <button
                           onClick={async () => {
                             if (confirm('Delete this sell request?')) {
@@ -1231,6 +1319,21 @@ export default function AdminDashboard() {
                             if (error) toast.error('Failed to update status');
                             else {
                               toast.success('Status updated');
+                              if (newStatus === 'repaired') {
+                                await createNotification({
+                                  userId: repair.user_id,
+                                  type: 'repair',
+                                  title: 'Repair complete!',
+                                  message: `Your ${repair.device_type || 'device'} is ready for pickup.`,
+                                });
+                              } else if (newStatus === 'declined') {
+                                await createNotification({
+                                  userId: repair.user_id,
+                                  type: 'repair',
+                                  title: 'Repair request declined',
+                                  message: `We're sorry, we couldn't repair your ${repair.device_type || 'device'} this time.`,
+                                });
+                              }
                               fetchData();
                             }
                           }}
@@ -1250,6 +1353,22 @@ export default function AdminDashboard() {
                         </select>
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap text-right">
+                        {repair.status === 'repaired' && (
+                          <button
+                            onClick={() => openWhatsApp(
+                              repair.user_phone,
+                              [
+                                `Hello ${repair.user_name || 'there'}!`,
+                                `Good news — your ${repair.device_type || 'device'} has been *repaired* and is ready for pickup at John20 Deals!`,
+                                'Reply to this message or visit our shop to collect it. Thank you!',
+                              ]
+                            )}
+                            className="mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
+                            title="Send WhatsApp notification"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                          </button>
+                        )}
                         <button
                           onClick={async () => {
                             if (confirm('Delete this repair request?')) {

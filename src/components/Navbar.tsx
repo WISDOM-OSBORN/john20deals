@@ -7,6 +7,7 @@ import { ShoppingCart, Menu, X, Search, Heart, Sun, Moon } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useTheme } from '../context/ThemeContext';
 import { UserButton } from '@clerk/clerk-react';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const { user, signOut, isAdmin } = useAuth();
@@ -101,6 +102,8 @@ export default function Navbar() {
               )}
             </Link>
 
+            <NotificationBell />
+
             {user ? (
               <div className="flex items-center gap-4">
                 <Link to="/profile" className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors">
@@ -135,6 +138,7 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            <NotificationBell />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"

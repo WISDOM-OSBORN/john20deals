@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { User, Mail, Shield, Phone, MapPin, Edit2, Package, Clock, CheckCircle, Tag, Wrench, RefreshCw } from 'lucide-react';
+import { User, Mail, Shield, Phone, MapPin, Edit2, Package, Clock, CheckCircle, Tag, Wrench, RefreshCw, Bell, CheckCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';
+import { fetchNotifications, markNotificationsRead, NotificationRow } from '../lib/notifications';
 
 interface Order {
   id: string;
@@ -50,8 +51,10 @@ export default function Profile() {
   const [sellRequests, setSellRequests] = useState<SellRequest[]>([]);
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [swapRequests, setSwapRequests] = useState<SwapRequest[]>([]);
+  const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [formData, setFormData] = useState({
     full_name: user?.user_metadata?.full_name || '',
     phone_number: user?.user_metadata?.phone_number || '',
@@ -64,8 +67,17 @@ export default function Profile() {
     if (user) {
       fetchOrders();
       fetchRequests();
+      fetchNotificationsList();
     }
   }, [user]);
+
+  const fetchNotificationsList = async () => {
+    if (!user) return;
+    setLoadingNotifications(true);
+    const items = await fetchNotifications(user.id);
+    setNotifications(items);
+    setLoadingNotifications(false);
+  };
 
   const fetchOrders = async () => {
     setLoadingOrders(true);
@@ -269,6 +281,74 @@ export default function Profile() {
 
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bell className="h-6 w-6 text-slate-400 dark:text-slate-500" />
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Notifications</h3>
+              </div>
+              {notifications.some((n) => !n.read) && (
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    await markNotificationsRead(user.id);
+                    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <CheckCheck className="h-3.5 w-3.5" /> Mark all read
+                </button>
+              )}
+            </div>
+
+            <div className="p-6">
+              {loadingNotifications ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="text-center py-8">
+                  <Bell className="h-10 w-10 text-slate-200 dark:text-slate-700 mx-auto mb-3" />
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400">No notifications yet</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Updates on your orders, swaps, and requests will show here.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`flex items-start gap-3 p-4 rounded-2xl border ${
+                        n.read
+                          ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                          : 'border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-900/10'
+                      }`}
+                    >
+                      <div className="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl flex-shrink-0">
+                        {n.type === 'swap' ? (
+                          <RefreshCw className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        ) : n.type === 'sell' ? (
+                          <Tag className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        ) : n.type === 'repair' ? (
+                          <Wrench className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                        ) : (
+                          <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        )}
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <p className="font-bold text-slate-900 dark:text-white text-sm">{n.title}</p>
+                        {n.message && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</p>}
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-medium">
+                          {new Date(n.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                      {!n.read && <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md mt-6">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
               <Package className="h-6 w-6 text-slate-400 dark:text-slate-500" />
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Order History</h3>
