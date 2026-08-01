@@ -34,6 +34,7 @@ export interface Database {
           category: string
           stock?: number
           condition?: string | null
+          swap_allowed?: boolean | null
         }
         Update: {
           id?: string
@@ -46,6 +47,7 @@ export interface Database {
           category?: string
           stock?: number
           condition?: string | null
+          swap_allowed?: boolean | null
         }
         Relationships: []
       }
@@ -54,7 +56,7 @@ export interface Database {
           id: string
           created_at: string
           user_id: string
-          products: Json
+          products: any
           total_price: number
           status: string
           delivery_method?: string | null
@@ -64,7 +66,7 @@ export interface Database {
           id?: string
           created_at?: string
           user_id: string
-          products: Json
+          products: any
           total_price: number
           status?: string
           delivery_method?: string | null
@@ -74,7 +76,7 @@ export interface Database {
           id?: string
           created_at?: string
           user_id?: string
-          products?: Json
+          products?: any
           total_price?: number
           status?: string
           delivery_method?: string | null
@@ -226,6 +228,104 @@ export interface Database {
           id?: string
           created_at?: string
           email?: string
+        }
+        Relationships: []
+      }
+
+      sell_requests: {
+        Row: {
+          id: string
+          created_at: string
+          status: string
+          user_id: string
+          user_name: string | null
+          user_phone: string | null
+          device_type: string | null
+          brand: string | null
+          model: string | null
+          condition: string | null
+          description: string | null
+          offer_price: number | null
+          image_url_1: string | null
+          image_url_2: string | null
+          image_url_3: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          status?: string
+          user_id: string
+          user_name?: string | null
+          user_phone?: string | null
+          device_type?: string | null
+          brand?: string | null
+          model?: string | null
+          condition?: string | null
+          description?: string | null
+          offer_price?: number | null
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          status?: string
+          user_id?: string
+          user_name?: string | null
+          user_phone?: string | null
+          device_type?: string | null
+          brand?: string | null
+          model?: string | null
+          condition?: string | null
+          description?: string | null
+          offer_price?: number | null
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+        }
+        Relationships: []
+      }
+
+      repair_requests: {
+        Row: {
+          id: string
+          created_at: string
+          status: string
+          user_id: string
+          user_name: string | null
+          user_phone: string | null
+          device_type: string | null
+          issue_description: string | null
+          image_url_1: string | null
+          image_url_2: string | null
+          image_url_3: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          status?: string
+          user_id: string
+          user_name?: string | null
+          user_phone?: string | null
+          device_type?: string | null
+          issue_description?: string | null
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          status?: string
+          user_id?: string
+          user_name?: string | null
+          user_phone?: string | null
+          device_type?: string | null
+          issue_description?: string | null
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
         }
         Relationships: []
       }

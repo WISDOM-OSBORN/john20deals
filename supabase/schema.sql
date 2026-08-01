@@ -31,7 +31,8 @@ CREATE TABLE public.products (
     image_url_2 TEXT,
     category TEXT NOT NULL,
     stock INTEGER DEFAULT 0,
-    condition TEXT
+    condition TEXT,
+    swap_allowed BOOLEAN DEFAULT false
 );
 
 CREATE TABLE public.orders (
@@ -75,6 +76,38 @@ CREATE TABLE public.swap_requests (
     image_url_3 TEXT
 );
 
+CREATE TABLE public.sell_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    status TEXT DEFAULT 'pending',
+    user_id TEXT NOT NULL,
+    user_name TEXT,
+    user_phone TEXT,
+    device_type TEXT,
+    brand TEXT,
+    model TEXT,
+    condition TEXT,
+    description TEXT,
+    offer_price NUMERIC,
+    image_url_1 TEXT,
+    image_url_2 TEXT,
+    image_url_3 TEXT
+);
+
+CREATE TABLE public.repair_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    status TEXT DEFAULT 'received',
+    user_id TEXT NOT NULL,
+    user_name TEXT,
+    user_phone TEXT,
+    device_type TEXT,
+    issue_description TEXT,
+    image_url_1 TEXT,
+    image_url_2 TEXT,
+    image_url_3 TEXT
+);
+
 -- 3. Set up RLS (Row Level Security)
 -- Note: Since we are using Clerk for auth, Supabase does not know who is logged in natively
 -- unless you configure a custom JWT integration. For prototyping, we will disable RLS.
@@ -86,6 +119,8 @@ ALTER TABLE public.orders DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.newsletter_subscribers DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.swap_requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sell_requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.repair_requests DISABLE ROW LEVEL SECURITY;
 
 
 -- 4. Set up Storage for Product Images
