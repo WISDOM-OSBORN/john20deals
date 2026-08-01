@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { User, Mail, Shield, Phone, MapPin, Camera, Save, X, Edit2, Package, Clock, CheckCircle } from 'lucide-react';
+import { User, Mail, Shield, Phone, MapPin, Camera, Save, X, Edit2, Package, Clock, CheckCircle, Tag, Wrench, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';
@@ -15,11 +15,31 @@ interface Order {
   products: any[];
 }
 
+interface SellRequest {
+  id: string;
+  created_at: string;
+  status: string;
+  device_type: string | null;
+  brand: string | null;
+  model: string | null;
+}
+
+interface RepairRequest {
+  id: string;
+  created_at: string;
+  status: string;
+  device_type: string | null;
+  issue_description: string | null;
+}
+
 export default function Profile() {
   const { user, loading, isAdmin, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [sellRequests, setSellRequests] = useState<SellRequest[]>([]);
+  const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadingRequests, setLoadingRequests] = useState(true);
   const [formData, setFormData] = useState({
     full_name: user?.user_metadata?.full_name || '',
     phone_number: user?.user_metadata?.phone_number || '',
@@ -31,6 +51,7 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       fetchOrders();
+      fetchRequests();
     }
   }, [user]);
 
@@ -46,6 +67,17 @@ export default function Profile() {
       setOrders(data);
     }
     setLoadingOrders(false);
+  };
+
+  const fetchRequests = async () => {
+    setLoadingRequests(true);
+    const [sellRes, repairRes] = await Promise.all([
+      supabase.from('sell_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
+      supabase.from('repair_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
+    ]);
+    if (!sellRes.error && sellRes.data) setSellRequests(sellRes.data);
+    if (!repairRes.error && repairRes.data) setRepairRequests(repairRes.data);
+    setLoadingRequests(false);
   };
 
   if (loading) return <div className="p-6">Loading...</div>;
@@ -295,6 +327,81 @@ export default function Profile() {
                           </div>
                         )}
                       </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md mt-6">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+              <RefreshCw className="h-6 w-6 text-slate-400 dark:text-slate-500" />
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Sell & Repair Requests</h3>
+            </div>
+            
+            <div className="p-6">
+              {loadingRequests ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+                </div>
+              ) : sellRequests.length === 0 && repairRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <Tag className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No requests yet</h4>
+                  <p className="text-slate-500 dark:text-slate-400">Sell or repair requests you submit will appear here.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {sellRequests.map((req) => (
+                    <div key={req.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded-xl">
+                          <Tag className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            {[req.brand, req.model].filter(Boolean).join(' ') || req.device_type || 'Sell request'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {new Date(req.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        req.status === 'purchased' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                        req.status === 'declined' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                        req.status === 'contacted' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' :
+                        'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                      }`}>
+                        {req.status === 'purchased' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        {req.status}
+                      </span>
+                    </div>
+                  ))}
+                  {repairRequests.map((req) => (
+                    <div key={req.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-orange-50 dark:bg-orange-900/30 p-3 rounded-xl">
+                          <Wrench className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            {req.device_type || 'Repair request'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {req.issue_description || new Date(req.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        req.status === 'repaired' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                        req.status === 'declined' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                        'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                      }`}>
+                        {req.status === 'repaired' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        {req.status.replace('_', ' ')}
+                      </span>
                     </div>
                   ))}
                 </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Users, Upload, Send, Mail, Tag, Info, Layers, X, CreditCard, CheckCircle, Clock, BarChart3, User, MapPin, Truck, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Users, Upload, Send, Mail, Tag, Info, Layers, X, CreditCard, CheckCircle, Clock, BarChart3, User, MapPin, Truck, RefreshCw, Wrench } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import toast from 'react-hot-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
@@ -54,6 +54,36 @@ interface SwapRequest {
   image_url_3: string | null;
 }
 
+interface SellRequest {
+  id: string;
+  created_at: string;
+  status: string;
+  user_name: string;
+  user_phone: string;
+  device_type: string | null;
+  brand: string | null;
+  model: string | null;
+  condition: string | null;
+  description: string | null;
+  offer_price: number | null;
+  image_url_1: string | null;
+  image_url_2: string | null;
+  image_url_3: string | null;
+}
+
+interface RepairRequest {
+  id: string;
+  created_at: string;
+  status: string;
+  user_name: string;
+  user_phone: string;
+  device_type: string | null;
+  issue_description: string | null;
+  image_url_1: string | null;
+  image_url_2: string | null;
+  image_url_3: string | null;
+}
+
 interface Subscriber {
   id: string;
   email: string;
@@ -62,12 +92,14 @@ interface Subscriber {
 
 export default function AdminDashboard() {
   const { isAdmin, loading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'newsletter' | 'customers' | 'analytics' | 'swaps'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'newsletter' | 'customers' | 'analytics' | 'swaps' | 'sell' | 'repair'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [swapRequests, setSwapRequests] = useState<SwapRequest[]>([]);
+  const [sellRequests, setSellRequests] = useState<SellRequest[]>([]);
+  const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Analytics State
@@ -101,10 +133,14 @@ export default function AdminDashboard() {
     const { data: profilesData } = await supabase.from('profiles').select('*');
     const { data: subscribersData } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
     const { data: swapData } = await supabase.from('swap_requests').select('*').order('created_at', { ascending: false });
+    const { data: sellData } = await supabase.from('sell_requests').select('*').order('created_at', { ascending: false });
+    const { data: repairData } = await supabase.from('repair_requests').select('*').order('created_at', { ascending: false });
     
     if (productsData) setProducts(productsData);
     if (subscribersData) setSubscribers(subscribersData);
       if (swapData) setSwapRequests(swapData as SwapRequest[]);
+    if (sellData) setSellRequests(sellData as SellRequest[]);
+    if (repairData) setRepairRequests(repairData as RepairRequest[]);
     if (ordersData) {
       setOrders(ordersData);
       
@@ -433,6 +469,32 @@ export default function AdminDashboard() {
           {swapRequests.filter(s => s.status === 'pending').length > 0 && (
             <span className="ml-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 py-0.5 px-2 rounded-full text-xs font-bold">
               {swapRequests.filter(s => s.status === 'pending').length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('sell')}
+          className={`pb-3 px-1 font-medium text-sm transition-colors border-b-2 whitespace-nowrap ${
+            activeTab === 'sell' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Sell Requests
+          {sellRequests.filter(s => s.status === 'pending').length > 0 && (
+            <span className="ml-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 py-0.5 px-2 rounded-full text-xs font-bold">
+              {sellRequests.filter(s => s.status === 'pending').length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('repair')}
+          className={`pb-3 px-1 font-medium text-sm transition-colors border-b-2 whitespace-nowrap ${
+            activeTab === 'repair' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Repair Requests
+          {repairRequests.filter(r => r.status === 'received').length > 0 && (
+            <span className="ml-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 py-0.5 px-2 rounded-full text-xs font-bold">
+              {repairRequests.filter(r => r.status === 'received').length}
             </span>
           )}
         </button>
@@ -892,6 +954,229 @@ export default function AdminDashboard() {
                            onClick={async () => {
                             if (confirm('Delete this swap request?')) {
                               const { error } = await supabase.from('swap_requests').delete().eq('id', swap.id);
+                              if (error) toast.error('Failed to delete request');
+                              else {
+                                toast.success('Request deleted');
+                                fetchData();
+                              }
+                            }
+                          }}
+                          className="text-slate-400 hover:text-red-600 transition-colors p-2"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : activeTab === 'sell' ? (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Tag className="h-5 w-5 text-green-500" />
+              Sell Requests
+            </h3>
+            <span className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold">
+              {sellRequests.length} Total
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
+                <tr>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Date</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Customer</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Device</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Offer Price</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Details</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {sellRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                      <Tag className="h-8 w-8 mx-auto mb-3 opacity-20" />
+                      No sell requests found.
+                    </td>
+                  </tr>
+                ) : (
+                  sellRequests.map((sell) => (
+                    <tr key={sell.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-6 py-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
+                        {new Date(sell.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <div className="font-medium text-slate-900 dark:text-white">{sell.user_name}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{sell.user_phone}</div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="font-medium text-slate-900 dark:text-white max-w-[150px] truncate">
+                          {[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || '—'}
+                        </div>
+                        {sell.condition && (
+                          <div className="text-xs text-slate-500 dark:text-slate-400 capitalize">{sell.condition}</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-3 text-slate-900 dark:text-white font-black whitespace-nowrap">
+                        {sell.offer_price ? formatCurrency(sell.offer_price) : '—'}
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 max-w-[200px] truncate mb-2">
+                          {sell.description}
+                        </div>
+                        <div className="flex gap-2">
+                          {[sell.image_url_1, sell.image_url_2, sell.image_url_3].filter(Boolean).map((img, i) => (
+                            <a key={i} href={img!} target="_blank" rel="noopener noreferrer">
+                              <img src={img!} className="w-8 h-8 object-cover rounded-md border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform" />
+                            </a>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <select
+                          value={sell.status}
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            const { error } = await supabase.from('sell_requests').update({ status: newStatus }).eq('id', sell.id);
+                            if (error) toast.error('Failed to update status');
+                            else {
+                              toast.success('Status updated');
+                              fetchData();
+                            }
+                          }}
+                          className={`text-xs font-bold rounded-full px-3 py-1 outline-none cursor-pointer appearance-none border ${
+                            sell.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                            sell.status === 'contacted' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                            sell.status === 'purchased' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                            'bg-red-100 text-red-700 border-red-200'
+                          }`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="contacted">Contacted</option>
+                          <option value="purchased">Purchased</option>
+                          <option value="declined">Declined</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-right">
+                        <button
+                          onClick={async () => {
+                            if (confirm('Delete this sell request?')) {
+                              const { error } = await supabase.from('sell_requests').delete().eq('id', sell.id);
+                              if (error) toast.error('Failed to delete request');
+                              else {
+                                toast.success('Request deleted');
+                                fetchData();
+                              }
+                            }
+                          }}
+                          className="text-slate-400 hover:text-red-600 transition-colors p-2"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : activeTab === 'repair' ? (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Wrench className="h-5 w-5 text-orange-500" />
+              Repair Requests
+            </h3>
+            <span className="bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 px-3 py-1 rounded-full text-xs font-bold">
+              {repairRequests.length} Total
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500">
+                <tr>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Date</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Customer</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Device</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Issue</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                  <th className="px-6 py-3 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {repairRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                      <Wrench className="h-8 w-8 mx-auto mb-3 opacity-20" />
+                      No repair requests found.
+                    </td>
+                  </tr>
+                ) : (
+                  repairRequests.map((repair) => (
+                    <tr key={repair.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-6 py-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
+                        {new Date(repair.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <div className="font-medium text-slate-900 dark:text-white">{repair.user_name}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{repair.user_phone}</div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="font-medium text-slate-900 dark:text-white max-w-[150px] truncate">
+                          {repair.device_type || '—'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 max-w-[200px] truncate mb-2">
+                          {repair.issue_description}
+                        </div>
+                        <div className="flex gap-2">
+                          {[repair.image_url_1, repair.image_url_2, repair.image_url_3].filter(Boolean).map((img, i) => (
+                            <a key={i} href={img!} target="_blank" rel="noopener noreferrer">
+                              <img src={img!} className="w-8 h-8 object-cover rounded-md border border-slate-200 dark:border-slate-700 hover:scale-110 transition-transform" />
+                            </a>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <select
+                          value={repair.status}
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            const { error } = await supabase.from('repair_requests').update({ status: newStatus }).eq('id', repair.id);
+                            if (error) toast.error('Failed to update status');
+                            else {
+                              toast.success('Status updated');
+                              fetchData();
+                            }
+                          }}
+                          className={`text-xs font-bold rounded-full px-3 py-1 outline-none cursor-pointer appearance-none border ${
+                            repair.status === 'received' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                            repair.status === 'diagnosed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                            repair.status === 'in_progress' ? 'bg-purple-100 text-purple-700 border-purple-200' :
+                            repair.status === 'repaired' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                            'bg-red-100 text-red-700 border-red-200'
+                          }`}
+                        >
+                          <option value="received">Received</option>
+                          <option value="diagnosed">Diagnosed</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="repaired">Repaired</option>
+                          <option value="declined">Declined</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-right">
+                        <button
+                          onClick={async () => {
+                            if (confirm('Delete this repair request?')) {
+                              const { error } = await supabase.from('repair_requests').delete().eq('id', repair.id);
                               if (error) toast.error('Failed to delete request');
                               else {
                                 toast.success('Request deleted');

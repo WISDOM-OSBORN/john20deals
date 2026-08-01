@@ -8,7 +8,7 @@ export default function Support() {
   const faqs = [
     {
       question: "How do I place an order?",
-      answer: "Simply browse our shop, add items to your cart, and proceed to checkout. You can pay via Mobile Money or Card, and we'll contact you on WhatsApp to confirm delivery details.",
+      answer: "Simply browse our shop, add items to your cart, and checkout. You'll be redirected to WhatsApp to confirm your order, payment, and delivery details with our sales team.",
       icon: HelpCircle
     },
     {
@@ -17,8 +17,8 @@ export default function Support() {
       icon: Truck
     },
     {
-      question: "What payment methods do you accept?",
-      answer: "We accept all major Mobile Money networks (MTN, Telecel, AT) and Debit/Credit cards through our secure payment partner.",
+      question: "How do I pay?",
+      answer: "Orders are confirmed and paid for directly through WhatsApp. Our sales team will arrange the payment method with you after you place your order.",
       icon: CreditCard
     },
     {
@@ -52,7 +52,7 @@ export default function Support() {
             <Shield className="h-6 w-6 text-green-600" />
           </div>
           <h3 className="font-bold text-slate-900 mb-2">Secure</h3>
-          <p className="text-sm text-slate-500">Your data and payments are always protected.</p>
+          <p className="text-sm text-slate-500">Your data is always protected.</p>
         </div>
         <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
           <div className="bg-purple-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">

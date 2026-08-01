@@ -18,6 +18,8 @@ import Support from './pages/Support';
 import AuthCallback from './pages/AuthCallback';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import Sell from './pages/Sell';
+import Repair from './pages/Repair';
 
 import SignUp from './pages/SignUp';
 
@@ -45,6 +47,8 @@ function App() {
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/support" element={<Support />} />
+                  <Route path="/sell" element={<Sell />} />
+                  <Route path="/repair" element={<Repair />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/admin" element={<AdminDashboard />} />

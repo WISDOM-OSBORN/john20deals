@@ -42,7 +42,7 @@ export default function PrivacyPolicy() {
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">3. Information Sharing</h2>
           <p className="text-slate-600 dark:text-slate-400 mb-4">
-            We do not sell your personal information. We may share your information with third-party service providers who perform services on our behalf, such as payment processing and order fulfillment.
+            We do not sell your personal information. We may share your information with third-party service providers who perform services on our behalf, such as order processing and delivery coordination.
           </p>
         </section>
 

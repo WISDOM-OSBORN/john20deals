@@ -119,7 +119,7 @@ export default function Home() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Latest gadgets at best prices</p>
             </Link>
             <Link 
-              to="/support"
+              to="/sell"
               className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-full mb-4 text-green-600 dark:text-green-400">
@@ -129,7 +129,7 @@ export default function Home() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Top value for old devices</p>
             </Link>
             <Link 
-              to="/shop"
+              to="/shop?swap=1"
               className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-full mb-4 text-purple-600 dark:text-purple-400">
@@ -139,7 +139,7 @@ export default function Home() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Trade-in & upgrade instantly</p>
             </Link>
             <Link 
-              to="/support"
+              to="/repair"
               className="bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-5 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300"
             >
               <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-full mb-4 text-orange-600 dark:text-orange-400">
@@ -158,13 +158,14 @@ export default function Home() {
               {[0, 1].map((set) => (
                 <div key={set} className="flex gap-3 pr-3 w-max">
                   {[
-                    { icon: ShoppingBag, title: 'Buy', desc: 'Latest gadgets', color: 'blue' },
-                    { icon: Tag, title: 'Sell', desc: 'Top value', color: 'green' },
-                    { icon: RefreshCw, title: 'Swap', desc: 'Trade-in easily', color: 'purple' },
-                    { icon: Wrench, title: 'Repair', desc: 'Expert services', color: 'orange' },
+                    { icon: ShoppingBag, title: 'Buy', desc: 'Latest gadgets', color: 'blue', to: '/shop' },
+                    { icon: Tag, title: 'Sell', desc: 'Top value', color: 'green', to: '/sell' },
+                    { icon: RefreshCw, title: 'Swap', desc: 'Trade-in easily', color: 'purple', to: '/shop?swap=1' },
+                    { icon: Wrench, title: 'Repair', desc: 'Expert services', color: 'orange', to: '/repair' },
                   ].map((item, idx) => (
-                    <div 
+                    <Link 
                       key={idx}
+                      to={item.to}
                       className="w-[140px] shrink-0 bg-white/90 backdrop-blur-sm dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-col items-center text-center"
                     >
                       <div className={`p-3 rounded-full mb-3 ${
@@ -177,7 +178,7 @@ export default function Home() {
                       </div>
                       <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{item.title}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ))}

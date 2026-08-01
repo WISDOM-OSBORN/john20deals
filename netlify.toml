@@ -16,6 +16,18 @@
   force = true
 
 [[redirects]]
+  from = "/api/submit-sell"
+  to = "/.netlify/functions/submit-sell"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/submit-repair"
+  to = "/.netlify/functions/submit-repair"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
