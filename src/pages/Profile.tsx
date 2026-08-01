@@ -99,10 +99,10 @@ export default function Profile() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Helmet>
-        <title>My Profile | John20 Deals</title>
+        <title>My Dashboard | John20 Deals</title>
       </Helmet>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Profile</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Dashboard</h1>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}

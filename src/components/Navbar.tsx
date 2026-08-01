@@ -104,7 +104,7 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center gap-4">
                 <Link to="/profile" className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors">
-                  Profile
+                  Dashboard
                 </Link>
                 <UserButton afterSignOutUrl="/" />
               </div>
@@ -185,7 +185,7 @@ export default function Navbar() {
                   className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Profile
+                  Dashboard
                 </Link>
                 <button
                   onClick={() => {
