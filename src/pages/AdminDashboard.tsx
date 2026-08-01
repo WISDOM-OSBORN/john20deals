@@ -162,6 +162,14 @@ export default function AdminDashboard() {
       }
 
       const file = e.target.files[0];
+
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('File is too large. Maximum size is 10 MB.');
+      }
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, WEBP and GIF images are allowed.');
+      }
       
       // 1. Get presigned URL from our backend
       const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
@@ -172,7 +180,8 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({
           filename: file.name,
-          contentType: file.type
+          contentType: file.type,
+          expectedSize: file.size
         }),
       });
 

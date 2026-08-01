@@ -1,76 +1,112 @@
 import { Handler } from '@netlify/functions';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = [
+  'https://john20deals.netlify.app',
+  'https://john20-deals.netlify.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
 
 // Assuming these environment variables are provided
-const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-const bucketName = process.env.R2_BUCKET_NAME || 'product-images';
-const publicUrlBase = process.env.R2_PUBLIC_URL || `https://${bucketName}.r2.cloudflarestorage.com`;
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+function getOrigin(requestOrigin: string | undefined): string {
+  return requestOrigin || 'unknown';
+}
+
+function isAllowedOrigin(origin: string): boolean {
+  return ALLOWED_ORIGINS.includes(origin);
+}
+
+function errorResponse(statusCode: number, message: string, origin: string) {
+  return {
+    statusCode,
+    headers: {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Vary': 'Origin',
+    },
+    body: JSON.stringify({ error: message }),
+  };
+}
 
 export const handler: Handler = async (event) => {
+  const requestOrigin = getOrigin(event.headers?.origin || event.headers?.['Origin']);
+
   if (event.httpMethod === 'OPTIONS') {
+    if (!isAllowedOrigin(requestOrigin)) {
+      return { statusCode: 403, body: 'Forbidden' };
+    }
     return {
       statusCode: 204,
-      headers: corsHeaders,
+      headers: {
+        'Access-Control-Allow-Origin': requestOrigin,
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Max-Age': '86400',
+        'Vary': 'Origin',
+      },
       body: '',
     };
   }
 
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: corsHeaders,
-      body: 'Method Not Allowed',
-    };
+    return errorResponse(405, 'Method Not Allowed', requestOrigin);
+  }
+
+  if (!isAllowedOrigin(requestOrigin)) {
+    return errorResponse(403, 'Origin not allowed', requestOrigin);
   }
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const { 
-      productId, 
-      productName, 
+    const {
+      productId,
+      productName,
       userId,
-      userName, 
-      userPhone, 
+      userName,
+      userPhone,
       description,
-      imageUrls 
+      imageUrls
     } = body;
 
     if (!productId || !userId) {
-      return {
-        statusCode: 400,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: "productId and userId are required" }),
-      };
+      return errorResponse(400, "productId and userId are required", requestOrigin);
+    }
+    if (!Array.isArray(imageUrls) || imageUrls.length > 3) {
+      return errorResponse(400, "At most 3 images are allowed", requestOrigin);
+    }
+    if (userName && String(userName).length > 100) {
+      return errorResponse(400, "Name is too long", requestOrigin);
+    }
+    if (userPhone && !/^\+?\d{8,15}$/.test(String(userPhone))) {
+      return errorResponse(400, "Invalid phone number", requestOrigin);
+    }
+    if (description && String(description).length > 2000) {
+      return errorResponse(400, "Description is too long (max 2000 chars)", requestOrigin);
     }
 
-    // Since RLS is disabled, we could just use the Supabase REST API via fetch
-    // to insert the row.
+    if (!supabaseUrl || !supabaseKey) {
+      return errorResponse(500, "Server configuration error", requestOrigin);
+    }
+
     const response = await fetch(`${supabaseUrl}/rest/v1/swap_requests`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': supabaseKey as string,
+        'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`,
         'Prefer': 'return=representation'
       },
       body: JSON.stringify({
         user_id: userId,
-        user_name: userName,
-        user_phone: userPhone,
+        user_name: userName || null,
+        user_phone: userPhone || null,
         product_id: productId,
-        product_name: productName,
-        offer_description: description,
+        product_name: productName || null,
+        offer_description: description || null,
         image_url_1: imageUrls?.[0] || null,
         image_url_2: imageUrls?.[1] || null,
         image_url_3: imageUrls?.[2] || null,
@@ -79,41 +115,25 @@ export const handler: Handler = async (event) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Supabase insert error:', errorText);
-      return {
-        statusCode: 500,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: "Failed to save swap request" }),
-      };
+      console.error('Supabase insert error (swap_requests):', errorText.slice(0, 500));
+      return errorResponse(500, "Failed to save swap request", requestOrigin);
     }
 
     const data = await response.json();
 
-    // Send WhatsApp notification using a third-party API if required, 
-    // or just rely on Admin dashboard.
-    // For now, we will log it as requested by the roadmap but the actual 
-    // sending depends on what API they use for WhatsApp.
-    console.log(`New Swap Request!
-        From: ${userName} (${userPhone})
-        Wants to swap for: ${productName}
-        Description: ${description}
-        Images:
-        ${imageUrls?.[0] || 'None'}
-        ${imageUrls?.[1] || 'None'}
-        ${imageUrls?.[2] || 'None'}`);
-
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: {
+        'Access-Control-Allow-Origin': requestOrigin,
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Vary': 'Origin',
+      },
       body: JSON.stringify({ success: true, swapRequestId: data[0]?.id }),
     };
 
   } catch (error) {
     console.error("Swap request submission error:", error);
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: "Internal Server Error" }),
-    };
+    return errorResponse(500, "Internal Server Error", requestOrigin);
   }
 };
