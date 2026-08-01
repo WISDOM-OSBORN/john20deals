@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import ProductCard from '../components/ProductCard';
-import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
@@ -44,6 +44,7 @@ export default function Shop() {
   const itemsPerPage = 12;
   
   const categoryFilter = searchParams.get('category');
+  const swapFilter = searchParams.get('swap') === '1';
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -51,6 +52,10 @@ export default function Shop() {
 
     if (categoryFilter && categoryFilter !== 'All') {
       query = query.eq('category', categoryFilter);
+    }
+
+    if (swapFilter) {
+      query = query.eq('swap_allowed', true);
     }
 
     if (searchTerm) {
@@ -78,7 +83,7 @@ export default function Shop() {
       if (count !== null) setTotalCount(count);
     }
     setLoading(false);
-  }, [categoryFilter, searchTerm, sortBy, currentPage]);
+  }, [categoryFilter, searchTerm, sortBy, currentPage, swapFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -120,6 +125,16 @@ export default function Shop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleCategoryChange = (cat: string) => {
+    setCurrentPage(1);
+    setSearchParams(prev => {
+      if (cat === 'All') prev.delete('category');
+      else prev.set('category', cat);
+      prev.set('page', '1');
+      return prev;
+    });
+  };
+
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const categories = ['All', 'Laptops', 'Phones', 'Accessories', 'Gadgets', 'Deals'];
@@ -156,7 +171,7 @@ export default function Shop() {
           <div className="relative lg:hidden">
             <select 
               value={categoryFilter || 'All'}
-              onChange={(e) => setSearchParams({ category: e.target.value === 'All' ? '' : e.target.value })}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className="pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-slate-800 font-medium text-sm text-slate-700 dark:text-slate-300 w-full sm:w-48"
             >
               {categories.map((cat) => (
@@ -167,6 +182,26 @@ export default function Shop() {
               <Filter className="h-4 w-4 text-slate-400" />
             </div>
           </div>
+
+          {/* Swap filter (Mobile) */}
+          <button
+            onClick={() => {
+              setCurrentPage(1);
+              setSearchParams(prev => {
+                if (swapFilter) prev.delete('swap');
+                else prev.set('swap', '1');
+                prev.set('page', '1');
+                return prev;
+              });
+            }}
+            className={`py-2.5 px-4 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition-colors ${
+              swapFilter
+                ? 'bg-purple-600 text-white border-purple-600'
+                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            <RefreshCw className="h-4 w-4" /> Swap
+          </button>
 
           {/* Sorting */}
           <div className="relative">
@@ -194,10 +229,30 @@ export default function Shop() {
               <Filter className="h-4 w-4" /> Filters
             </h3>
             <div className="space-y-2">
+              <button
+                onClick={() => {
+                  setCurrentPage(1);
+                  setSearchParams(prev => {
+                    if (swapFilter) prev.delete('swap');
+                    else prev.set('swap', '1');
+                    prev.set('page', '1');
+                    return prev;
+                  });
+                }}
+                className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  swapFilter
+                    ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4" /> Swap Eligible
+                </span>
+              </button>
               {categories.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setSearchParams({ category: cat === 'All' ? '' : cat })}
+                  onClick={() => handleCategoryChange(cat)}
                   className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     (categoryFilter === cat) || (!categoryFilter && cat === 'All')
                       ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
@@ -213,6 +268,14 @@ export default function Shop() {
 
         {/* Product Grid */}
         <div className="flex-1">
+          {swapFilter && (
+            <div className="mb-6 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-2xl px-5 py-4 flex items-center gap-3">
+              <RefreshCw className="h-5 w-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+              <p className="text-sm text-purple-900 dark:text-purple-200">
+                Showing products eligible for <span className="font-bold">trade-in & upgrade</span>. Pick a device and submit a swap request.
+              </p>
+            </div>
+          )}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { User, Mail, Shield, Phone, MapPin, Camera, Save, X, Edit2, Package, Clock, CheckCircle, Tag, Wrench, RefreshCw } from 'lucide-react';
+import { User, Mail, Shield, Phone, MapPin, Edit2, Package, Clock, CheckCircle, Tag, Wrench, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';

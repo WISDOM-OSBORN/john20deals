@@ -3,10 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { ShoppingCart, User, LogOut, Menu, X, Laptop, Search, Heart, Sun, Moon } from 'lucide-react';
+import { ShoppingCart, Menu, X, Search, Heart, Sun, Moon } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useTheme } from '../context/ThemeContext';
-import { UserButton, SignInButton } from '@clerk/clerk-react';
+import { UserButton } from '@clerk/clerk-react';
 
 export default function Navbar() {
   const { user, signOut, isAdmin } = useAuth();
@@ -101,13 +101,6 @@ export default function Navbar() {
               )}
             </Link>
 
-            <Link
-              to="/wishlist"
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <Heart className="h-5 w-5" /> Wishlist
-            </Link>
             {user ? (
               <div className="flex items-center gap-4">
                 <Link to="/profile" className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-colors">

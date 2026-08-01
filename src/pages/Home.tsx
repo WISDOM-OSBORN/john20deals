@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, ShieldCheck, Truck, Clock, ShoppingBag, Tag, RefreshCw, Wrench } from 'lucide-react';
+import { ArrowRight, Star, Truck, ShoppingBag, Tag, RefreshCw, Wrench } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';

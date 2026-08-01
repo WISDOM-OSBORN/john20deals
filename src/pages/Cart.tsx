@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../lib/utils';
-import { Trash2, Plus, Minus, MessageCircle, ArrowRight, ShoppingCart } from 'lucide-react';
+import { Trash2, Plus, Minus, MessageCircle, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';

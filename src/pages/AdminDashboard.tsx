@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Users, Upload, Send, Mail, Tag, Info, Layers, X, CreditCard, CheckCircle, Clock, BarChart3, User, MapPin, Truck, RefreshCw, Wrench } from 'lucide-react';
+import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Upload, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import toast from 'react-hot-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';

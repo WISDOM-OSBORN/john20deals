@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Star, Heart } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { formatCurrency } from '../lib/utils';
@@ -16,6 +16,7 @@ interface ProductCardProps {
     image_url: string | null;
     category: string;
     condition?: string;
+    stock?: number;
   };
 }
 
@@ -26,9 +27,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
 
   const isWishlisted = isInWishlist(product.id);
+  const outOfStock = (product.stock ?? 0) <= 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (outOfStock) {
+      toast.error('This product is out of stock');
+      return;
+    }
     if (!user) {
       toast.error('Please sign in to add items to cart');
       navigate('/login');
@@ -89,6 +95,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
           </button>
         </div>
+        {outOfStock && (
+          <div className="absolute top-3 left-3">
+            <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400">
+              Out of Stock
+            </span>
+          </div>
+        )}
       </div>
       
       <div className="p-5 flex flex-col flex-grow">
@@ -103,7 +116,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </span>
           <button
             onClick={handleAddToCart}
-            className="bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white p-2.5 rounded-xl transition-all"
+            disabled={outOfStock}
+            className={`p-2.5 rounded-xl transition-all ${
+              outOfStock
+                ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                : 'bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white'
+            }`}
+            title={outOfStock ? 'Out of stock' : 'Add to cart'}
           >
             <ShoppingCart className="h-5 w-5" />
           </button>

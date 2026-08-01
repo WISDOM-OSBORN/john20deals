@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../lib/utils';
-import { ShoppingCart, ArrowLeft, Check, ShieldCheck, Truck, RefreshCw, X, Upload } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, RefreshCw, X, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProductReviews from '../components/ProductReviews';
 import { Helmet } from 'react-helmet-async';
@@ -128,6 +128,10 @@ export default function ProductDetails() {
   };
 
   const handleAddToCart = () => {
+    if ((product?.stock ?? 0) <= 0) {
+      toast.error('This product is out of stock');
+      return;
+    }
     if (!user) {
       toast.error('Please sign in to add items to cart');
       navigate('/login');
@@ -154,6 +158,8 @@ export default function ProductDetails() {
   }
 
   if (!product) return null;
+
+  const outOfStock = (product.stock ?? 0) <= 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -205,9 +211,15 @@ export default function ProductDetails() {
         <div className="flex flex-col">
           <div className="mb-6">
             <div className="flex gap-2 mb-4">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
-                IN STOCK
-              </span>
+              {outOfStock ? (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                  OUT OF STOCK
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                  IN STOCK
+                </span>
+              )}
               {product.condition && (
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                   product.condition === 'New' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
@@ -250,10 +262,15 @@ export default function ProductDetails() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+                disabled={outOfStock}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+                  outOfStock
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20'
+                }`}
               >
                 <ShoppingCart className="h-5 w-5" />
-                Add to Cart
+                {outOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
               {product.swap_allowed !== false && (
               <button

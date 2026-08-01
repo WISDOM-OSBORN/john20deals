@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, User, MessageSquare, Camera } from 'lucide-react';
+import { Star, User, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';

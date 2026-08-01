@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Laptop, Mail, Phone, MapPin, Send, Ghost, Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
+import { Mail, Phone, MapPin, Ghost, Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
