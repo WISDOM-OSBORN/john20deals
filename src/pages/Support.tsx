@@ -35,50 +35,50 @@ export default function Support() {
         <meta name="description" content="Get help and support for your John20 Deals orders. FAQs, shipping info, and contact details." />
       </Helmet>
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-black text-slate-900 mb-4">Help & Support</h1>
-        <p className="text-slate-500 text-lg">Everything you need to know about shopping with John20 Deals.</p>
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-4">Help & Support</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-lg">Everything you need to know about shopping with John20 Deals.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
-          <div className="bg-blue-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Truck className="h-6 w-6 text-blue-600" />
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+          <div className="bg-blue-50 dark:bg-blue-900/30 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Truck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
-          <h3 className="font-bold text-slate-900 mb-2">Shipping</h3>
-          <p className="text-sm text-slate-500">Fast nationwide delivery across Ghana.</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2">Shipping</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Fast nationwide delivery across Ghana.</p>
         </div>
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
-          <div className="bg-green-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Shield className="h-6 w-6 text-green-600" />
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+          <div className="bg-green-50 dark:bg-green-900/30 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
-          <h3 className="font-bold text-slate-900 mb-2">Secure</h3>
-          <p className="text-sm text-slate-500">Your data is always protected.</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2">Secure</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Your data is always protected.</p>
         </div>
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm text-center">
-          <div className="bg-purple-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <RefreshCw className="h-6 w-6 text-purple-600" />
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+          <div className="bg-purple-50 dark:bg-purple-900/30 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <RefreshCw className="h-6 w-6 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="font-bold text-slate-900 mb-2">Returns</h3>
-          <p className="text-sm text-slate-500">Easy 7-day returns for defective items.</p>
+          <h3 className="font-bold text-slate-900 dark:text-white mb-2">Returns</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Easy 7-day returns for defective items.</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md">
-        <div className="p-8 border-b border-slate-100">
-          <h2 className="text-2xl font-black text-slate-900">Frequently Asked Questions</h2>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+        <div className="p-8 border-b border-slate-100 dark:border-slate-800">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">Frequently Asked Questions</h2>
         </div>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {faqs.map((faq, idx) => (
             <div key={idx} className="group">
               <button
                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-slate-100 p-2 rounded-lg group-hover:bg-white transition-colors">
-                    <faq.icon className="h-5 w-5 text-slate-600" />
+                  <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-lg group-hover:bg-white dark:group-hover:bg-slate-700 transition-colors">
+                    <faq.icon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                   </div>
-                  <span className="font-bold text-slate-900">{faq.question}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{faq.question}</span>
                 </div>
                 {openIndex === idx ? (
                   <ChevronUp className="h-5 w-5 text-slate-400" />
@@ -88,7 +88,7 @@ export default function Support() {
               </button>
               {openIndex === idx && (
                 <div className="px-6 pb-6 pl-16">
-                  <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{faq.answer}</p>
                 </div>
               )}
             </div>

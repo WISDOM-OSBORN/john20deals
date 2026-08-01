@@ -32,12 +32,24 @@ interface RepairRequest {
   issue_description: string | null;
 }
 
+interface SwapRequest {
+  id: string;
+  created_at: string;
+  status: string;
+  product_name: string | null;
+  offer_description: string | null;
+  trade_in_value?: number | null;
+  cash_difference?: number | null;
+  terms?: string | null;
+}
+
 export default function Profile() {
   const { user, loading, isAdmin, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [sellRequests, setSellRequests] = useState<SellRequest[]>([]);
   const [repairRequests, setRepairRequests] = useState<RepairRequest[]>([]);
+  const [swapRequests, setSwapRequests] = useState<SwapRequest[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [formData, setFormData] = useState({
@@ -71,12 +83,14 @@ export default function Profile() {
 
   const fetchRequests = async () => {
     setLoadingRequests(true);
-    const [sellRes, repairRes] = await Promise.all([
+    const [sellRes, repairRes, swapRes] = await Promise.all([
       supabase.from('sell_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
       supabase.from('repair_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
+      supabase.from('swap_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
     ]);
     if (!sellRes.error && sellRes.data) setSellRequests(sellRes.data);
     if (!repairRes.error && repairRes.data) setRepairRequests(repairRes.data);
+    if (!swapRes.error && swapRes.data) setSwapRequests(swapRes.data);
     setLoadingRequests(false);
   };
 
@@ -337,7 +351,7 @@ export default function Profile() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md mt-6">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
               <RefreshCw className="h-6 w-6 text-slate-400 dark:text-slate-500" />
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Sell & Repair Requests</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Sell, Repair & Swap Requests</h3>
             </div>
             
             <div className="p-6">
@@ -345,11 +359,11 @@ export default function Profile() {
                 <div className="flex justify-center py-12">
                   <div className="w-8 h-8 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
                 </div>
-              ) : sellRequests.length === 0 && repairRequests.length === 0 ? (
+              ) : sellRequests.length === 0 && repairRequests.length === 0 && swapRequests.length === 0 ? (
                 <div className="text-center py-12">
                   <Tag className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
                   <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No requests yet</h4>
-                  <p className="text-slate-500 dark:text-slate-400">Sell or repair requests you submit will appear here.</p>
+                  <p className="text-slate-500 dark:text-slate-400">Sell, repair, or swap requests you submit will appear here.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -375,6 +389,48 @@ export default function Profile() {
                         'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
                       }`}>
                         {req.status === 'purchased' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        {req.status}
+                      </span>
+                    </div>
+                  ))}
+                  {swapRequests.map((req) => (
+                    <div key={req.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-xl">
+                          <RefreshCw className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            {req.product_name || 'Swap request'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {new Date(req.created_at).toLocaleDateString()}
+                          </p>
+                          {req.status === 'accepted' && (
+                            <div className="mt-2 space-y-1 text-xs">
+                              {req.trade_in_value != null && (
+                                <p className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                                  Trade-in value: {formatCurrency(req.trade_in_value)}
+                                </p>
+                              )}
+                              {req.cash_difference != null && (
+                                <p className="text-slate-600 dark:text-slate-300 font-semibold">
+                                  Cash difference: {formatCurrency(req.cash_difference)}
+                                </p>
+                              )}
+                              {req.terms && (
+                                <p className="text-slate-500 dark:text-slate-400">Terms: {req.terms}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        req.status === 'accepted' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                        req.status === 'declined' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                        'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                      }`}>
+                        {req.status === 'accepted' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                         {req.status}
                       </span>
                     </div>

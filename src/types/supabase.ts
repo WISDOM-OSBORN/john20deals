@@ -175,6 +175,10 @@ export interface Database {
           image_url_1: string | null
           image_url_2: string | null
           image_url_3: string | null
+          trade_in_value: number | null
+          cash_difference: number | null
+          terms: string | null
+          notified_at: string | null
         }
         Insert: {
           id?: string
@@ -189,6 +193,10 @@ export interface Database {
           image_url_1?: string | null
           image_url_2?: string | null
           image_url_3?: string | null
+          trade_in_value?: number | null
+          cash_difference?: number | null
+          terms?: string | null
+          notified_at?: string | null
         }
         Update: {
           id?: string
@@ -203,6 +211,10 @@ export interface Database {
           image_url_1?: string | null
           image_url_2?: string | null
           image_url_3?: string | null
+          trade_in_value?: number | null
+          cash_difference?: number | null
+          terms?: string | null
+          notified_at?: string | null
         }
         Relationships: [
           {
