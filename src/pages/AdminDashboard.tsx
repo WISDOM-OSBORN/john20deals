@@ -1408,7 +1408,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="p-8 space-y-5 max-h-[70vh] overflow-y-auto">
+            <form id="product-form" onSubmit={handleSaveProduct} className="p-8 space-y-5 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Product Name</label>
                 <div className="relative">
@@ -1622,7 +1622,7 @@ export default function AdminDashboard() {
               <button 
                 type="submit" 
                 onClick={() => {
-                  const form = document.querySelector('form');
+                  const form = document.getElementById('product-form') as HTMLFormElement | null;
                   if (form) form.requestSubmit();
                 }}
                 disabled={uploading}
