@@ -95,23 +95,6 @@ export default function ProductDetails() {
       });
       if (!res.ok) throw new Error('Failed to submit swap');
 
-      const userName = formData.get('userName') || 'Not provided';
-      const userPhone = formData.get('userPhone') || 'Not provided';
-      const description = formData.get('description') || '';
-
-      const swapMessage = [
-        'Hello John20 Deals, I want to propose a swap:',
-        '',
-        `Device I want: *${product?.name || 'this device'}*`,
-        `My name: ${userName}`,
-        `Phone / WhatsApp: ${userPhone}`,
-        '',
-        `My item: ${description}`,
-      ].join('\n');
-
-      const adminPhone = '233505694171';
-      window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(swapMessage)}`, '_blank');
-
       toast.success('Swap request sent! The shop will contact you.');
       setShowSwapModal(false);
       setSwapImages([]);
