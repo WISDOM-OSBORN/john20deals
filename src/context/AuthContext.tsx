@@ -9,7 +9,6 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
-  updateProfile: (data: any) => Promise<void>;
 }
 
 // TEMPORARY fallback for existing admins. Move admin control to
@@ -87,55 +86,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const updateProfile = async (data: any) => {
-    try {
-      if (clerkUser) {
-         let updateData: any = {};
-         if (data.full_name) {
-           updateData.firstName = data.full_name.split(' ')[0];
-           updateData.lastName = data.full_name.split(' ').slice(1).join(' ');
-         }
-         await clerkUser.update(updateData);
-         
-         await clerkUser.update({
-           unsafeMetadata: { // using unsafe metadata from clerk client side since public metadata is read-only from client
-             ...clerkUser.unsafeMetadata,
-             phone_number: data.phone_number || clerkUser.unsafeMetadata?.phone_number,
-             location: data.location || clerkUser.unsafeMetadata?.location,
-             avatar_url: data.avatar_url || clerkUser.unsafeMetadata?.avatar_url
-           }
-         });
-
-         // Persist to Supabase so admin Customers tab + profile stay in sync.
-         const { error } = await supabase.from('profiles').upsert(
-           {
-             id: clerkUser.id,
-             email: clerkUser.primaryEmailAddress?.emailAddress || '',
-             full_name: data.full_name || clerkUser.fullName || null,
-             avatar_url: data.avatar_url || clerkUser.imageUrl || null,
-             phone_number: data.phone_number || null,
-             location: data.location || null,
-           },
-           { onConflict: 'id' }
-         );
-         if (error) throw error;
-
-         toast.success('Profile updated successfully');
-      }
-    } catch (error: any) {
-      toast.error(error.message);
-      throw error;
-    }
-  };
-
   return (
     <AuthContext.Provider value={{ 
       user: mappedUser, 
       session: clerkSession, 
       isAdmin, 
       loading, 
-      signOut, 
-      updateProfile 
+      signOut 
     }}>
       {children}
     </AuthContext.Provider>
