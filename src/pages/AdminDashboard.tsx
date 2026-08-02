@@ -1074,6 +1074,14 @@ export default function AdminDashboard() {
                                       title: 'Swap declined',
                                       message: `We're sorry, your swap request for ${swap.product_name} was not accepted this time.`,
                                     });
+                                    openWhatsApp(
+                                      swap.user_phone,
+                                      [
+                                        `Hello ${swap.user_name || 'there'}!`,
+                                        `We're sorry — your swap request for *${swap.product_name}* at John20 Deals was not accepted this time.`,
+                                        'You are welcome to try another device or contact us anytime. Thank you!',
+                                      ]
+                                    );
                                     fetchData();
                                   }
                                 }
