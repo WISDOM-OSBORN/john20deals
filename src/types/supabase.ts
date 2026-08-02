@@ -312,6 +312,13 @@ export interface Database {
           image_url_1: string | null
           image_url_2: string | null
           image_url_3: string | null
+          diagnosis: string | null
+          repair_cost: number | null
+          estimated_completion: string | null
+          completed_at: string | null
+          decline_reason: string | null
+          cancelled_at: string | null
+          admin_notes: string | null
         }
         Insert: {
           id?: string
@@ -325,6 +332,13 @@ export interface Database {
           image_url_1?: string | null
           image_url_2?: string | null
           image_url_3?: string | null
+          diagnosis?: string | null
+          repair_cost?: number | null
+          estimated_completion?: string | null
+          completed_at?: string | null
+          decline_reason?: string | null
+          cancelled_at?: string | null
+          admin_notes?: string | null
         }
         Update: {
           id?: string
@@ -338,6 +352,13 @@ export interface Database {
           image_url_1?: string | null
           image_url_2?: string | null
           image_url_3?: string | null
+          diagnosis?: string | null
+          repair_cost?: number | null
+          estimated_completion?: string | null
+          completed_at?: string | null
+          decline_reason?: string | null
+          cancelled_at?: string | null
+          admin_notes?: string | null
         }
         Relationships: []
       }

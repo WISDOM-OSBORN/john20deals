@@ -4,10 +4,11 @@ import { useClerk } from '@clerk/clerk-react';
 import { dark } from '@clerk/themes';
 import { useTheme } from '../context/ThemeContext';
 import { Navigate } from 'react-router-dom';
-import { Package, Clock, CheckCircle, Tag, Wrench, RefreshCw, Bell, CheckCheck, Settings } from 'lucide-react';
+import { Package, Clock, CheckCircle, Tag, Wrench, RefreshCw, Bell, CheckCheck, Settings, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';
+import toast from 'react-hot-toast';
 import { fetchNotifications, markNotificationsRead, NotificationRow } from '../lib/notifications';
 
 interface Order {
@@ -34,6 +35,10 @@ interface RepairRequest {
   status: string;
   device_type: string | null;
   issue_description: string | null;
+  diagnosis: string | null;
+  repair_cost: number | null;
+  estimated_completion: string | null;
+  decline_reason: string | null;
 }
 
 interface SwapRequest {
@@ -101,6 +106,20 @@ export default function Profile() {
     if (!repairRes.error && repairRes.data) setRepairRequests(repairRes.data);
     if (!swapRes.error && swapRes.data) setSwapRequests(swapRes.data);
     setLoadingRequests(false);
+  };
+
+  const handleCancelRepair = async (req: RepairRequest) => {
+    if (!confirm('Cancel this repair request?')) return;
+    const { error } = await supabase
+      .from('repair_requests')
+      .update({ status: 'cancelled_by_user', cancelled_at: new Date().toISOString() })
+      .eq('id', req.id);
+    if (error) {
+      toast.error('Failed to cancel request');
+      return;
+    }
+    toast.success('Repair request cancelled');
+    fetchRequests();
   };
 
   if (loading) return <div className="p-6">Loading...</div>;
@@ -369,28 +388,116 @@ export default function Profile() {
                   </div>
                 ))}
                 {repairRequests.map((req) => (
-                  <div key={req.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-orange-50 dark:bg-orange-900/30 p-3 rounded-xl">
-                        <Wrench className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  <div key={req.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-5">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-orange-50 dark:bg-orange-900/30 p-3 rounded-xl">
+                          <Wrench className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            {req.device_type || 'Repair request'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {req.issue_description || new Date(req.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-bold text-slate-900 dark:text-white">
-                          {req.device_type || 'Repair request'}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {req.issue_description || new Date(req.created_at).toLocaleDateString()}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        {(req.status === 'received' || req.status === 'diagnosed') && (
+                          <button
+                            onClick={() => handleCancelRepair(req)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                          >
+                            <X className="h-3.5 w-3.5" /> Cancel
+                          </button>
+                        )}
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                          req.status === 'picked_up' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                          req.status === 'declined' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                          req.status === 'cancelled_by_user' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' :
+                          req.status === 'ready_for_pickup' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                          'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                        }`}>
+                          {req.status === 'picked_up' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                          {req.status.replaceAll('_', ' ')}
+                        </span>
                       </div>
                     </div>
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                      req.status === 'repaired' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                      req.status === 'declined' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
-                      'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                    }`}>
-                      {req.status === 'repaired' ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                      {req.status.replace('_', ' ')}
-                    </span>
+
+                    {req.status !== 'declined' && req.status !== 'cancelled_by_user' && (
+                      <div className="mt-5">
+                        {(() => {
+                          const steps = ['received', 'diagnosed', 'in_progress', 'ready_for_pickup', 'picked_up'];
+                          const current = steps.indexOf(req.status);
+                          const active = current === -1 ? 0 : current;
+                          const labels = ['Received', 'Diagnosed', 'In Progress', 'Ready', 'Picked Up'];
+                          return (
+                            <div className="flex items-center">
+                              {steps.map((step, idx) => {
+                                const done = idx < active;
+                                const isCurrent = idx === active;
+                                return (
+                                  <div key={step} className="flex items-center flex-1 last:flex-none">
+                                    <div className="flex flex-col items-center">
+                                      <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all ${
+                                        done ? 'bg-orange-500 border-orange-500 text-white' :
+                                        isCurrent ? 'bg-white dark:bg-slate-800 border-orange-500 text-orange-500 dark:text-orange-400' :
+                                        'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600'
+                                      }`}>
+                                        {done ? <CheckCircle className="h-4 w-4" /> : idx + 1}
+                                      </div>
+                                      <span className={`text-[10px] font-bold mt-1 whitespace-nowrap ${
+                                        done || isCurrent ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'
+                                      }`}>
+                                        {labels[idx]}
+                                      </span>
+                                    </div>
+                                    {idx < steps.length - 1 && (
+                                      <div className={`flex-1 h-0.5 mx-2 mt-0 -mb-4 ${idx < active ? 'bg-orange-500' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+
+                        <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {req.diagnosis && (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
+                              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Diagnosis</p>
+                              <p className="text-xs text-slate-700 dark:text-slate-300">{req.diagnosis}</p>
+                            </div>
+                          )}
+                          {req.repair_cost != null && (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
+                              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Estimated Cost</p>
+                              <p className="text-sm font-black text-orange-600 dark:text-orange-400">{formatCurrency(req.repair_cost)}</p>
+                            </div>
+                          )}
+                          {req.estimated_completion && (
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
+                              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Expected Completion</p>
+                              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                {new Date(req.estimated_completion).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {req.status === 'declined' && req.decline_reason && (
+                      <p className="mt-3 text-xs text-red-600 dark:text-red-400 font-medium">
+                        Reason: {req.decline_reason}
+                      </p>
+                    )}
+                    {req.status === 'cancelled_by_user' && (
+                      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        This repair request was cancelled.
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
