@@ -42,7 +42,11 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
-              <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto" />
+              <img src="/logo.svg" alt="John20 Deals Logo" className="h-9 w-auto rounded-md" />
+              <span className="font-bold text-lg leading-none">
+                <span className="text-[#D80202]">John20</span>{" "}
+                <span className="text-slate-900 dark:text-white">Deals</span>
+              </span>
             </Link>
           </div>
 
