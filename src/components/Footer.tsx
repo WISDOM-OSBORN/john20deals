@@ -28,9 +28,9 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 text-white pt-10 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
-          <div className="col-span-1 md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
               <img src="/logo.svg" alt="John20 Deals Logo" className="h-9 w-auto rounded-md" />
               <span className="font-bold text-lg leading-none">
@@ -96,7 +96,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="font-bold text-sm uppercase tracking-wider mb-6 text-slate-200">Newsletter</h4>
             <p className="text-sm text-slate-400 mb-4">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
