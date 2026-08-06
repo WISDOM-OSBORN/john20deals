@@ -1,7 +1,8 @@
 async function call(fn: 'admin-ops' | 'user-ops', payload: Record<string, any>): Promise<any> {
-  const apiEndpoint = import.meta.env.PROD
-    ? `/.netlify/functions/${fn}`
-    : `/api/${fn}`;
+  // Same URL in every environment: Vercel serves /api/* natively, Netlify
+  // redirects /api/* to the functions (netlify.toml), and the dev server
+  // handles /api/* too.
+  const apiEndpoint = `/api/${fn}`;
   const response = await fetch(apiEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

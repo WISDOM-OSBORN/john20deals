@@ -25,7 +25,7 @@ export default function Cart() {
     }
 
     // 1. Create Order in Supabase via serverless function (validates stock, decrements, notifies admin)
-    const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/submit-order' : '/api/submit-order';
+    const apiEndpoint = '/api/submit-order';
     const res = await fetch(apiEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

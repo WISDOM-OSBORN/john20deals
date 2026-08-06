@@ -20,7 +20,7 @@ export async function uploadImage(file: File): Promise<string> {
   const error = validateImageFile(file);
   if (error) throw new Error(error);
 
-  const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
+  const apiEndpoint = '/api/upload';
 
   const urlResponse = await fetch(apiEndpoint, {
     method: 'POST',

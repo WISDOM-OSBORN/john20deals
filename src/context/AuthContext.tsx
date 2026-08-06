@@ -61,7 +61,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       clerkUser?.publicMetadata?.role ||
       clerkUser?.unsafeMetadata?.role ||
       'user';
-    setIsAdmin(role === 'admin' || LEGACY_ADMIN_EMAILS.includes(mappedUser?.email || ''));
+    const isLegacyAdmin = LEGACY_ADMIN_EMAILS.some(
+      (email) => email.toLowerCase() === (mappedUser?.email || '').toLowerCase().trim()
+    );
+    setIsAdmin(role === 'admin' || isLegacyAdmin);
   }, [mappedUser?.email, clerkUser?.publicMetadata, clerkUser?.unsafeMetadata]);
 
   // Bridge Clerk identity into Supabase so orders/reviews (which FK to

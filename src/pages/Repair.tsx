@@ -47,7 +47,7 @@ export default function Repair() {
     const form = new FormData(e.currentTarget);
     setSubmitting(true);
     try {
-      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/submit-repair' : '/api/submit-repair';
+      const apiEndpoint = '/api/submit-repair';
       const res = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

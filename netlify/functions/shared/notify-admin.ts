@@ -36,9 +36,9 @@ export async function fetchAdminTargets(): Promise<AdminTarget[]> {
     if (!response.ok) return [];
     const data = await response.json();
     const byRole = Array.isArray(data) ? data : [];
-    const emails = new Set<string>(byRole.map((p: any) => p.email));
+    const emails = new Set<string>(byRole.map((p: any) => (p.email || '').toLowerCase()));
     for (const email of LEGACY_ADMIN_EMAILS) {
-      if (!emails.has(email)) byRole.push({ id: null, email });
+      if (!emails.has(email.toLowerCase())) byRole.push({ id: null, email });
     }
     return byRole.filter((p: any) => p.id || p.email) as AdminTarget[];
   } catch (error) {

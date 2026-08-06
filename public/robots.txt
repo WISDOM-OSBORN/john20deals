@@ -5,4 +5,4 @@ Disallow: /profile
 Disallow: /cart
 Disallow: /wishlist
 
-Sitemap: https://john20deals.netlify.app/sitemap.xml
+Sitemap: https://john20deals.vercel.app/sitemap.xml

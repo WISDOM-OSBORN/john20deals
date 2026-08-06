@@ -49,7 +49,7 @@ export default function Sell() {
     const form = new FormData(e.currentTarget);
     setSubmitting(true);
     try {
-      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/submit-sell' : '/api/submit-sell';
+      const apiEndpoint = '/api/submit-sell';
       const res = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -85,6 +85,18 @@ async function startServer() {
     await delegate('./netlify/functions/submit-order', req, res);
   });
 
+  app.post("/api/submit-swap", async (req, res) => {
+    await delegate('./netlify/functions/submit-swap', req, res);
+  });
+
+  app.post("/api/submit-sell", async (req, res) => {
+    await delegate('./netlify/functions/submit-sell', req, res);
+  });
+
+  app.post("/api/submit-repair", async (req, res) => {
+    await delegate('./netlify/functions/submit-repair', req, res);
+  });
+
   // Admin / user service-role operations (dev delegation).
   app.post("/api/admin-ops", async (req, res) => {
     await delegate('./netlify/functions/admin-ops', req, res);

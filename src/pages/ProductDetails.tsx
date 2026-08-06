@@ -42,7 +42,7 @@ export default function ProductDetails() {
       if (!e.target.files || e.target.files.length === 0) return;
       const file = e.target.files[0];
       
-      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
+      const apiEndpoint = '/api/upload';
       const urlResponse = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,7 +76,7 @@ export default function ProductDetails() {
     }
     
     const formData = new FormData(e.currentTarget);
-    const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/submit-swap' : '/api/submit-swap';
+    const apiEndpoint = '/api/submit-swap';
     
     try {
       setSwapUploading(true);

@@ -1,4 +1,4 @@
-import { Handler } from '@netlify/functions';
+import type { Handler } from '@netlify/functions';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
@@ -35,7 +35,7 @@ export const handler: Handler = async (event) => {
   const requestOrigin = getRequestOrigin(event);
 
   if (event.httpMethod === 'OPTIONS') {
-    if (!isAllowedOrigin(requestOrigin)) return { statusCode: 403, body: 'Forbidden' };
+    if (!isAllowedOrigin(requestOrigin, event)) return { statusCode: 403, body: 'Forbidden' };
     return corsPreflight(requestOrigin);
   }
 
@@ -43,7 +43,7 @@ export const handler: Handler = async (event) => {
     return corsError(405, 'Method Not Allowed', requestOrigin);
   }
 
-  if (!isAllowedOrigin(requestOrigin)) {
+  if (!isAllowedOrigin(requestOrigin, event)) {
     return corsError(403, 'Origin not allowed', requestOrigin);
   }
 

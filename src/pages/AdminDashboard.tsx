@@ -241,7 +241,7 @@ export default function AdminDashboard() {
       }
       
       // 1. Get presigned URL from our backend
-      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
+      const apiEndpoint = '/api/upload';
       const urlResponse = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
