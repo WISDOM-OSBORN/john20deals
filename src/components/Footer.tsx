@@ -43,7 +43,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <img src="/logo.svg" alt="John20 Deals Logo" className="h-10 w-auto" />
+              <img src="/logo.svg" alt="John20 Deals Logo" className="h-9 w-auto rounded-md" />
+              <span className="font-bold text-lg leading-none">
+                <span className="text-[#D80202]">John20</span>{" "}
+                <span className="text-white">Deals</span>
+              </span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
               Your Smart Tech Plug. We provide high-quality gadgets, computers, and accessories to power your digital life.

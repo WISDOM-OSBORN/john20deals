@@ -85,6 +85,7 @@ export default function Home() {
         <meta name="description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana. Quality tech at unbeatable prices." />
         <meta property="og:title" content="John20 Deals | Your Smart Tech Plug" />
         <meta property="og:description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana." />
+        <meta property="og:image" content="https://john20deals.netlify.app/logo.svg" />
       </Helmet>
       {/* Our Services */}
       <section className="relative py-16 overflow-hidden bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-800">
