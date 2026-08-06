@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { adminOps } from '../lib/api';
 import { Navigate } from 'react-router-dom';
 import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Upload, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench, MessageCircle, Search } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
@@ -29,7 +29,14 @@ interface Order {
   total_price: number;
   status: string;
   user_id: string;
-  products?: any[];
+  products?: {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image_url?: string | null;
+    condition?: string;
+  }[];
   delivery_method?: string;
   shipping_address?: string;
 }
@@ -149,6 +156,13 @@ export default function AdminDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
 
+  // Pagination ("load more") for large tables
+  const PAGE_SIZE = 20;
+  const [ordersLimit, setOrdersLimit] = useState(PAGE_SIZE);
+  const [swapLimit, setSwapLimit] = useState(PAGE_SIZE);
+  const [sellLimit, setSellLimit] = useState(PAGE_SIZE);
+  const [repairLimit, setRepairLimit] = useState(PAGE_SIZE);
+
   // Newsletter State
 
   useEffect(() => {
@@ -159,22 +173,23 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: productsData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-    const { data: profilesData } = await supabase.from('profiles').select('*');
-    const { data: subscribersData } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
-    const { data: swapData } = await supabase.from('swap_requests').select('*').order('created_at', { ascending: false });
-    const { data: sellData } = await supabase.from('sell_requests').select('*').order('created_at', { ascending: false });
-    const { data: repairData } = await supabase.from('repair_requests').select('*').order('created_at', { ascending: false });
-    
-    if (productsData) setProducts(productsData);
-    if (subscribersData) setSubscribers(subscribersData);
-      if (swapData) setSwapRequests(swapData as SwapRequest[]);
-    if (sellData) setSellRequests(sellData as SellRequest[]);
-    if (repairData) setRepairRequests(repairData as RepairRequest[]);
-    if (ordersData) {
+    try {
+      const data = await adminOps({ action: 'fetchAll' });
+      const productsData = data?.products || [];
+      const ordersData = data?.orders || [];
+      const profilesData = data?.customers || [];
+      const subscribersData = data?.subscribers || [];
+      const swapData = data?.swaps || [];
+      const sellData = data?.sells || [];
+      const repairData = data?.repairs || [];
+
+      setProducts(productsData);
+      setSubscribers(subscribersData);
+      setSwapRequests(swapData as SwapRequest[]);
+      setSellRequests(sellData as SellRequest[]);
+      setRepairRequests(repairData as RepairRequest[]);
       setOrders(ordersData);
-      
+
       // Prepare sales data for charts
       const last30Days = [...Array(30)].map((_, i) => {
         const d = new Date();
@@ -183,40 +198,27 @@ export default function AdminDashboard() {
       }).reverse();
 
       const dailySales = last30Days.map(date => {
-        const dayOrders = ordersData.filter(o => o.created_at.startsWith(date) && o.status !== 'cancelled');
+        const dayOrders = ordersData.filter((o: any) => o.created_at.startsWith(date) && o.status !== 'cancelled');
         return {
           date: new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-          amount: dayOrders.reduce((acc, o) => acc + o.total_price, 0),
+          amount: dayOrders.reduce((acc: number, o: any) => acc + o.total_price, 0),
           orders: dayOrders.length
         };
       });
       setSalesData(dailySales);
 
       // Category data
-      if (productsData) {
-        const catStats = productsData.reduce((acc: any, p) => {
-          acc[p.category] = (acc[p.category] || 0) + 1;
-          return acc;
-        }, {});
-        setCategoryData(Object.entries(catStats).map(([name, value]) => ({ name, value })));
-      }
-      
-      // Calculate customer stats
-      if (profilesData) {
-        const customerStats = profilesData.map(profile => {
-          const userOrders = ordersData.filter(o => o.user_id === profile.id);
-          const totalSpend = userOrders.filter(o => o.status !== 'cancelled').reduce((acc, o) => acc + o.total_price, 0);
-          return {
-            id: profile.id,
-            email: profile.email,
-            full_name: profile.full_name,
-            total_spend: totalSpend,
-            order_count: userOrders.length,
-            last_order: userOrders[0]?.created_at || null
-          };
-        }).sort((a, b) => b.total_spend - a.total_spend);
-        setCustomers(customerStats);
-      }
+      const catStats = productsData.reduce((acc: any, p) => {
+        acc[p.category] = (acc[p.category] || 0) + 1;
+        return acc;
+      }, {});
+      setCategoryData(Object.entries(catStats).map(([name, value]) => ({ name, value })));
+
+      // Customer stats are computed server-side (fetchAll returns customers)
+      setCustomers(profilesData as Customer[]);
+    } catch (error: any) {
+      console.error('Failed to load admin data:', error);
+      toast.error('Failed to load dashboard data');
     }
     setLoading(false);
   };
@@ -302,12 +304,12 @@ export default function AdminDashboard() {
   const handleDeleteProduct = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
     
-    const { error } = await supabase.from('products').delete().eq('id', id);
-    if (error) {
-      toast.error('Failed to delete product');
-    } else {
+    try {
+      await adminOps({ action: 'deleteProduct', id });
       toast.success('Product deleted');
       fetchData();
+    } catch (error) {
+      toast.error('Failed to delete product');
     }
   };
 
@@ -336,23 +338,22 @@ export default function AdminDashboard() {
     const tradeInValue = acceptTradeIn ? parseFloat(acceptTradeIn) : null;
     const cashDifference = acceptCashDiff ? parseFloat(acceptCashDiff) : null;
 
-    const { error } = await supabase
-      .from('swap_requests')
-      .update({
-        status: 'accepted',
-        trade_in_value: tradeInValue,
-        cash_difference: cashDifference,
+    try {
+      await adminOps({
+        action: 'acceptSwap',
+        id: acceptingSwap.id,
+        tradeInValue,
+        cashDifference,
         terms: acceptTerms.trim() || null,
-        notified_at: new Date().toISOString(),
-      })
-      .eq('id', acceptingSwap.id);
-
-    setSavingSwap(false);
-
-    if (error) {
+        notifiedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      setSavingSwap(false);
       toast.error('Failed to accept swap');
       return;
     }
+
+    setSavingSwap(false);
 
     toast.success('Swap accepted');
     setAcceptingSwap(null);
@@ -397,21 +398,21 @@ export default function AdminDashboard() {
     const cost = diagCost ? parseFloat(diagCost) : null;
     const eta = diagEta ? new Date(diagEta).toISOString() : null;
 
-    const { error } = await supabase
-      .from('repair_requests')
-      .update({
-        status: 'diagnosed',
+    try {
+      await adminOps({
+        action: 'saveDiagnosis',
+        id: diagnosingRepair.id,
         diagnosis: diagDiagnosis.trim() || null,
-        repair_cost: cost,
-        estimated_completion: eta,
-      })
-      .eq('id', diagnosingRepair.id);
-
-    setSavingDiagnosis(false);
-    if (error) {
+        cost,
+        eta: diagEta ? eta : null,
+      });
+    } catch (error) {
+      setSavingDiagnosis(false);
       toast.error('Failed to save diagnosis');
       return;
     }
+
+    setSavingDiagnosis(false);
 
     toast.success('Diagnosis saved & status updated');
     const saved = diagnosingRepair;
@@ -436,11 +437,9 @@ export default function AdminDashboard() {
   };
 
   const handleDeclineRepair = async (repair: RepairRequest, reason: string) => {
-    const { error } = await supabase
-      .from('repair_requests')
-      .update({ status: 'declined', decline_reason: reason.trim() || null })
-      .eq('id', repair.id);
-    if (error) {
+    try {
+      await adminOps({ action: 'declineRepair', id: repair.id, reason: reason || null });
+    } catch (error) {
       toast.error('Failed to decline request');
       return;
     }
@@ -468,11 +467,9 @@ export default function AdminDashboard() {
       return;
     }
 
-    const { error } = await supabase
-      .from('repair_requests')
-      .update({ status: newStatus })
-      .eq('id', repair.id);
-    if (error) {
+    try {
+      await adminOps({ action: 'updateRepairStatus', id: repair.id, status: newStatus });
+    } catch (error) {
       toast.error('Failed to update status');
       return;
     }
@@ -518,18 +515,27 @@ export default function AdminDashboard() {
       swap_allowed: formData.get('swap_allowed') === 'on',
     };
 
-    let error;
+    let error: any = null;
     if (isEditing && currentProduct) {
-      const { error: updateError } = await supabase
-        .from('products')
-        .update(productData as any)
-        .eq('id', currentProduct.id);
-      error = updateError;
+      try {
+        await adminOps({
+          action: 'saveProduct',
+          product: { ...productData, id: currentProduct.id },
+          isEditing: true,
+        });
+      } catch (e: any) {
+        error = e;
+      }
     } else {
-      const { error: insertError } = await supabase
-        .from('products')
-        .insert(productData as any);
-      error = insertError;
+      try {
+        await adminOps({
+          action: 'saveProduct',
+          product: productData,
+          isEditing: false,
+        });
+      } catch (e: any) {
+        error = e;
+      }
     }
 
     if (error) {
@@ -554,15 +560,14 @@ export default function AdminDashboard() {
   };
 
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: newStatus } as any)
-      .eq('id', orderId);
-
-    if (error) {
+    try {
+      await adminOps({ action: 'updateOrderStatus', id: orderId, status: newStatus });
+    } catch (error) {
       toast.error('Failed to update order status');
-    } else {
-      toast.success(`Order status updated to ${newStatus}`);
+      return;
+    }
+
+    toast.success(`Order status updated to ${newStatus}`);
       const order = orders.find((o) => o.id === orderId);
       if (order) {
         const messages: Record<string, string> = {
@@ -585,7 +590,6 @@ export default function AdminDashboard() {
         }
       }
       fetchData();
-    }
   };
 
   const getStatusStyles = (status: string) => {
@@ -837,7 +841,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {orders.map((order) => (
+              {orders.slice(0, ordersLimit).map((order) => (
                 <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
                   <td className="px-6 py-3 font-bold text-slate-900 dark:text-white">
                     <span className="text-blue-600 dark:text-blue-400">#</span>{order.id.slice(0, 8).toUpperCase()}
@@ -890,6 +894,16 @@ export default function AdminDashboard() {
             </tbody>
           </table>
           </div>
+          {orders.length > ordersLimit && (
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center">
+              <button
+                onClick={() => setOrdersLimit(ordersLimit + PAGE_SIZE)}
+                className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Load more orders
+              </button>
+            </div>
+          )}
         </div>
       ) : activeTab === 'analytics' ? (
         <div className="space-y-6">
@@ -1064,11 +1078,12 @@ export default function AdminDashboard() {
                             <button 
                               onClick={async () => {
                                 if (confirm('Remove this subscriber?')) {
-                                  const { error } = await supabase.from('newsletter_subscribers').delete().eq('id', sub.id);
-                                  if (error) toast.error('Failed to remove subscriber');
-                                  else {
+                                  try {
+                                    await adminOps({ action: 'deleteSubscriber', id: sub.id });
                                     toast.success('Subscriber removed');
                                     fetchData();
+                                  } catch (error) {
+                                    toast.error('Failed to remove subscriber');
                                   }
                                 }
                               }}
@@ -1120,7 +1135,7 @@ export default function AdminDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  swapRequests.map((swap) => (
+                  swapRequests.slice(0, swapLimit).map((swap) => (
                     <tr key={swap.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
                         {new Date(swap.created_at).toLocaleDateString()}
@@ -1198,26 +1213,28 @@ export default function AdminDashboard() {
                             <button
                               onClick={async () => {
                                 if (confirm(`Decline swap request from ${swap.user_name}?`)) {
-                                  const { error } = await supabase.from('swap_requests').update({ status: 'declined' }).eq('id', swap.id);
-                                  if (error) toast.error('Failed to decline request');
-                                  else {
-                                    toast.success('Swap declined');
-                                    await createNotification({
-                                      userId: swap.user_id,
-                                      type: 'swap',
-                                      title: 'Swap declined',
-                                      message: `We're sorry, your swap request for ${swap.product_name} was not accepted this time.`,
-                                    });
-                                    openWhatsApp(
-                                      swap.user_phone,
-                                      [
-                                        `Hello ${swap.user_name || 'there'}!`,
-                                        `We're sorry — your swap request for *${swap.product_name}* at John20 Deals was not accepted this time.`,
-                                        'You are welcome to try another device or contact us anytime. Thank you!',
-                                      ]
-                                    );
-                                    fetchData();
+                                  try {
+                                    await adminOps({ action: 'declineSwap', id: swap.id });
+                                  } catch (error) {
+                                    toast.error('Failed to decline request');
+                                    return;
                                   }
+                                  toast.success('Swap declined');
+                                  await createNotification({
+                                    userId: swap.user_id,
+                                    type: 'swap',
+                                    title: 'Swap declined',
+                                    message: `We're sorry, your swap request for ${swap.product_name} was not accepted this time.`,
+                                  });
+                                  openWhatsApp(
+                                    swap.user_phone,
+                                    [
+                                      `Hello ${swap.user_name || 'there'}!`,
+                                      `We're sorry — your swap request for *${swap.product_name}* at John20 Deals was not accepted this time.`,
+                                      'You are welcome to try another device or contact us anytime. Thank you!',
+                                    ]
+                                  );
+                                  fetchData();
                                 }
                               }}
                               className="mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
@@ -1229,11 +1246,12 @@ export default function AdminDashboard() {
                         <button
                            onClick={async () => {
                             if (confirm('Delete this swap request?')) {
-                              const { error } = await supabase.from('swap_requests').delete().eq('id', swap.id);
-                              if (error) toast.error('Failed to delete request');
-                              else {
+                              try {
+                                await adminOps({ action: 'deleteSwap', id: swap.id });
                                 toast.success('Request deleted');
                                 fetchData();
+                              } catch (error) {
+                                toast.error('Failed to delete request');
                               }
                             }
                           }}
@@ -1248,6 +1266,16 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {swapRequests.length > swapLimit && (
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center">
+              <button
+                onClick={() => setSwapLimit(swapLimit + PAGE_SIZE)}
+                className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Load more swaps
+              </button>
+            </div>
+          )}
         </div>
       ) : activeTab === 'sell' ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
@@ -1282,7 +1310,7 @@ export default function AdminDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  sellRequests.map((sell) => (
+                  sellRequests.slice(0, sellLimit).map((sell) => (
                     <tr key={sell.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
                         {new Date(sell.created_at).toLocaleDateString()}
@@ -1319,27 +1347,29 @@ export default function AdminDashboard() {
                           value={sell.status}
                           onChange={async (e) => {
                             const newStatus = e.target.value;
-                            const { error } = await supabase.from('sell_requests').update({ status: newStatus }).eq('id', sell.id);
-                            if (error) toast.error('Failed to update status');
-                            else {
-                              toast.success('Status updated');
-                              if (newStatus === 'purchased') {
-                                await createNotification({
-                                  userId: sell.user_id,
-                                  type: 'sell',
-                                  title: 'Device purchased!',
-                                  message: `Good news! We've purchased your ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'device'}${sell.offer_price ? ` for ${formatCurrency(sell.offer_price)}` : ''}.`,
-                                });
-                              } else if (newStatus === 'declined') {
-                                await createNotification({
-                                  userId: sell.user_id,
-                                  type: 'sell',
-                                  title: 'Sell request declined',
-                                  message: `We're sorry, your sell request for ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'your device'} was not accepted this time.`,
-                                });
-                              }
-                              fetchData();
+                            try {
+                              await adminOps({ action: 'updateSellStatus', id: sell.id, status: newStatus });
+                            } catch (error) {
+                              toast.error('Failed to update status');
+                              return;
                             }
+                            toast.success('Status updated');
+                            if (newStatus === 'purchased') {
+                              await createNotification({
+                                userId: sell.user_id,
+                                type: 'sell',
+                                title: 'Device purchased!',
+                                message: `Good news! We've purchased your ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'device'}${sell.offer_price ? ` for ${formatCurrency(sell.offer_price)}` : ''}.`,
+                              });
+                            } else if (newStatus === 'declined') {
+                              await createNotification({
+                                userId: sell.user_id,
+                                type: 'sell',
+                                title: 'Sell request declined',
+                                message: `We're sorry, your sell request for ${[sell.brand, sell.model].filter(Boolean).join(' ') || sell.device_type || 'your device'} was not accepted this time.`,
+                              });
+                            }
+                            fetchData();
                           }}
                           className={`text-xs font-bold rounded-full px-3 py-1 outline-none cursor-pointer appearance-none border ${
                             sell.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' :
@@ -1374,11 +1404,12 @@ export default function AdminDashboard() {
                         <button
                           onClick={async () => {
                             if (confirm('Delete this sell request?')) {
-                              const { error } = await supabase.from('sell_requests').delete().eq('id', sell.id);
-                              if (error) toast.error('Failed to delete request');
-                              else {
+                              try {
+                                await adminOps({ action: 'deleteSell', id: sell.id });
                                 toast.success('Request deleted');
                                 fetchData();
+                              } catch (error) {
+                                toast.error('Failed to delete request');
                               }
                             }
                           }}
@@ -1393,6 +1424,16 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {sellRequests.length > sellLimit && (
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center">
+              <button
+                onClick={() => setSellLimit(sellLimit + PAGE_SIZE)}
+                className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Load more sell requests
+              </button>
+            </div>
+          )}
         </div>
       ) : activeTab === 'repair' ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
@@ -1426,7 +1467,7 @@ export default function AdminDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  repairRequests.map((repair) => (
+                  repairRequests.slice(0, repairLimit).map((repair) => (
                     <tr key={repair.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-3 whitespace-nowrap text-slate-500 dark:text-slate-400">
                         {new Date(repair.created_at).toLocaleDateString()}
@@ -1560,11 +1601,12 @@ export default function AdminDashboard() {
                         <button
                           onClick={async () => {
                             if (confirm('Delete this repair request?')) {
-                              const { error } = await supabase.from('repair_requests').delete().eq('id', repair.id);
-                              if (error) toast.error('Failed to delete request');
-                              else {
+                              try {
+                                await adminOps({ action: 'deleteRepair', id: repair.id });
                                 toast.success('Request deleted');
                                 fetchData();
+                              } catch (error) {
+                                toast.error('Failed to delete request');
                               }
                             }
                           }}
@@ -1579,6 +1621,16 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {repairRequests.length > repairLimit && (
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 text-center">
+              <button
+                onClick={() => setRepairLimit(repairLimit + PAGE_SIZE)}
+                className="px-5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Load more repair requests
+              </button>
+            </div>
+          )}
         </div>
       ) : null}
 
@@ -2052,7 +2104,7 @@ export default function AdminDashboard() {
               <div>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Order Items</h3>
                 <div className="space-y-4">
-                  {selectedOrder.products?.map((item: any, idx: number) => (
+                  {selectedOrder.products?.map((item, idx: number) => (
                     <div key={idx} className="flex items-center gap-4 p-4 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-slate-200 dark:hover:border-slate-600 transition-colors">
                       <div className="h-16 w-16 bg-slate-50 dark:bg-slate-700 rounded-xl flex-shrink-0 overflow-hidden border border-slate-100 dark:border-slate-600">
                         <img src={item.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} alt={item.name} className="w-full h-full object-contain" />

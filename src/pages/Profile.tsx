@@ -5,7 +5,7 @@ import { dark } from '@clerk/themes';
 import { useTheme } from '../context/ThemeContext';
 import { Navigate } from 'react-router-dom';
 import { Package, Clock, CheckCircle, Tag, Wrench, RefreshCw, Bell, CheckCheck, Settings, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { userOps } from '../lib/api';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
@@ -17,7 +17,14 @@ interface Order {
   total_price: number;
   status: string;
   delivery_method?: string;
-  products: any[];
+  products: {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image_url?: string | null;
+    condition?: string;
+  }[];
 }
 
 interface SellRequest {
@@ -83,38 +90,33 @@ export default function Profile() {
 
   const fetchOrders = async () => {
     setLoadingOrders(true);
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', user?.id)
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setOrders(data);
+    try {
+      const data = await userOps({ action: 'fetchUserData', userId: user?.id });
+      setOrders(data?.orders || []);
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
     }
     setLoadingOrders(false);
   };
 
   const fetchRequests = async () => {
     setLoadingRequests(true);
-    const [sellRes, repairRes, swapRes] = await Promise.all([
-      supabase.from('sell_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
-      supabase.from('repair_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
-      supabase.from('swap_requests').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }),
-    ]);
-    if (!sellRes.error && sellRes.data) setSellRequests(sellRes.data);
-    if (!repairRes.error && repairRes.data) setRepairRequests(repairRes.data);
-    if (!swapRes.error && swapRes.data) setSwapRequests(swapRes.data);
+    try {
+      const data = await userOps({ action: 'fetchUserData', userId: user?.id });
+      if (data?.sell) setSellRequests(data.sell);
+      if (data?.repair) setRepairRequests(data.repair);
+      if (data?.swaps) setSwapRequests(data.swaps);
+    } catch (error) {
+      console.error('Failed to fetch requests:', error);
+    }
     setLoadingRequests(false);
   };
 
   const handleCancelRepair = async (req: RepairRequest) => {
     if (!confirm('Cancel this repair request?')) return;
-    const { error } = await supabase
-      .from('repair_requests')
-      .update({ status: 'cancelled_by_user', cancelled_at: new Date().toISOString() })
-      .eq('id', req.id);
-    if (error) {
+    try {
+      await userOps({ action: 'cancelRepair', id: req.id });
+    } catch (error) {
       toast.error('Failed to cancel request');
       return;
     }
@@ -270,7 +272,7 @@ export default function Profile() {
                     <div className="p-6">
                       <h5 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Items in this order</h5>
                       <div className="space-y-4">
-                        {order.products?.map((item: any, idx: number) => (
+                        {order.products?.map((item, idx: number) => (
                           <div key={idx} className="flex items-center gap-4">
                             <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-xl flex-shrink-0 overflow-hidden border border-slate-100 dark:border-slate-800">
                               <img src={item.image_url || 'https://via.placeholder.com/100'} alt={item.name} className="w-full h-full object-contain" />

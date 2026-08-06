@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, User, MessageSquare } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { userOps } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -31,14 +31,8 @@ export default function ProductReviews({ productId }: { productId: string }) {
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*, profiles(full_name, avatar_url)')
-        .eq('product_id', productId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setReviews(data as any || []);
+      const data = await userOps({ action: 'fetchReviews', productId });
+      setReviews(data?.reviews || []);
     } catch (error) {
       console.warn('Reviews table not found or error fetching:', error);
       setReviews([]); // Fallback to empty
@@ -56,15 +50,16 @@ export default function ProductReviews({ productId }: { productId: string }) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('reviews').insert({
-        product_id: productId,
-        user_id: user.id,
-        rating,
-        comment,
+      await userOps({
+        action: 'addReview',
+        review: {
+          product_id: productId,
+          user_id: user.id,
+          rating,
+          comment,
+        },
       });
 
-      if (error) throw error;
-      
       toast.success('Review submitted!');
       setComment('');
       setRating(5);

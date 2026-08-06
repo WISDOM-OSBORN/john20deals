@@ -28,6 +28,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/submit-order"
+  to = "/.netlify/functions/submit-order"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200

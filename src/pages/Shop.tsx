@@ -59,7 +59,8 @@ export default function Shop() {
     }
 
     if (searchTerm) {
-      query = query.ilike('name', `%${searchTerm}%`);
+      const term = `%${searchTerm}%`;
+      query = query.or(`name.ilike.${term},category.ilike.${term}`);
     }
 
     if (sortBy === 'price-low') {
@@ -137,7 +138,7 @@ export default function Shop() {
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const categories = ['All', 'Laptops', 'Phones', 'Accessories', 'Gadgets', 'Deals'];
+  const categories = ['All', ...Object.keys(categoryCounts).filter((c) => c !== 'All')];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

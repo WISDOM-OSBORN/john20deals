@@ -18,14 +18,28 @@ interface WishlistContextType {
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
+const WISHLIST_KEY = 'john20_wishlist';
+const LEGACY_WISHLIST_KEY = 'pennitech_wishlist';
+
+function loadWishlist(): WishlistItem[] {
+  const raw = localStorage.getItem(WISHLIST_KEY) || localStorage.getItem(LEGACY_WISHLIST_KEY);
+  if (!raw) return [];
+  if (!localStorage.getItem(WISHLIST_KEY) && localStorage.getItem(LEGACY_WISHLIST_KEY)) {
+    localStorage.setItem(WISHLIST_KEY, raw);
+    localStorage.removeItem(LEGACY_WISHLIST_KEY);
+  }
+  try {
+    return JSON.parse(raw) as WishlistItem[];
+  } catch {
+    return [];
+  }
+}
+
 export const WishlistProvider = ({ children }: { children: React.ReactNode }) => {
-  const [items, setItems] = useState<WishlistItem[]>(() => {
-    const saved = localStorage.getItem('pennitech_wishlist');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [items, setItems] = useState<WishlistItem[]>(loadWishlist);
 
   useEffect(() => {
-    localStorage.setItem('pennitech_wishlist', JSON.stringify(items));
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
   }, [items]);
 
   const toggleWishlist = (item: WishlistItem) => {

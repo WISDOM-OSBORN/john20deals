@@ -5,6 +5,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetails from './pages/ProductDetails';
@@ -32,6 +33,7 @@ function App() {
             <CartProvider>
               <WishlistProvider>
                 <Layout>
+                <ErrorBoundary>
                 <Helmet>
                   <title>John20 Deals | Your Smart Tech Plug</title>
                   <meta name="description" content="High-quality laptops, smartphones, and accessories in Ghana. Fast delivery and secure payments." />
@@ -53,6 +55,7 @@ function App() {
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                 </Routes>
+                </ErrorBoundary>
               </Layout>
             </WishlistProvider>
           </CartProvider>

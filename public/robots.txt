@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /cart
+Disallow: /wishlist
+
+Sitemap: https://john20deals.netlify.app/sitemap.xml

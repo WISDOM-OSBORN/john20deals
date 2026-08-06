@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../lib/utils';
 import { Trash2, Plus, Minus, MessageCircle, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
@@ -25,29 +24,29 @@ export default function Cart() {
       return;
     }
 
-    // 1. Create Order in Supabase
-    const { data: order, error } = await supabase
-      .from('orders')
-      .insert({
-        user_id: user.id,
-        products: items as any,
-        total_price: total,
-        status: 'pending',
-        delivery_method: deliveryMethod,
-        shipping_address: deliveryMethod === 'delivery' ? address : 'Pickup in Store'
-      } as any)
-      .select()
-      .single();
+    // 1. Create Order in Supabase via serverless function (validates stock, decrements, notifies admin)
+    const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/submit-order' : '/api/submit-order';
+    const res = await fetch(apiEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id,
+        items,
+        deliveryMethod,
+        shippingAddress: deliveryMethod === 'delivery' ? address : 'Pickup in Store',
+      }),
+    });
 
-    if (error || !order) {
-      console.error('Error creating order:', error);
-      toast.error('Failed to create order reference. Please try again.');
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      toast.error(data.error || 'Failed to create order reference. Please try again.');
       return;
     }
 
-    // 2. Construct WhatsApp Message
+    const order = data;
     const orderData = order as any;
-    const orderRef = orderData.id.slice(0, 8).toUpperCase();
+    const orderRef = orderData.orderId?.slice(0, 8).toUpperCase() || '';
     const customerName = user.user_metadata.full_name || 'Customer';
     
     let message = `Hello John20 Deals, I want to order the following device(s):\n\n`;
@@ -65,7 +64,7 @@ export default function Cart() {
     }
 
     // 3. Redirect to WhatsApp
-    const adminPhone = '233505694171'; // Updated admin number
+    const adminPhone = import.meta.env.VITE_ADMIN_WHATSAPP || '233505694171'; // Updated admin number
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodedMessage}`;
     

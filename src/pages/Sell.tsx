@@ -62,6 +62,7 @@ export default function Sell() {
           model: form.get('model'),
           condition: form.get('condition'),
           description: form.get('description'),
+          expectedPrice: form.get('expectedPrice'),
           imageUrls: images,
         }),
       });
@@ -143,6 +144,11 @@ export default function Sell() {
           <div>
             <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Description & Details</label>
             <textarea name="description" rows={4} placeholder="Describe your device: storage, color, any flaws, what's included..." className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 transition-all text-sm resize-none" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Expected Price (GHS)</label>
+            <input name="expectedPrice" type="number" min="0" step="0.01" placeholder="e.g. 1500" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 transition-all text-sm" />
           </div>
 
           <div>

@@ -22,14 +22,28 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const CART_KEY = 'john20_cart';
+const LEGACY_CART_KEY = 'pennitech_cart';
+
+function loadCart(): CartItem[] {
+  const raw = localStorage.getItem(CART_KEY) || localStorage.getItem(LEGACY_CART_KEY);
+  if (!raw) return [];
+  if (!localStorage.getItem(CART_KEY) && localStorage.getItem(LEGACY_CART_KEY)) {
+    localStorage.setItem(CART_KEY, raw);
+    localStorage.removeItem(LEGACY_CART_KEY);
+  }
+  try {
+    return JSON.parse(raw) as CartItem[];
+  } catch {
+    return [];
+  }
+}
+
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    const savedCart = localStorage.getItem('pennitech_cart');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+  const [items, setItems] = useState<CartItem[]>(loadCart);
 
   useEffect(() => {
-    localStorage.setItem('pennitech_cart', JSON.stringify(items));
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
   }, [items]);
 
   const addItem = (newItem: CartItem) => {

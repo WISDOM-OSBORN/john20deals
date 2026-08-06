@@ -23,8 +23,6 @@ async function startServer() {
     requestChecksumCalculation: "WHEN_REQUIRED",
   });
 
-  app.use(express.json());
-
   // API route for generating a presigned URL (Used in dev environment)
   app.post("/api/upload", async (req, res) => {
     try {
@@ -53,6 +51,47 @@ async function startServer() {
       console.error("Presigned URL error:", error);
       res.status(500).json({ error: "Failed to generate upload URL" });
     }
+  });
+
+  // Dev helper: delegates a request to a Netlify function handler so behaviour
+  // matches production.
+  async function delegate(fnPath: string, req: express.Request, res: express.Response) {
+    try {
+      const { handler } = await import(fnPath);
+      const result = await handler(
+        {
+          httpMethod: 'POST',
+          headers: {
+            origin: `http://localhost:${PORT}`,
+            'x-forwarded-for': '127.0.0.1',
+          },
+          body: JSON.stringify(req.body),
+        } as any,
+        {} as any
+      );
+      if (!result || typeof result.statusCode !== 'number') {
+        return res.status(500).json({ error: 'Handler returned no response' });
+      }
+      res.status(result.statusCode).json(result.body ? JSON.parse(result.body) : {});
+    } catch (error) {
+      console.error(`Delegation error (${fnPath}):`, error);
+      res.status(500).json({ error: "Failed to process request" });
+    }
+  }
+
+  // API routes for submitting an order (dev: delegates to the same logic as
+  // the Netlify function so behaviour matches production).
+  app.post("/api/submit-order", async (req, res) => {
+    await delegate('./netlify/functions/submit-order', req, res);
+  });
+
+  // Admin / user service-role operations (dev delegation).
+  app.post("/api/admin-ops", async (req, res) => {
+    await delegate('./netlify/functions/admin-ops', req, res);
+  });
+
+  app.post("/api/user-ops", async (req, res) => {
+    await delegate('./netlify/functions/user-ops', req, res);
   });
 
   // Vite middleware for development

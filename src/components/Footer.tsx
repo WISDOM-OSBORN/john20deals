@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Ghost, Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { userOps } from '../lib/api';
 import toast from 'react-hot-toast';
 
 export default function Footer() {
@@ -14,19 +14,8 @@ export default function Footer() {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .insert([{ email }]);
-
-      if (error) {
-        if (error.code === '23505') {
-          toast.success('You are already subscribed!');
-        } else {
-          throw error;
-        }
-      } else {
-        toast.success('Successfully subscribed to newsletter!');
-      }
+      await userOps({ action: 'subscribeNewsletter', email });
+      toast.success('Successfully subscribed to newsletter!');
       setEmail('');
     } catch (error: any) {
       console.error('Newsletter error:', error);

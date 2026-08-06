@@ -1,10 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useUser, useClerk, useSession } from '@clerk/clerk-react';
-import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
+export interface AppUser {
+  id: string;
+  email: string;
+  created_at: string;
+  user_metadata: {
+    full_name: string;
+    avatar_url: string;
+    phone_number: string;
+    location: string;
+  };
+}
+
 interface AuthContextType {
-  user: any | null;
+  user: AppUser | null;
   session: any | null;
   isAdmin: boolean;
   loading: boolean;
@@ -26,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   const loading = !userLoaded || !sessionLoaded;
   
-  let mappedUser = null;
+  let mappedUser: AppUser | null = null;
 
   if (clerkUser) {
     const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress || '';
@@ -37,8 +48,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       user_metadata: {
         full_name: clerkUser.fullName || '',
         avatar_url: clerkUser.imageUrl || '',
-        phone_number: clerkUser.unsafeMetadata?.phone_number || clerkUser.publicMetadata?.phone_number || '',
-        location: clerkUser.unsafeMetadata?.location || clerkUser.publicMetadata?.location || '',
+        phone_number: String(clerkUser.unsafeMetadata?.phone_number || clerkUser.publicMetadata?.phone_number || ''),
+        location: String(clerkUser.unsafeMetadata?.location || clerkUser.publicMetadata?.location || ''),
       }
     };
   }
@@ -54,23 +65,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [mappedUser?.email, clerkUser?.publicMetadata, clerkUser?.unsafeMetadata]);
 
   // Bridge Clerk identity into Supabase so orders/reviews (which FK to
-  // profiles) do not fail. Upserts a profile row on every login.
+  // profiles) do not fail. Upserts a profile row on every login via the
+  // service-role function (RLS blocks anon writes to profiles).
   useEffect(() => {
     if (!clerkUser || !mappedUser) return;
 
     const syncProfile = async () => {
-      const { error } = await supabase.from('profiles').upsert(
-        {
-          id: mappedUser.id,
-          email: mappedUser.email,
-          full_name: mappedUser.user_metadata.full_name || null,
-          avatar_url: mappedUser.user_metadata.avatar_url || null,
-          phone_number: mappedUser.user_metadata.phone_number || null,
-          location: mappedUser.user_metadata.location || null,
-        },
-        { onConflict: 'id' }
-      );
-      if (error) console.warn('Profile sync warning:', error.message);
+      try {
+        const { userOps } = await import('../lib/api');
+        await userOps({
+          action: 'syncProfile',
+          profile: {
+            id: mappedUser.id,
+            email: mappedUser.email,
+            full_name: mappedUser.user_metadata.full_name || null,
+            phone: mappedUser.user_metadata.phone_number || null,
+            location: mappedUser.user_metadata.location || null,
+          },
+        });
+      } catch (error: any) {
+        console.warn('Profile sync warning:', error.message);
+      }
     };
 
     syncProfile();
