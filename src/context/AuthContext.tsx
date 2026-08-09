@@ -61,11 +61,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       clerkUser?.publicMetadata?.role ||
       clerkUser?.unsafeMetadata?.role ||
       'user';
-    const isLegacyAdmin = LEGACY_ADMIN_EMAILS.some(
-      (email) => email.toLowerCase() === (mappedUser?.email || '').toLowerCase().trim()
+
+    // A user is a legacy admin if ANY of their verified emails (primary or
+    // additional) matches the legacy admin list - not just the primary one.
+    const verifiedEmails = new Set<string>();
+    (clerkUser?.emailAddresses || []).forEach((ea) => {
+      if (ea?.emailAddress) verifiedEmails.add(ea.emailAddress.toLowerCase());
+    });
+    if (clerkUser?.primaryEmailAddress?.emailAddress) {
+      verifiedEmails.add(clerkUser.primaryEmailAddress.emailAddress.toLowerCase());
+    }
+    const isLegacyAdmin = LEGACY_ADMIN_EMAILS.some((email) =>
+      verifiedEmails.has(email.toLowerCase())
     );
+
     setIsAdmin(role === 'admin' || isLegacyAdmin);
-  }, [mappedUser?.email, clerkUser?.publicMetadata, clerkUser?.unsafeMetadata]);
+  }, [
+    clerkUser?.publicMetadata,
+    clerkUser?.unsafeMetadata,
+    clerkUser?.emailAddresses,
+  ]);
 
   // Bridge Clerk identity into Supabase so orders/reviews (which FK to
   // profiles) do not fail. Upserts a profile row on every login via the
