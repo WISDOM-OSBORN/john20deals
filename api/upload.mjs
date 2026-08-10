@@ -5,6 +5,12 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a5, b5) => (typeof require !== "undefined" ? require : a5)[b5]
+}) : x)(function(x) {
+  if (typeof require !== "undefined") return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x + '" is not supported');
+});
 var __esm = (fn, res, err) => function __init() {
   if (err) throw err[0];
   try {
@@ -13,7 +19,7 @@ var __esm = (fn, res, err) => function __init() {
     throw err = [e5], e5;
   }
 };
-var __commonJS = (cb, mod) => function __require() {
+var __commonJS = (cb, mod) => function __require2() {
   try {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   } catch (e5) {
@@ -191,11 +197,11 @@ var init_setCredentialFeature = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/isStreamingPayload/isStreamingPayload.js
-var import_node_stream, isStreamingPayload;
+import { Readable } from "node:stream";
+var isStreamingPayload;
 var init_isStreamingPayload = __esm({
   "node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/isStreamingPayload/isStreamingPayload.js"() {
-    import_node_stream = require("node:stream");
-    isStreamingPayload = (request) => request?.body instanceof import_node_stream.Readable || typeof ReadableStream !== "undefined" && request?.body instanceof ReadableStream;
+    isStreamingPayload = (request) => request?.body instanceof Readable || typeof ReadableStream !== "undefined" && request?.body instanceof ReadableStream;
   }
 });
 
@@ -471,7 +477,7 @@ var init_MiddlewareStack = __esm({
 
 // node_modules/@smithy/types/dist-cjs/index.js
 var require_dist_cjs = __commonJS({
-  "node_modules/@smithy/types/dist-cjs/index.js"(exports2) {
+  "node_modules/@smithy/types/dist-cjs/index.js"(exports) {
     var HttpAuthLocation;
     (function(HttpAuthLocation2) {
       HttpAuthLocation2["HEADER"] = "header";
@@ -549,16 +555,16 @@ var require_dist_cjs = __commonJS({
       RequestHandlerProtocol2["HTTP_1_0"] = "http/1.0";
       RequestHandlerProtocol2["TDS_8_0"] = "tds/8.0";
     })(RequestHandlerProtocol || (RequestHandlerProtocol = {}));
-    exports2.AlgorithmId = AlgorithmId2;
-    exports2.EndpointURLScheme = EndpointURLScheme2;
-    exports2.FieldPosition = FieldPosition2;
-    exports2.HttpApiKeyAuthLocation = HttpApiKeyAuthLocation2;
-    exports2.HttpAuthLocation = HttpAuthLocation;
-    exports2.IniSectionType = IniSectionType4;
-    exports2.RequestHandlerProtocol = RequestHandlerProtocol;
-    exports2.SMITHY_CONTEXT_KEY = SMITHY_CONTEXT_KEY3;
-    exports2.getDefaultClientConfiguration = getDefaultClientConfiguration2;
-    exports2.resolveDefaultRuntimeConfig = resolveDefaultRuntimeConfig2;
+    exports.AlgorithmId = AlgorithmId2;
+    exports.EndpointURLScheme = EndpointURLScheme2;
+    exports.FieldPosition = FieldPosition2;
+    exports.HttpApiKeyAuthLocation = HttpApiKeyAuthLocation2;
+    exports.HttpAuthLocation = HttpAuthLocation;
+    exports.IniSectionType = IniSectionType4;
+    exports.RequestHandlerProtocol = RequestHandlerProtocol;
+    exports.SMITHY_CONTEXT_KEY = SMITHY_CONTEXT_KEY3;
+    exports.getDefaultClientConfiguration = getDefaultClientConfiguration2;
+    exports.resolveDefaultRuntimeConfig = resolveDefaultRuntimeConfig2;
   }
 });
 
@@ -3534,10 +3540,10 @@ var init_hex_encoding = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-body-length/calculateBodyLength.js
-var import_node_fs, calculateBodyLength;
+import { ReadStream, fstatSync, lstatSync } from "node:fs";
+var calculateBodyLength;
 var init_calculateBodyLength = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-body-length/calculateBodyLength.js"() {
-    import_node_fs = require("node:fs");
     calculateBodyLength = (body) => {
       if (!body) {
         return 0;
@@ -3550,11 +3556,11 @@ var init_calculateBodyLength = __esm({
         return body.size;
       } else if (typeof body.start === "number" && typeof body.end === "number") {
         return body.end + 1 - body.start;
-      } else if (body instanceof import_node_fs.ReadStream) {
+      } else if (body instanceof ReadStream) {
         if (body.path != null) {
-          return (0, import_node_fs.lstatSync)(body.path).size;
+          return lstatSync(body.path).size;
         } else if (typeof body.fd === "number") {
-          return (0, import_node_fs.fstatSync)(body.fd).size;
+          return fstatSync(body.fd).size;
         }
       }
       throw new Error(`Body Length computation failed for ${body}`);
@@ -3853,11 +3859,11 @@ var init_types = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getHomeDir.js
-var import_node_os, import_node_path, homeDirCache, getHomeDirCacheKey, getHomeDir;
+import { homedir } from "node:os";
+import { sep } from "node:path";
+var homeDirCache, getHomeDirCacheKey, getHomeDir;
 var init_getHomeDir = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getHomeDir.js"() {
-    import_node_os = require("node:os");
-    import_node_path = require("node:path");
     homeDirCache = {};
     getHomeDirCacheKey = () => {
       if (process && process.geteuid) {
@@ -3866,7 +3872,7 @@ var init_getHomeDir = __esm({
       return "DEFAULT";
     };
     getHomeDir = () => {
-      const { HOME, USERPROFILE, HOMEPATH, HOMEDRIVE = `C:${import_node_path.sep}` } = process.env;
+      const { HOME, USERPROFILE, HOMEPATH, HOMEDRIVE = `C:${sep}` } = process.env;
       if (HOME)
         return HOME;
       if (USERPROFILE)
@@ -3875,7 +3881,7 @@ var init_getHomeDir = __esm({
         return `${HOMEDRIVE}${HOMEPATH}`;
       const homeDirCacheKey = getHomeDirCacheKey();
       if (!homeDirCache[homeDirCacheKey])
-        homeDirCache[homeDirCacheKey] = (0, import_node_os.homedir)();
+        homeDirCache[homeDirCacheKey] = homedir();
       return homeDirCache[homeDirCacheKey];
     };
   }
@@ -3892,25 +3898,25 @@ var init_getProfileName = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getSSOTokenFilepath.js
-var import_node_crypto, import_node_path2, getSSOTokenFilepath;
+import { createHash } from "node:crypto";
+import { join } from "node:path";
+var getSSOTokenFilepath;
 var init_getSSOTokenFilepath = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getSSOTokenFilepath.js"() {
-    import_node_crypto = require("node:crypto");
-    import_node_path2 = require("node:path");
     init_getHomeDir();
     getSSOTokenFilepath = (id) => {
-      const hasher = (0, import_node_crypto.createHash)("sha1");
+      const hasher = createHash("sha1");
       const cacheName = hasher.update(id).digest("hex");
-      return (0, import_node_path2.join)(getHomeDir(), ".aws", "sso", "cache", `${cacheName}.json`);
+      return join(getHomeDir(), ".aws", "sso", "cache", `${cacheName}.json`);
     };
   }
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getSSOTokenFromFile.js
-var import_promises, tokenIntercept, getSSOTokenFromFile;
+import { readFile } from "node:fs/promises";
+var tokenIntercept, getSSOTokenFromFile;
 var init_getSSOTokenFromFile = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getSSOTokenFromFile.js"() {
-    import_promises = require("node:fs/promises");
     init_getSSOTokenFilepath();
     tokenIntercept = {};
     getSSOTokenFromFile = async (id) => {
@@ -3918,7 +3924,7 @@ var init_getSSOTokenFromFile = __esm({
         return tokenIntercept[id];
       }
       const ssoTokenFilepath = getSSOTokenFilepath(id);
-      const ssoTokenText = await (0, import_promises.readFile)(ssoTokenFilepath, "utf8");
+      const ssoTokenText = await readFile(ssoTokenFilepath, "utf8");
       return JSON.parse(ssoTokenText);
     };
   }
@@ -3956,24 +3962,24 @@ var init_getConfigData = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getConfigFilepath.js
-var import_node_path3, ENV_CONFIG_PATH, getConfigFilepath;
+import { join as join2 } from "node:path";
+var ENV_CONFIG_PATH, getConfigFilepath;
 var init_getConfigFilepath = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getConfigFilepath.js"() {
-    import_node_path3 = require("node:path");
     init_getHomeDir();
     ENV_CONFIG_PATH = "AWS_CONFIG_FILE";
-    getConfigFilepath = () => process.env[ENV_CONFIG_PATH] || (0, import_node_path3.join)(getHomeDir(), ".aws", "config");
+    getConfigFilepath = () => process.env[ENV_CONFIG_PATH] || join2(getHomeDir(), ".aws", "config");
   }
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getCredentialsFilepath.js
-var import_node_path4, ENV_CREDENTIALS_PATH, getCredentialsFilepath;
+import { join as join3 } from "node:path";
+var ENV_CREDENTIALS_PATH, getCredentialsFilepath;
 var init_getCredentialsFilepath = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/getCredentialsFilepath.js"() {
-    import_node_path4 = require("node:path");
     init_getHomeDir();
     ENV_CREDENTIALS_PATH = "AWS_SHARED_CREDENTIALS_FILE";
-    getCredentialsFilepath = () => process.env[ENV_CREDENTIALS_PATH] || (0, import_node_path4.join)(getHomeDir(), ".aws", "credentials");
+    getCredentialsFilepath = () => process.env[ENV_CREDENTIALS_PATH] || join3(getHomeDir(), ".aws", "credentials");
   }
 });
 
@@ -4034,10 +4040,10 @@ var init_parseIni = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/readFile.js
-var import_promises2, filePromises, fileIntercept, readFile2;
+import { readFile as fsReadFile } from "node:fs/promises";
+var filePromises, fileIntercept, readFile2;
 var init_readFile = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/readFile.js"() {
-    import_promises2 = require("node:fs/promises");
     filePromises = {};
     fileIntercept = {};
     readFile2 = (path, options) => {
@@ -4045,7 +4051,7 @@ var init_readFile = __esm({
         return fileIntercept[path];
       }
       if (!filePromises[path] || options?.ignoreCache) {
-        filePromises[path] = (0, import_promises2.readFile)(path, "utf8");
+        filePromises[path] = fsReadFile(path, "utf8");
       }
       return filePromises[path];
     };
@@ -4053,10 +4059,10 @@ var init_readFile = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/loadSharedConfigFiles.js
-var import_node_path5, swallowError, loadSharedConfigFiles;
+import { join as join4 } from "node:path";
+var swallowError, loadSharedConfigFiles;
 var init_loadSharedConfigFiles = __esm({
   "node_modules/@smithy/core/dist-es/submodules/config/shared-ini-file-loader/loadSharedConfigFiles.js"() {
-    import_node_path5 = require("node:path");
     init_getConfigData();
     init_getConfigFilepath();
     init_getCredentialsFilepath();
@@ -4071,11 +4077,11 @@ var init_loadSharedConfigFiles = __esm({
       const relativeHomeDirPrefix = "~/";
       let resolvedFilepath = filepath;
       if (filepath.startsWith(relativeHomeDirPrefix)) {
-        resolvedFilepath = (0, import_node_path5.join)(homeDir, filepath.slice(2));
+        resolvedFilepath = join4(homeDir, filepath.slice(2));
       }
       let resolvedConfigFilepath = configFilepath;
       if (configFilepath.startsWith(relativeHomeDirPrefix)) {
-        resolvedConfigFilepath = (0, import_node_path5.join)(homeDir, configFilepath.slice(2));
+        resolvedConfigFilepath = join4(homeDir, configFilepath.slice(2));
       }
       const parsedFiles = await Promise.all([
         readFile2(resolvedConfigFilepath, {
@@ -6093,6 +6099,7 @@ var init_serdePlugin = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/hash-node/hash-node.js
+import { createHash as createHash2, createHmac } from "node:crypto";
 function castSourceData(toCast, encoding) {
   if (Buffer.isBuffer(toCast)) {
     return toCast;
@@ -6105,10 +6112,9 @@ function castSourceData(toCast, encoding) {
   }
   return fromArrayBuffer(toCast);
 }
-var import_node_crypto2, Hash;
+var Hash;
 var init_hash_node = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/hash-node/hash-node.js"() {
-    import_node_crypto2 = require("node:crypto");
     init_buffer_from();
     init_toUint8Array();
     Hash = class {
@@ -6127,19 +6133,19 @@ var init_hash_node = __esm({
         return Promise.resolve(this.hash.digest());
       }
       reset() {
-        this.hash = this.secret ? (0, import_node_crypto2.createHmac)(this.algorithmIdentifier, castSourceData(this.secret)) : (0, import_node_crypto2.createHash)(this.algorithmIdentifier);
+        this.hash = this.secret ? createHmac(this.algorithmIdentifier, castSourceData(this.secret)) : createHash2(this.algorithmIdentifier);
       }
     };
   }
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/checksum/ChecksumStream.js
-var import_node_stream2, ChecksumStream;
+import { Readable as Readable2 } from "node:stream";
+var ChecksumStream;
 var init_ChecksumStream = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/checksum/ChecksumStream.js"() {
-    import_node_stream2 = require("node:stream");
     init_toBase64();
-    ChecksumStream = class extends import_node_stream2.Readable {
+    ChecksumStream = class extends Readable2 {
       expectedChecksum;
       checksumSourceLocation;
       checksum;
@@ -6492,11 +6498,12 @@ var init_createBufferedReadable_browser = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/createBufferedReadable.js
+import { Readable as Readable3 } from "node:stream";
 function createBufferedReadable(upstream, size, logger2) {
   if (isReadableStream(upstream)) {
     return createBufferedReadableStream(upstream, size, logger2);
   }
-  const downstream = new import_node_stream3.Readable({ read() {
+  const downstream = new Readable3({ read() {
   } });
   let streamBufferingLoggedWarning = false;
   let bytesSeen = 0;
@@ -6545,10 +6552,8 @@ function createBufferedReadable(upstream, size, logger2) {
   });
   return downstream;
 }
-var import_node_stream3;
 var init_createBufferedReadable = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/createBufferedReadable.js"() {
-    import_node_stream3 = require("node:stream");
     init_ByteArrayCollector();
     init_createBufferedReadable_browser();
     init_stream_type_check();
@@ -6590,6 +6595,7 @@ ${value}\r
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/getAwsChunkedEncodingStream.js
+import { Readable as Readable4 } from "node:stream";
 function getAwsChunkedEncodingStream2(stream, options) {
   const readable = stream;
   const readableStream = stream;
@@ -6599,7 +6605,7 @@ function getAwsChunkedEncodingStream2(stream, options) {
   const { base64Encoder, bodyLengthChecker, checksumAlgorithmFn, checksumLocationName, streamHasher } = options;
   const checksumRequired = base64Encoder !== void 0 && checksumAlgorithmFn !== void 0 && checksumLocationName !== void 0 && streamHasher !== void 0;
   const digest3 = checksumRequired ? streamHasher(checksumAlgorithmFn, readable) : void 0;
-  const awsChunkedEncodingStream = new import_node_stream4.Readable({
+  const awsChunkedEncodingStream = new Readable4({
     read: () => {
     }
   });
@@ -6627,10 +6633,8 @@ function getAwsChunkedEncodingStream2(stream, options) {
   });
   return awsChunkedEncodingStream;
 }
-var import_node_stream4;
 var init_getAwsChunkedEncodingStream = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/getAwsChunkedEncodingStream.js"() {
-    import_node_stream4 = require("node:stream");
     init_getAwsChunkedEncodingStream_browser();
     init_stream_type_check();
   }
@@ -6673,10 +6677,10 @@ var init_headStream_browser = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/headStream.js
-var import_node_stream5, headStream2, Collector;
+import { Writable } from "node:stream";
+var headStream2, Collector;
 var init_headStream = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/headStream.js"() {
-    import_node_stream5 = require("node:stream");
     init_concatBytes();
     init_headStream_browser();
     init_stream_type_check();
@@ -6699,7 +6703,7 @@ var init_headStream = __esm({
         });
       });
     };
-    Collector = class extends import_node_stream5.Writable {
+    Collector = class extends Writable {
       buffers = [];
       limit = Infinity;
       bytesBuffered = 0;
@@ -6833,10 +6837,10 @@ var init_sdk_stream_mixin_browser = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/stream-collector.js
-var import_node_stream6, streamCollector2, Collector2;
+import { Writable as Writable2 } from "node:stream";
+var streamCollector2, Collector2;
 var init_stream_collector = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/stream-collector.js"() {
-    import_node_stream6 = require("node:stream");
     init_concatBytes();
     init_stream_collector_browser();
     init_stream_type_check();
@@ -6862,7 +6866,7 @@ var init_stream_collector = __esm({
         });
       });
     };
-    Collector2 = class extends import_node_stream6.Writable {
+    Collector2 = class extends Writable2 {
       bufferedBytes = [];
       _write(chunk, encoding, callback) {
         this.bufferedBytes.push(chunk);
@@ -6873,16 +6877,16 @@ var init_stream_collector = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/sdk-stream-mixin.js
-var import_node_stream7, ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2, sdkStreamMixin2;
+import { Readable as Readable5 } from "node:stream";
+var ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2, sdkStreamMixin2;
 var init_sdk_stream_mixin = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/sdk-stream-mixin.js"() {
-    import_node_stream7 = require("node:stream");
     init_buffer_from();
     init_sdk_stream_mixin_browser();
     init_stream_collector();
     ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED2 = "The stream has already been transformed.";
     sdkStreamMixin2 = (stream) => {
-      if (!(stream instanceof import_node_stream7.Readable)) {
+      if (!(stream instanceof Readable5)) {
         try {
           return sdkStreamMixin(stream);
         } catch (ignored) {
@@ -6916,11 +6920,11 @@ var init_sdk_stream_mixin = __esm({
           if (stream.readableFlowing !== null) {
             throw new Error("The stream has been consumed by other callbacks.");
           }
-          if (typeof import_node_stream7.Readable.toWeb !== "function") {
+          if (typeof Readable5.toWeb !== "function") {
             throw new Error("Readable.toWeb() is not supported. Please ensure a polyfill is available.");
           }
           transformed = true;
-          return import_node_stream7.Readable.toWeb(stream);
+          return Readable5.toWeb(stream);
         }
       });
     };
@@ -6941,20 +6945,19 @@ var init_splitStream_browser = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/util-stream/splitStream.js
+import { PassThrough } from "node:stream";
 async function splitStream2(stream) {
   if (isReadableStream(stream) || isBlob(stream)) {
     return splitStream(stream);
   }
-  const stream1 = new import_node_stream8.PassThrough();
-  const stream2 = new import_node_stream8.PassThrough();
+  const stream1 = new PassThrough();
+  const stream2 = new PassThrough();
   stream.pipe(stream1);
   stream.pipe(stream2);
   return [stream1, stream2];
 }
-var import_node_stream8;
 var init_splitStream = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/util-stream/splitStream.js"() {
-    import_node_stream8 = require("node:stream");
     init_splitStream_browser();
     init_stream_type_check();
   }
@@ -7036,10 +7039,10 @@ __export(serde_exports, {
   toUtf8: () => toUtf8,
   v4: () => v4
 });
-var import_node_crypto3, Uint8ArrayBlobAdapter, _getRandomValues, v4, generateIdempotencyToken;
+import { getRandomValues } from "node:crypto";
+var Uint8ArrayBlobAdapter, _getRandomValues, v4, generateIdempotencyToken;
 var init_serde = __esm({
   "node_modules/@smithy/core/dist-es/submodules/serde/index.js"() {
-    import_node_crypto3 = require("node:crypto");
     init_fromBase64();
     init_toBase64();
     init_Uint8ArrayBlobAdapter();
@@ -7076,7 +7079,7 @@ var init_serde = __esm({
     init_stream_collector();
     Uint8ArrayBlobAdapter = class extends bindUint8ArrayBlobAdapter(toUtf8, fromUtf8, toBase64, fromBase64) {
     };
-    _getRandomValues = import_node_crypto3.getRandomValues;
+    _getRandomValues = getRandomValues;
     v4 = bindV4(_getRandomValues);
     generateIdempotencyToken = v4;
   }
@@ -7155,12 +7158,12 @@ var init_blobHasher = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/checksum/hash-stream-node/HashCalculator.js
-var import_node_stream9, HashCalculator;
+import { Writable as Writable3 } from "node:stream";
+var HashCalculator;
 var init_HashCalculator = __esm({
   "node_modules/@smithy/core/dist-es/submodules/checksum/hash-stream-node/HashCalculator.js"() {
-    import_node_stream9 = require("node:stream");
     init_serde();
-    HashCalculator = class extends import_node_stream9.Writable {
+    HashCalculator = class extends Writable3 {
       hash;
       constructor(hash, options) {
         super(options);
@@ -7179,17 +7182,17 @@ var init_HashCalculator = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/checksum/hash-stream-node/fileStreamHasher.js
-var import_node_fs2, fileStreamHasher, isReadStream;
+import { createReadStream } from "node:fs";
+var fileStreamHasher, isReadStream;
 var init_fileStreamHasher = __esm({
   "node_modules/@smithy/core/dist-es/submodules/checksum/hash-stream-node/fileStreamHasher.js"() {
-    import_node_fs2 = require("node:fs");
     init_HashCalculator();
     fileStreamHasher = (hashCtor, fileStream) => new Promise((resolve, reject) => {
       if (!isReadStream(fileStream)) {
         reject(new Error("Unable to calculate hash for non-file streams."));
         return;
       }
-      const fileStreamTee = (0, import_node_fs2.createReadStream)(fileStream.path, {
+      const fileStreamTee = createReadStream(fileStream.path, {
         start: fileStream.start,
         end: fileStream.end
       });
@@ -7332,10 +7335,11 @@ var init_Md5Js = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/checksum/md5/Md5Node.js
+import { createHash as createHash3 } from "node:crypto";
 function buildNativeClass() {
   return class Md5Node {
     digestLength = 16;
-    hash = (0, import_node_crypto4.createHash)("md5");
+    hash = createHash3("md5");
     update(data) {
       this.hash.update(toUint8Array(data));
     }
@@ -7344,19 +7348,18 @@ function buildNativeClass() {
       return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
     }
     reset() {
-      this.hash = (0, import_node_crypto4.createHash)("md5");
+      this.hash = createHash3("md5");
     }
   };
 }
-var import_node_crypto4, hasNativeCrypto, Md5Node;
+var hasNativeCrypto, Md5Node;
 var init_Md5Node = __esm({
   "node_modules/@smithy/core/dist-es/submodules/checksum/md5/Md5Node.js"() {
-    import_node_crypto4 = require("node:crypto");
     init_serde();
     init_Md5Js();
     hasNativeCrypto = (() => {
       try {
-        (0, import_node_crypto4.createHash)("md5");
+        createHash3("md5");
         return true;
       } catch {
         return false;
@@ -7404,6 +7407,7 @@ var init_Crc32Js = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/checksum/crc32/Crc32Node.js
+import * as zlib from "node:zlib";
 function buildNativeClass2(nativeCrc32) {
   return class Crc32Node {
     digestLength = 4;
@@ -7424,10 +7428,9 @@ function buildNativeClass2(nativeCrc32) {
     }
   };
 }
-var zlib, zlibCrc32, Crc32Node;
+var zlibCrc32, Crc32Node;
 var init_Crc32Node = __esm({
   "node_modules/@smithy/core/dist-es/submodules/checksum/crc32/Crc32Node.js"() {
-    zlib = __toESM(require("node:zlib"));
     init_Crc32Js();
     zlibCrc32 = typeof zlib.crc32 === "function" ? zlib.crc32 : void 0;
     Crc32Node = zlibCrc32 ? buildNativeClass2(zlibCrc32) : Crc32Js;
@@ -7673,6 +7676,7 @@ var init_Sha256Js = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/checksum/sha256/Sha256Node.js
+import { createHash as createHash4, createHmac as createHmac2 } from "node:crypto";
 function buildNativeClass3() {
   return class Sha256Node {
     digestLength = 32;
@@ -7706,7 +7710,7 @@ function buildNativeClass3() {
       this.finished = false;
     }
     createHash() {
-      return this.secret ? (0, import_node_crypto5.createHmac)("sha256", toBuffer(this.secret)) : (0, import_node_crypto5.createHash)("sha256");
+      return this.secret ? createHmac2("sha256", toBuffer(this.secret)) : createHash4("sha256");
     }
   };
 }
@@ -7719,14 +7723,13 @@ function toBuffer(data) {
   }
   return Buffer.from(data);
 }
-var import_node_crypto5, hasNativeCrypto2, Sha256Node;
+var hasNativeCrypto2, Sha256Node;
 var init_Sha256Node = __esm({
   "node_modules/@smithy/core/dist-es/submodules/checksum/sha256/Sha256Node.js"() {
-    import_node_crypto5 = require("node:crypto");
     init_Sha256Js();
     hasNativeCrypto2 = (() => {
       try {
-        (0, import_node_crypto5.createHash)("sha256");
+        createHash4("sha256");
         return true;
       } catch {
         return false;
@@ -8450,6 +8453,7 @@ var init_EventStreamMarshaller = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde/EventStreamMarshaller.js
+import { Readable as Readable6 } from "node:stream";
 async function* readableToIterable(readStream) {
   let streamEnded = false;
   let generationEnded = false;
@@ -8476,10 +8480,9 @@ async function* readableToIterable(readStream) {
     generationEnded = streamEnded && records.length === 0;
   }
 }
-var import_node_stream10, EventStreamMarshaller2, eventStreamSerdeProvider2;
+var EventStreamMarshaller2, eventStreamSerdeProvider2;
 var init_EventStreamMarshaller2 = __esm({
   "node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde/EventStreamMarshaller.js"() {
-    import_node_stream10 = require("node:stream");
     init_EventStreamMarshaller();
     EventStreamMarshaller2 = class {
       universalMarshaller;
@@ -8494,7 +8497,7 @@ var init_EventStreamMarshaller2 = __esm({
         return this.universalMarshaller.deserialize(bodyIterable, deserializer);
       }
       serialize(input, serializer) {
-        return import_node_stream10.Readable.from(this.universalMarshaller.serialize(input, serializer));
+        return Readable6.from(this.universalMarshaller.serialize(input, serializer));
       }
     };
     eventStreamSerdeProvider2 = (options) => new EventStreamMarshaller2(options);
@@ -12339,18 +12342,18 @@ var init_user_agent_middleware = __esm({
 });
 
 // node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/getRuntimeUserAgentPair.js
-var import_node_process, getRuntimeUserAgentPair;
+import { versions } from "node:process";
+var getRuntimeUserAgentPair;
 var init_getRuntimeUserAgentPair = __esm({
   "node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/getRuntimeUserAgentPair.js"() {
-    import_node_process = require("node:process");
     getRuntimeUserAgentPair = () => {
       const runtimesToCheck = ["deno", "bun", "llrt"];
       for (const runtime of runtimesToCheck) {
-        if (import_node_process.versions[runtime]) {
-          return [`md/${runtime}`, import_node_process.versions[runtime]];
+        if (versions[runtime]) {
+          return [`md/${runtime}`, versions[runtime]];
         }
       }
-      return ["md/nodejs", import_node_process.versions.node];
+      return ["md/nodejs", versions.node];
     };
   }
 });
@@ -12380,11 +12383,11 @@ var init_is_crt_available = __esm({
 });
 
 // node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/defaultUserAgent.js
-var import_node_os2, import_node_process2, createDefaultUserAgentProvider, defaultUserAgent;
+import { platform, release } from "node:os";
+import { env } from "node:process";
+var createDefaultUserAgentProvider, defaultUserAgent;
 var init_defaultUserAgent = __esm({
   "node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/defaultUserAgent.js"() {
-    import_node_os2 = require("node:os");
-    import_node_process2 = require("node:process");
     init_getRuntimeUserAgentPair();
     init_is_crt_available();
     init_crt_availability();
@@ -12394,7 +12397,7 @@ var init_defaultUserAgent = __esm({
         const sections = [
           ["aws-sdk-js", clientVersion],
           ["ua", "2.1"],
-          [`os/${(0, import_node_os2.platform)()}`, (0, import_node_os2.release)()],
+          [`os/${platform()}`, release()],
           ["lang/js"],
           runtimeUserAgentPair
         ];
@@ -12405,8 +12408,8 @@ var init_defaultUserAgent = __esm({
         if (serviceId) {
           sections.push([`api/${serviceId}`, clientVersion]);
         }
-        if (import_node_process2.env.AWS_EXECUTION_ENV) {
-          sections.push([`exec-env/${import_node_process2.env.AWS_EXECUTION_ENV}`]);
+        if (env.AWS_EXECUTION_ENV) {
+          sections.push([`exec-env/${env.AWS_EXECUTION_ENV}`]);
         }
         const appId = await config?.userAgentAppId?.();
         const resolvedUserAgent = appId ? [...sections, [`app/${appId}`]] : [...sections];
@@ -12435,10 +12438,10 @@ var init_nodeAppIdConfigOptions = __esm({
 
 // node_modules/bowser/es5.js
 var require_es5 = __commonJS({
-  "node_modules/bowser/es5.js"(exports2, module2) {
+  "node_modules/bowser/es5.js"(exports, module) {
     !(function(e5, t) {
-      "object" == typeof exports2 && "object" == typeof module2 ? module2.exports = t() : "function" == typeof define && define.amd ? define([], t) : "object" == typeof exports2 ? exports2.bowser = t() : e5.bowser = t();
-    })(exports2, (function() {
+      "object" == typeof exports && "object" == typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define([], t) : "object" == typeof exports ? exports.bowser = t() : e5.bowser = t();
+    })(exports, (function() {
       return (function(e5) {
         var t = {};
         function r5(i5) {
@@ -13254,8 +13257,8 @@ var createUserAgentStringParsingProvider;
 var init_createUserAgentStringParsingProvider = __esm({
   "node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-browser/createUserAgentStringParsingProvider.js"() {
     createUserAgentStringParsingProvider = ({ serviceId, clientVersion }) => async (config) => {
-      const module2 = await Promise.resolve().then(() => __toESM(require_es5()));
-      const parse2 = module2.parse ?? module2.default.parse ?? (() => "");
+      const module = await Promise.resolve().then(() => __toESM(require_es5()));
+      const parse2 = module.parse ?? module.default.parse ?? (() => "");
       const parsedUA = typeof window !== "undefined" && window?.navigator?.userAgent ? parse2(window.navigator.userAgent) : void 0;
       const sections = [
         ["aws-sdk-js", clientVersion],
@@ -14586,7 +14589,7 @@ var init_s3_expires_middleware = __esm({
 
 // node_modules/@smithy/signature-v4/dist-cjs/index.js
 var require_dist_cjs2 = __commonJS({
-  "node_modules/@smithy/signature-v4/dist-cjs/index.js"(exports2) {
+  "node_modules/@smithy/signature-v4/dist-cjs/index.js"(exports) {
     var { fromUtf8: fromUtf83, fromHex: fromHex2, toHex: toHex2, toUint8Array: toUint8Array2, isArrayBuffer: isArrayBuffer2 } = (init_serde(), __toCommonJS(serde_exports));
     var { normalizeProvider: normalizeProvider3 } = (init_client2(), __toCommonJS(client_exports));
     var { escapeUri: escapeUri2, HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
@@ -15078,51 +15081,51 @@ ${toHex2(hashedRequest)}`;
     var signatureV4aContainer = {
       SignatureV4a: null
     };
-    exports2.ALGORITHM_IDENTIFIER = ALGORITHM_IDENTIFIER;
-    exports2.ALGORITHM_IDENTIFIER_V4A = ALGORITHM_IDENTIFIER_V4A;
-    exports2.ALGORITHM_QUERY_PARAM = ALGORITHM_QUERY_PARAM;
-    exports2.ALWAYS_UNSIGNABLE_HEADERS = ALWAYS_UNSIGNABLE_HEADERS;
-    exports2.AMZ_DATE_HEADER = AMZ_DATE_HEADER;
-    exports2.AMZ_DATE_QUERY_PARAM = AMZ_DATE_QUERY_PARAM;
-    exports2.AUTH_HEADER = AUTH_HEADER;
-    exports2.CREDENTIAL_QUERY_PARAM = CREDENTIAL_QUERY_PARAM;
-    exports2.DATE_HEADER = DATE_HEADER;
-    exports2.EVENT_ALGORITHM_IDENTIFIER = EVENT_ALGORITHM_IDENTIFIER;
-    exports2.EXPIRES_QUERY_PARAM = EXPIRES_QUERY_PARAM;
-    exports2.GENERATED_HEADERS = GENERATED_HEADERS;
-    exports2.HOST_HEADER = HOST_HEADER;
-    exports2.KEY_TYPE_IDENTIFIER = KEY_TYPE_IDENTIFIER;
-    exports2.MAX_CACHE_SIZE = MAX_CACHE_SIZE;
-    exports2.MAX_PRESIGNED_TTL = MAX_PRESIGNED_TTL;
-    exports2.PROXY_HEADER_PATTERN = PROXY_HEADER_PATTERN;
-    exports2.REGION_SET_PARAM = REGION_SET_PARAM;
-    exports2.SEC_HEADER_PATTERN = SEC_HEADER_PATTERN;
-    exports2.SHA256_HEADER = SHA256_HEADER;
-    exports2.SIGNATURE_HEADER = SIGNATURE_HEADER;
-    exports2.SIGNATURE_QUERY_PARAM = SIGNATURE_QUERY_PARAM;
-    exports2.SIGNED_HEADERS_QUERY_PARAM = SIGNED_HEADERS_QUERY_PARAM;
-    exports2.SignatureV4 = SignatureV42;
-    exports2.SignatureV4Base = SignatureV4Base;
-    exports2.TOKEN_HEADER = TOKEN_HEADER;
-    exports2.TOKEN_QUERY_PARAM = TOKEN_QUERY_PARAM;
-    exports2.UNSIGNABLE_PATTERNS = UNSIGNABLE_PATTERNS;
-    exports2.UNSIGNED_PAYLOAD = UNSIGNED_PAYLOAD;
-    exports2.clearCredentialCache = clearCredentialCache;
-    exports2.createScope = createScope;
-    exports2.getCanonicalHeaders = getCanonicalHeaders;
-    exports2.getCanonicalQuery = getCanonicalQuery;
-    exports2.getPayloadHash = getPayloadHash;
-    exports2.getSigningKey = getSigningKey;
-    exports2.hasHeader = hasHeader2;
-    exports2.moveHeadersToQuery = moveHeadersToQuery;
-    exports2.prepareRequest = prepareRequest;
-    exports2.signatureV4aContainer = signatureV4aContainer;
+    exports.ALGORITHM_IDENTIFIER = ALGORITHM_IDENTIFIER;
+    exports.ALGORITHM_IDENTIFIER_V4A = ALGORITHM_IDENTIFIER_V4A;
+    exports.ALGORITHM_QUERY_PARAM = ALGORITHM_QUERY_PARAM;
+    exports.ALWAYS_UNSIGNABLE_HEADERS = ALWAYS_UNSIGNABLE_HEADERS;
+    exports.AMZ_DATE_HEADER = AMZ_DATE_HEADER;
+    exports.AMZ_DATE_QUERY_PARAM = AMZ_DATE_QUERY_PARAM;
+    exports.AUTH_HEADER = AUTH_HEADER;
+    exports.CREDENTIAL_QUERY_PARAM = CREDENTIAL_QUERY_PARAM;
+    exports.DATE_HEADER = DATE_HEADER;
+    exports.EVENT_ALGORITHM_IDENTIFIER = EVENT_ALGORITHM_IDENTIFIER;
+    exports.EXPIRES_QUERY_PARAM = EXPIRES_QUERY_PARAM;
+    exports.GENERATED_HEADERS = GENERATED_HEADERS;
+    exports.HOST_HEADER = HOST_HEADER;
+    exports.KEY_TYPE_IDENTIFIER = KEY_TYPE_IDENTIFIER;
+    exports.MAX_CACHE_SIZE = MAX_CACHE_SIZE;
+    exports.MAX_PRESIGNED_TTL = MAX_PRESIGNED_TTL;
+    exports.PROXY_HEADER_PATTERN = PROXY_HEADER_PATTERN;
+    exports.REGION_SET_PARAM = REGION_SET_PARAM;
+    exports.SEC_HEADER_PATTERN = SEC_HEADER_PATTERN;
+    exports.SHA256_HEADER = SHA256_HEADER;
+    exports.SIGNATURE_HEADER = SIGNATURE_HEADER;
+    exports.SIGNATURE_QUERY_PARAM = SIGNATURE_QUERY_PARAM;
+    exports.SIGNED_HEADERS_QUERY_PARAM = SIGNED_HEADERS_QUERY_PARAM;
+    exports.SignatureV4 = SignatureV42;
+    exports.SignatureV4Base = SignatureV4Base;
+    exports.TOKEN_HEADER = TOKEN_HEADER;
+    exports.TOKEN_QUERY_PARAM = TOKEN_QUERY_PARAM;
+    exports.UNSIGNABLE_PATTERNS = UNSIGNABLE_PATTERNS;
+    exports.UNSIGNED_PAYLOAD = UNSIGNED_PAYLOAD;
+    exports.clearCredentialCache = clearCredentialCache;
+    exports.createScope = createScope;
+    exports.getCanonicalHeaders = getCanonicalHeaders;
+    exports.getCanonicalQuery = getCanonicalQuery;
+    exports.getPayloadHash = getPayloadHash;
+    exports.getSigningKey = getSigningKey;
+    exports.hasHeader = hasHeader2;
+    exports.moveHeadersToQuery = moveHeadersToQuery;
+    exports.prepareRequest = prepareRequest;
+    exports.signatureV4aContainer = signatureV4aContainer;
   }
 });
 
 // node_modules/@aws-sdk/signature-v4-multi-region/dist-cjs/index.js
 var require_dist_cjs3 = __commonJS({
-  "node_modules/@aws-sdk/signature-v4-multi-region/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/signature-v4-multi-region/dist-cjs/index.js"(exports) {
     var { SignatureV4: SignatureV42, signatureV4aContainer } = require_dist_cjs2();
     var signatureV4CrtContainer = {
       CrtSignerV4: null
@@ -15246,9 +15249,9 @@ var require_dist_cjs3 = __commonJS({
         return this.sigv4aSigner;
       }
     };
-    exports2.SignatureV4MultiRegion = SignatureV4MultiRegion3;
-    exports2.SignatureV4SignWithCredentials = SignatureV4SignWithCredentials2;
-    exports2.signatureV4CrtContainer = signatureV4CrtContainer;
+    exports.SignatureV4MultiRegion = SignatureV4MultiRegion3;
+    exports.SignatureV4SignWithCredentials = SignatureV4SignWithCredentials2;
+    exports.signatureV4CrtContainer = signatureV4CrtContainer;
   }
 });
 
@@ -15389,13 +15392,12 @@ var init_s3ExpressHttpSigningMiddleware = __esm({
 });
 
 // node_modules/@aws-sdk/middleware-sdk-s3/dist-es/submodules/s3/to-stream/toStream.js
+import { Readable as Readable7 } from "node:stream";
 function toStream(bytes) {
-  return import_node_stream11.Readable.from(Buffer.from(bytes));
+  return Readable7.from(Buffer.from(bytes));
 }
-var import_node_stream11;
 var init_toStream = __esm({
   "node_modules/@aws-sdk/middleware-sdk-s3/dist-es/submodules/s3/to-stream/toStream.js"() {
-    import_node_stream11 = require("node:stream");
   }
 });
 
@@ -16542,7 +16544,7 @@ var init_AwsRestJsonProtocol = __esm({
 
 // node_modules/@aws-sdk/xml-builder/dist-cjs/index.js
 var require_dist_cjs4 = __commonJS({
-  "node_modules/@aws-sdk/xml-builder/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/xml-builder/dist-cjs/index.js"(exports) {
     var ATTR_ESCAPE_RE = /[&<>"]/g;
     var ATTR_ESCAPE_MAP = {
       "&": "&amp;",
@@ -16895,9 +16897,9 @@ var require_dist_cjs4 = __commonJS({
         });
       }
     };
-    exports2.XmlNode = XmlNode2;
-    exports2.XmlText = XmlText2;
-    exports2.parseXML = parseXML2;
+    exports.XmlNode = XmlNode2;
+    exports.XmlText = XmlText2;
+    exports.parseXML = parseXML2;
   }
 });
 
@@ -18891,7 +18893,7 @@ var init_httpAuthSchemes2 = __esm({
 
 // node_modules/@aws-sdk/credential-provider-env/dist-cjs/index.js
 var require_dist_cjs5 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-env/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-env/dist-cjs/index.js"(exports) {
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2 } = (init_config2(), __toCommonJS(config_exports));
     var ENV_KEY = "AWS_ACCESS_KEY_ID";
@@ -18922,21 +18924,21 @@ var require_dist_cjs5 = __commonJS({
       }
       throw new CredentialsProviderError2("Unable to find environment variable credentials.", { logger: init?.logger });
     };
-    exports2.ENV_ACCOUNT_ID = ENV_ACCOUNT_ID;
-    exports2.ENV_CREDENTIAL_SCOPE = ENV_CREDENTIAL_SCOPE;
-    exports2.ENV_EXPIRATION = ENV_EXPIRATION;
-    exports2.ENV_KEY = ENV_KEY;
-    exports2.ENV_SECRET = ENV_SECRET;
-    exports2.ENV_SESSION = ENV_SESSION;
-    exports2.fromEnv = fromEnv2;
+    exports.ENV_ACCOUNT_ID = ENV_ACCOUNT_ID;
+    exports.ENV_CREDENTIAL_SCOPE = ENV_CREDENTIAL_SCOPE;
+    exports.ENV_EXPIRATION = ENV_EXPIRATION;
+    exports.ENV_KEY = ENV_KEY;
+    exports.ENV_SECRET = ENV_SECRET;
+    exports.ENV_SESSION = ENV_SESSION;
+    exports.fromEnv = fromEnv2;
   }
 });
 
 // node_modules/@smithy/credential-provider-imds/dist-cjs/index.js
 var require_dist_cjs6 = __commonJS({
-  "node_modules/@smithy/credential-provider-imds/dist-cjs/index.js"(exports2) {
+  "node_modules/@smithy/credential-provider-imds/dist-cjs/index.js"(exports) {
     var { ProviderError: ProviderError2, CredentialsProviderError: CredentialsProviderError2, loadConfig: loadConfig2 } = (init_config2(), __toCommonJS(config_exports));
-    var node_http = require("node:http");
+    var node_http = __require("node:http");
     var { parseUrl: parseUrl2 } = (init_protocols(), __toCommonJS(protocols_exports));
     var isImdsCredentials = (arg) => Boolean(arg) && typeof arg === "object" && typeof arg.AccessKeyId === "string" && typeof arg.SecretAccessKey === "string" && typeof arg.Token === "string" && typeof arg.Expiration === "string";
     var fromImdsCredentials = (creds) => ({
@@ -19262,29 +19264,29 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
       }
       return fromImdsCredentials(credentialsResponse);
     };
-    exports2.DEFAULT_MAX_RETRIES = DEFAULT_MAX_RETRIES;
-    exports2.DEFAULT_TIMEOUT = DEFAULT_TIMEOUT;
-    exports2.ENV_CMDS_AUTH_TOKEN = ENV_CMDS_AUTH_TOKEN;
-    exports2.ENV_CMDS_FULL_URI = ENV_CMDS_FULL_URI;
-    exports2.ENV_CMDS_RELATIVE_URI = ENV_CMDS_RELATIVE_URI;
-    exports2.Endpoint = Endpoint;
-    exports2.fromContainerMetadata = fromContainerMetadata;
-    exports2.fromInstanceMetadata = fromInstanceMetadata;
-    exports2.getInstanceMetadataEndpoint = getInstanceMetadataEndpoint;
-    exports2.httpRequest = httpRequest;
-    exports2.providerConfigFromInit = providerConfigFromInit;
+    exports.DEFAULT_MAX_RETRIES = DEFAULT_MAX_RETRIES;
+    exports.DEFAULT_TIMEOUT = DEFAULT_TIMEOUT;
+    exports.ENV_CMDS_AUTH_TOKEN = ENV_CMDS_AUTH_TOKEN;
+    exports.ENV_CMDS_FULL_URI = ENV_CMDS_FULL_URI;
+    exports.ENV_CMDS_RELATIVE_URI = ENV_CMDS_RELATIVE_URI;
+    exports.Endpoint = Endpoint;
+    exports.fromContainerMetadata = fromContainerMetadata;
+    exports.fromInstanceMetadata = fromInstanceMetadata;
+    exports.getInstanceMetadataEndpoint = getInstanceMetadataEndpoint;
+    exports.httpRequest = httpRequest;
+    exports.providerConfigFromInit = providerConfigFromInit;
   }
 });
 
 // node_modules/@smithy/node-http-handler/dist-cjs/index.js
 var require_dist_cjs7 = __commonJS({
-  "node_modules/@smithy/node-http-handler/dist-cjs/index.js"(exports2) {
+  "node_modules/@smithy/node-http-handler/dist-cjs/index.js"(exports) {
     var { buildQueryString: buildQueryString2, HttpResponse: HttpResponse2 } = (init_protocols(), __toCommonJS(protocols_exports));
-    var node_https = require("node:https");
-    var { Readable: Readable8 } = require("node:stream");
-    var http2 = require("node:http2");
+    var node_https = __require("node:https");
+    var { Readable: Readable8 } = __require("node:stream");
+    var http2 = __require("node:http2");
     var { streamCollector: streamCollector7 } = (init_serde(), __toCommonJS(serde_exports));
-    exports2.streamCollector = streamCollector7;
+    exports.streamCollector = streamCollector7;
     function buildAbortError(abortSignal) {
       const reason = abortSignal && typeof abortSignal === "object" && "reason" in abortSignal ? abortSignal.reason : void 0;
       if (reason) {
@@ -19668,7 +19670,7 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
           socketAcquisitionWarningTimeout,
           throwOnRequestTimeout,
           httpAgentProvider: async () => {
-            const node_http = require("node:http");
+            const node_http = __require("node:http");
             const { Agent, request } = node_http.default ?? node_http;
             hRequest = request;
             hAgent = Agent;
@@ -20074,19 +20076,19 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         return this.config ?? {};
       }
     };
-    exports2.DEFAULT_REQUEST_TIMEOUT = DEFAULT_REQUEST_TIMEOUT;
-    exports2.NodeHttp2Handler = NodeHttp2Handler;
-    exports2.NodeHttpHandler = NodeHttpHandler;
+    exports.DEFAULT_REQUEST_TIMEOUT = DEFAULT_REQUEST_TIMEOUT;
+    exports.NodeHttp2Handler = NodeHttp2Handler;
+    exports.NodeHttpHandler = NodeHttpHandler;
   }
 });
 
 // node_modules/@aws-sdk/credential-provider-http/dist-cjs/index.js
 var require_dist_cjs8 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-http/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-http/dist-cjs/index.js"(exports) {
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2 } = (init_config2(), __toCommonJS(config_exports));
     var { NodeHttpHandler } = require_dist_cjs7();
-    var fs = require("node:fs/promises");
+    var fs = __require("node:fs/promises");
     var { HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
     var { sdkStreamMixin: sdkStreamMixin3, parseRfc3339DateTime: parseRfc3339DateTime2 } = (init_serde(), __toCommonJS(serde_exports));
     var ECS_CONTAINER_HOST = "169.254.170.2";
@@ -20235,7 +20237,7 @@ Set AWS_CONTAINER_CREDENTIALS_FULL_URI or AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
       }
       return token;
     };
-    exports2.fromHttp = fromHttp;
+    exports.fromHttp = fromHttp;
   }
 });
 
@@ -21287,11 +21289,11 @@ var init_sso_oidc = __esm({
 
 // node_modules/@aws-sdk/token-providers/dist-cjs/index.js
 var require_dist_cjs9 = __commonJS({
-  "node_modules/@aws-sdk/token-providers/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/token-providers/dist-cjs/index.js"(exports) {
     var { setTokenFeature: setTokenFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { getBearerTokenEnvKey: getBearerTokenEnvKey2 } = (init_httpAuthSchemes2(), __toCommonJS(httpAuthSchemes_exports));
     var { TokenProviderError: TokenProviderError2, getSSOTokenFilepath: getSSOTokenFilepath2, parseKnownFiles: parseKnownFiles2, getProfileName: getProfileName2, loadSsoSessionData: loadSsoSessionData2, getSSOTokenFromFile: getSSOTokenFromFile2, memoize: memoize2, chain: chain2 } = (init_config2(), __toCommonJS(config_exports));
-    var { promises } = require("node:fs");
+    var { promises } = __require("node:fs");
     var fromEnvSigningName = ({ logger: logger2, signingName } = {}) => async () => {
       logger2?.debug?.("@aws-sdk/token-providers - fromEnvSigningName");
       if (!signingName) {
@@ -21423,10 +21425,10 @@ var require_dist_cjs9 = __commonJS({
     var nodeProvider = (init = {}) => memoize2(chain2(fromSso(init), async () => {
       throw new TokenProviderError2("Could not load token from any providers", false);
     }), (token) => token.expiration !== void 0 && token.expiration.getTime() - Date.now() < 3e5, (token) => token.expiration !== void 0);
-    exports2.fromEnvSigningName = fromEnvSigningName;
-    exports2.fromSso = fromSso;
-    exports2.fromStatic = fromStatic2;
-    exports2.nodeProvider = nodeProvider;
+    exports.fromEnvSigningName = fromEnvSigningName;
+    exports.fromSso = fromSso;
+    exports.fromStatic = fromStatic2;
+    exports.nodeProvider = nodeProvider;
   }
 });
 
@@ -22118,16 +22120,16 @@ var init_sso = __esm({
 
 // node_modules/@aws-sdk/credential-provider-sso/dist-cjs/loadSso-BGYXHf8s.js
 var require_loadSso_BGYXHf8s = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-sso/dist-cjs/loadSso-BGYXHf8s.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-sso/dist-cjs/loadSso-BGYXHf8s.js"(exports) {
     var { GetRoleCredentialsCommand: GetRoleCredentialsCommand2, SSOClient: SSOClient2 } = (init_sso(), __toCommonJS(sso_exports));
-    exports2.GetRoleCredentialsCommand = GetRoleCredentialsCommand2;
-    exports2.SSOClient = SSOClient2;
+    exports.GetRoleCredentialsCommand = GetRoleCredentialsCommand2;
+    exports.SSOClient = SSOClient2;
   }
 });
 
 // node_modules/@aws-sdk/credential-provider-sso/dist-cjs/index.js
 var require_dist_cjs10 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-sso/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-sso/dist-cjs/index.js"(exports) {
     var { CredentialsProviderError: CredentialsProviderError2, getSSOTokenFromFile: getSSOTokenFromFile2, getProfileName: getProfileName2, parseKnownFiles: parseKnownFiles2, loadSsoSessionData: loadSsoSessionData2 } = (init_config2(), __toCommonJS(config_exports));
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { fromSso } = require_dist_cjs9();
@@ -22298,9 +22300,9 @@ Reference: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.ht
         });
       }
     };
-    exports2.fromSSO = fromSSO;
-    exports2.isSsoProfile = isSsoProfile;
-    exports2.validateSsoProfile = validateSsoProfile;
+    exports.fromSSO = fromSSO;
+    exports.isSsoProfile = isSsoProfile;
+    exports.validateSsoProfile = validateSsoProfile;
   }
 });
 
@@ -24430,14 +24432,14 @@ var init_signin = __esm({
 
 // node_modules/@aws-sdk/credential-provider-login/dist-cjs/index.js
 var require_dist_cjs11 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-login/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-login/dist-cjs/index.js"(exports) {
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2, readFile: readFile3, parseKnownFiles: parseKnownFiles2, getProfileName: getProfileName2 } = (init_config2(), __toCommonJS(config_exports));
     var { HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
-    var { createHash: createHash6, createPrivateKey, createPublicKey, sign: sign3 } = require("node:crypto");
-    var { promises } = require("node:fs");
-    var { homedir: homedir2 } = require("node:os");
-    var { dirname, join: join5 } = require("node:path");
+    var { createHash: createHash6, createPrivateKey, createPublicKey, sign: sign3 } = __require("node:crypto");
+    var { promises } = __require("node:fs");
+    var { homedir: homedir2 } = __require("node:os");
+    var { dirname, join: join5 } = __require("node:path");
     var LoginCredentialsFetcher = class _LoginCredentialsFetcher {
       profileData;
       init;
@@ -24701,16 +24703,16 @@ var require_dist_cjs11 = __commonJS({
       const credentials = await fetcher.loadCredentials();
       return setCredentialFeature2(credentials, "CREDENTIALS_LOGIN", "AD");
     };
-    exports2.fromLoginCredentials = fromLoginCredentials;
+    exports.fromLoginCredentials = fromLoginCredentials;
   }
 });
 
 // node_modules/@aws-sdk/credential-provider-process/dist-cjs/index.js
 var require_dist_cjs12 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-process/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-process/dist-cjs/index.js"(exports) {
     var { externalDataInterceptor: externalDataInterceptor2, CredentialsProviderError: CredentialsProviderError2, parseKnownFiles: parseKnownFiles2, getProfileName: getProfileName2 } = (init_config2(), __toCommonJS(config_exports));
-    var { exec } = require("node:child_process");
-    var { promisify } = require("node:util");
+    var { exec } = __require("node:child_process");
+    var { promisify } = __require("node:util");
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var getValidatedProcessCredentials = (profileName, data, profiles) => {
       if (data.Version !== 1) {
@@ -24775,16 +24777,16 @@ var require_dist_cjs12 = __commonJS({
         profile: init.profile ?? callerClientConfig?.profile
       }), profiles, init.logger);
     };
-    exports2.fromProcess = fromProcess;
+    exports.fromProcess = fromProcess;
   }
 });
 
 // node_modules/@aws-sdk/credential-provider-web-identity/dist-cjs/index.js
 var require_dist_cjs13 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-web-identity/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-web-identity/dist-cjs/index.js"(exports) {
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var { CredentialsProviderError: CredentialsProviderError2, externalDataInterceptor: externalDataInterceptor2 } = (init_config2(), __toCommonJS(config_exports));
-    var { readFileSync } = require("node:fs");
+    var { readFileSync } = __require("node:fs");
     var fromWebToken = (init) => async (awsIdentityProperties) => {
       init.logger?.debug("@aws-sdk/credential-provider-web-identity - fromWebToken");
       const { roleArn, roleSessionName, webIdentityToken, providerId, policyArns, policy, durationSeconds } = init;
@@ -24834,14 +24836,14 @@ var require_dist_cjs13 = __commonJS({
       }
       return credentials;
     };
-    exports2.fromTokenFile = fromTokenFile;
-    exports2.fromWebToken = fromWebToken;
+    exports.fromTokenFile = fromTokenFile;
+    exports.fromWebToken = fromWebToken;
   }
 });
 
 // node_modules/@aws-sdk/credential-provider-ini/dist-cjs/index.js
 var require_dist_cjs14 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-ini/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-ini/dist-cjs/index.js"(exports) {
     var { CredentialsProviderError: CredentialsProviderError2, chain: chain2, getProfileName: getProfileName2, parseKnownFiles: parseKnownFiles2 } = (init_config2(), __toCommonJS(config_exports));
     var { setCredentialFeature: setCredentialFeature2 } = (init_client3(), __toCommonJS(client_exports2));
     var resolveCredentialSource = (credentialSource, profileName, logger2) => {
@@ -25032,13 +25034,13 @@ var require_dist_cjs14 = __commonJS({
         profile: init.profile ?? callerClientConfig?.profile
       }), profiles, init, callerClientConfig);
     };
-    exports2.fromIni = fromIni;
+    exports.fromIni = fromIni;
   }
 });
 
 // node_modules/@aws-sdk/credential-provider-node/dist-cjs/index.js
 var require_dist_cjs15 = __commonJS({
-  "node_modules/@aws-sdk/credential-provider-node/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/credential-provider-node/dist-cjs/index.js"(exports) {
     var { ENV_KEY, ENV_SECRET, fromEnv: fromEnv2 } = require_dist_cjs5();
     var { chain: chain2, CredentialsProviderError: CredentialsProviderError2, ENV_PROFILE: ENV_PROFILE2 } = (init_config2(), __toCommonJS(config_exports));
     var ENV_IMDS_DISABLED2 = "AWS_EC2_METADATA_DISABLED";
@@ -25185,9 +25187,9 @@ var require_dist_cjs15 = __commonJS({
     ], credentialsTreatedAsExpired);
     var credentialsWillNeedRefresh = (credentials) => credentials?.expiration !== void 0;
     var credentialsTreatedAsExpired = (credentials) => credentials?.expiration !== void 0 && credentials.expiration.getTime() - Date.now() < 3e5;
-    exports2.credentialsTreatedAsExpired = credentialsTreatedAsExpired;
-    exports2.credentialsWillNeedRefresh = credentialsWillNeedRefresh;
-    exports2.defaultProvider = defaultProvider;
+    exports.credentialsTreatedAsExpired = credentialsTreatedAsExpired;
+    exports.credentialsWillNeedRefresh = credentialsWillNeedRefresh;
+    exports.defaultProvider = defaultProvider;
   }
 });
 
@@ -25364,6 +25366,7 @@ var init_Sha1Js = __esm({
 });
 
 // node_modules/@aws-sdk/checksums/dist-es/submodules/sha/sha1/Sha1Node.js
+import { createHash as createHash5, createHmac as createHmac3 } from "node:crypto";
 function buildNativeClass4() {
   return class Sha1Node {
     digestLength = 20;
@@ -25397,7 +25400,7 @@ function buildNativeClass4() {
       this.finished = false;
     }
     createHash() {
-      return this.secret ? (0, import_node_crypto6.createHmac)("sha1", toBuffer2(this.secret)) : (0, import_node_crypto6.createHash)("sha1");
+      return this.secret ? createHmac3("sha1", toBuffer2(this.secret)) : createHash5("sha1");
     }
   };
 }
@@ -25410,14 +25413,13 @@ function toBuffer2(data) {
   }
   return Buffer.from(data);
 }
-var import_node_crypto6, hasNativeCrypto3, Sha1Node;
+var hasNativeCrypto3, Sha1Node;
 var init_Sha1Node = __esm({
   "node_modules/@aws-sdk/checksums/dist-es/submodules/sha/sha1/Sha1Node.js"() {
-    import_node_crypto6 = require("node:crypto");
     init_Sha1Js();
     hasNativeCrypto3 = (() => {
       try {
-        (0, import_node_crypto6.createHash)("sha1");
+        createHash5("sha1");
         return true;
       } catch {
         return false;
@@ -25525,15 +25527,15 @@ var init_sha = __esm({
 
 // node_modules/@aws-sdk/client-s3/dist-cjs/index.js
 var require_dist_cjs16 = __commonJS({
-  "node_modules/@aws-sdk/client-s3/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/client-s3/dist-cjs/index.js"(exports) {
     var { getFlexibleChecksumsPlugin: getFlexibleChecksumsPlugin2, NODE_RESPONSE_CHECKSUM_VALIDATION_CONFIG_OPTIONS: NODE_RESPONSE_CHECKSUM_VALIDATION_CONFIG_OPTIONS2, NODE_REQUEST_CHECKSUM_CALCULATION_CONFIG_OPTIONS: NODE_REQUEST_CHECKSUM_CALCULATION_CONFIG_OPTIONS2, resolveFlexibleChecksumsConfig: resolveFlexibleChecksumsConfig2 } = (init_flexible_checksums(), __toCommonJS(flexible_checksums_exports));
     var { awsEndpointFunctions: awsEndpointFunctions2, emitWarningIfUnsupportedVersion: emitWarningIfUnsupportedVersion$1, createDefaultUserAgentProvider: createDefaultUserAgentProvider2, NODE_APP_ID_CONFIG_OPTIONS: NODE_APP_ID_CONFIG_OPTIONS2, getAwsRegionExtensionConfiguration: getAwsRegionExtensionConfiguration2, resolveAwsRegionExtensionConfiguration: resolveAwsRegionExtensionConfiguration2, resolveUserAgentConfig: resolveUserAgentConfig2, resolveHostHeaderConfig: resolveHostHeaderConfig2, getUserAgentPlugin: getUserAgentPlugin2, getHostHeaderPlugin: getHostHeaderPlugin2, getLoggerPlugin: getLoggerPlugin2, getRecursionDetectionPlugin: getRecursionDetectionPlugin2 } = (init_client3(), __toCommonJS(client_exports2));
     var { getThrow200ExceptionsPlugin: getThrow200ExceptionsPlugin2, getSsecPlugin: getSsecPlugin2, getLocationConstraintPlugin: getLocationConstraintPlugin2, getS3ExpiresMiddlewarePlugin: getS3ExpiresMiddlewarePlugin2, getCheckContentLengthHeaderPlugin: getCheckContentLengthHeaderPlugin2, S3RestXmlProtocol: S3RestXmlProtocol2, NODE_USE_ARN_REGION_CONFIG_OPTIONS: NODE_USE_ARN_REGION_CONFIG_OPTIONS2, NODE_DISABLE_S3_EXPRESS_SESSION_AUTH_OPTIONS: NODE_DISABLE_S3_EXPRESS_SESSION_AUTH_OPTIONS2, resolveS3Config: resolveS3Config2, getValidateBucketNamePlugin: getValidateBucketNamePlugin2, getAddExpectContinuePlugin: getAddExpectContinuePlugin2, getRegionRedirectMiddlewarePlugin: getRegionRedirectMiddlewarePlugin2, getS3ExpressPlugin: getS3ExpressPlugin2, getS3ExpressHttpSigningPlugin: getS3ExpressHttpSigningPlugin2 } = (init_s32(), __toCommonJS(s3_exports));
     var { getHttpAuthSchemeEndpointRuleSetPlugin: getHttpAuthSchemeEndpointRuleSetPlugin2, DefaultIdentityProviderConfig: DefaultIdentityProviderConfig2, getHttpSigningPlugin: getHttpSigningPlugin2, createPaginator: createPaginator2 } = (init_dist_es(), __toCommonJS(dist_es_exports));
     var { normalizeProvider: normalizeProvider3, getSmithyContext: getSmithyContext2, makeBuilder: makeBuilder2, ServiceException: ServiceException2, NoOpLogger: NoOpLogger2, emitWarningIfUnsupportedVersion: emitWarningIfUnsupportedVersion3, loadConfigsForDefaultMode: loadConfigsForDefaultMode2, getDefaultExtensionConfiguration: getDefaultExtensionConfiguration2, resolveDefaultRuntimeConfig: resolveDefaultRuntimeConfig2, Client: Client2, createWaiter: createWaiter2, checkExceptions: checkExceptions2, WaiterState: WaiterState2, createAggregatedClient: createAggregatedClient2 } = (init_client2(), __toCommonJS(client_exports));
     var { Command: $Command } = (init_client2(), __toCommonJS(client_exports));
-    exports2.$Command = $Command;
-    exports2.__Client = Client2;
+    exports.$Command = $Command;
+    exports.__Client = Client2;
     var { resolveDefaultsModeConfig: resolveDefaultsModeConfig2, loadConfig: loadConfig2, NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS: NODE_USE_FIPS_ENDPOINT_CONFIG_OPTIONS2, NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS: NODE_USE_DUALSTACK_ENDPOINT_CONFIG_OPTIONS2, NODE_REGION_CONFIG_OPTIONS: NODE_REGION_CONFIG_OPTIONS2, NODE_REGION_CONFIG_FILE_OPTIONS: NODE_REGION_CONFIG_FILE_OPTIONS2, resolveRegionConfig: resolveRegionConfig2 } = (init_config2(), __toCommonJS(config_exports));
     var { BinaryDecisionDiagram: BinaryDecisionDiagram2, EndpointCache: EndpointCache2, decideEndpoint: decideEndpoint2, customEndpointFunctions: customEndpointFunctions2, resolveParams: resolveParams2, getEndpointPlugin: getEndpointPlugin2, resolveEndpointConfig: resolveEndpointConfig2 } = (init_endpoints(), __toCommonJS(endpoints_exports));
     var { eventStreamSerdeProvider: eventStreamSerdeProvider3, resolveEventStreamSerdeConfig: resolveEventStreamSerdeConfig2 } = (init_event_streams(), __toCommonJS(event_streams_exports));
@@ -34517,717 +34519,717 @@ var require_dist_cjs16 = __commonJS({
     var RestoreRequestType = {
       SELECT: "SELECT"
     };
-    exports2.AbacStatus$ = AbacStatus$;
-    exports2.AbortIncompleteMultipartUpload$ = AbortIncompleteMultipartUpload$;
-    exports2.AbortMultipartUpload$ = AbortMultipartUpload$;
-    exports2.AbortMultipartUploadCommand = AbortMultipartUploadCommand;
-    exports2.AbortMultipartUploadOutput$ = AbortMultipartUploadOutput$;
-    exports2.AbortMultipartUploadRequest$ = AbortMultipartUploadRequest$;
-    exports2.AccelerateConfiguration$ = AccelerateConfiguration$;
-    exports2.AccessControlPolicy$ = AccessControlPolicy$;
-    exports2.AccessControlTranslation$ = AccessControlTranslation$;
-    exports2.AccessDenied = AccessDenied;
-    exports2.AccessDenied$ = AccessDenied$;
-    exports2.AnalyticsAndOperator$ = AnalyticsAndOperator$;
-    exports2.AnalyticsConfiguration$ = AnalyticsConfiguration$;
-    exports2.AnalyticsExportDestination$ = AnalyticsExportDestination$;
-    exports2.AnalyticsFilter$ = AnalyticsFilter$;
-    exports2.AnalyticsS3BucketDestination$ = AnalyticsS3BucketDestination$;
-    exports2.AnalyticsS3ExportFileFormat = AnalyticsS3ExportFileFormat;
-    exports2.AnnotationConfigurationState = AnnotationConfigurationState;
-    exports2.AnnotationDirective = AnnotationDirective;
-    exports2.AnnotationEntry$ = AnnotationEntry$;
-    exports2.AnnotationLimitExceeded = AnnotationLimitExceeded;
-    exports2.AnnotationLimitExceeded$ = AnnotationLimitExceeded$;
-    exports2.AnnotationNameTooLong = AnnotationNameTooLong;
-    exports2.AnnotationNameTooLong$ = AnnotationNameTooLong$;
-    exports2.AnnotationTableConfiguration$ = AnnotationTableConfiguration$;
-    exports2.AnnotationTableConfigurationResult$ = AnnotationTableConfigurationResult$;
-    exports2.AnnotationTableConfigurationUpdates$ = AnnotationTableConfigurationUpdates$;
-    exports2.ArchiveStatus = ArchiveStatus;
-    exports2.BlockedEncryptionTypes$ = BlockedEncryptionTypes$;
-    exports2.Bucket$ = Bucket$;
-    exports2.BucketAbacStatus = BucketAbacStatus;
-    exports2.BucketAccelerateStatus = BucketAccelerateStatus;
-    exports2.BucketAlreadyExists = BucketAlreadyExists;
-    exports2.BucketAlreadyExists$ = BucketAlreadyExists$;
-    exports2.BucketAlreadyOwnedByYou = BucketAlreadyOwnedByYou;
-    exports2.BucketAlreadyOwnedByYou$ = BucketAlreadyOwnedByYou$;
-    exports2.BucketCannedACL = BucketCannedACL;
-    exports2.BucketInfo$ = BucketInfo$;
-    exports2.BucketLifecycleConfiguration$ = BucketLifecycleConfiguration$;
-    exports2.BucketLocationConstraint = BucketLocationConstraint;
-    exports2.BucketLoggingStatus$ = BucketLoggingStatus$;
-    exports2.BucketLogsPermission = BucketLogsPermission;
-    exports2.BucketNamespace = BucketNamespace;
-    exports2.BucketType = BucketType;
-    exports2.BucketVersioningStatus = BucketVersioningStatus;
-    exports2.CORSConfiguration$ = CORSConfiguration$;
-    exports2.CORSRule$ = CORSRule$;
-    exports2.CSVInput$ = CSVInput$;
-    exports2.CSVOutput$ = CSVOutput$;
-    exports2.Checksum$ = Checksum$;
-    exports2.ChecksumAlgorithm = ChecksumAlgorithm2;
-    exports2.ChecksumMode = ChecksumMode;
-    exports2.ChecksumType = ChecksumType;
-    exports2.CommonPrefix$ = CommonPrefix$;
-    exports2.CompleteMultipartUpload$ = CompleteMultipartUpload$;
-    exports2.CompleteMultipartUploadCommand = CompleteMultipartUploadCommand;
-    exports2.CompleteMultipartUploadOutput$ = CompleteMultipartUploadOutput$;
-    exports2.CompleteMultipartUploadRequest$ = CompleteMultipartUploadRequest$;
-    exports2.CompletedMultipartUpload$ = CompletedMultipartUpload$;
-    exports2.CompletedPart$ = CompletedPart$;
-    exports2.CompressionType = CompressionType;
-    exports2.Condition$ = Condition$;
-    exports2.ContinuationEvent$ = ContinuationEvent$;
-    exports2.CopyObject$ = CopyObject$;
-    exports2.CopyObjectCommand = CopyObjectCommand;
-    exports2.CopyObjectOutput$ = CopyObjectOutput$;
-    exports2.CopyObjectRequest$ = CopyObjectRequest$;
-    exports2.CopyObjectResult$ = CopyObjectResult$;
-    exports2.CopyPartResult$ = CopyPartResult$;
-    exports2.CreateBucket$ = CreateBucket$;
-    exports2.CreateBucketCommand = CreateBucketCommand;
-    exports2.CreateBucketConfiguration$ = CreateBucketConfiguration$;
-    exports2.CreateBucketMetadataConfiguration$ = CreateBucketMetadataConfiguration$;
-    exports2.CreateBucketMetadataConfigurationCommand = CreateBucketMetadataConfigurationCommand;
-    exports2.CreateBucketMetadataConfigurationRequest$ = CreateBucketMetadataConfigurationRequest$;
-    exports2.CreateBucketMetadataTableConfiguration$ = CreateBucketMetadataTableConfiguration$;
-    exports2.CreateBucketMetadataTableConfigurationCommand = CreateBucketMetadataTableConfigurationCommand;
-    exports2.CreateBucketMetadataTableConfigurationRequest$ = CreateBucketMetadataTableConfigurationRequest$;
-    exports2.CreateBucketOutput$ = CreateBucketOutput$;
-    exports2.CreateBucketRequest$ = CreateBucketRequest$;
-    exports2.CreateMultipartUpload$ = CreateMultipartUpload$;
-    exports2.CreateMultipartUploadCommand = CreateMultipartUploadCommand;
-    exports2.CreateMultipartUploadOutput$ = CreateMultipartUploadOutput$;
-    exports2.CreateMultipartUploadRequest$ = CreateMultipartUploadRequest$;
-    exports2.CreateSession$ = CreateSession$;
-    exports2.CreateSessionCommand = CreateSessionCommand;
-    exports2.CreateSessionOutput$ = CreateSessionOutput$;
-    exports2.CreateSessionRequest$ = CreateSessionRequest$;
-    exports2.DataRedundancy = DataRedundancy;
-    exports2.DefaultRetention$ = DefaultRetention$;
-    exports2.Delete$ = Delete$;
-    exports2.DeleteBucket$ = DeleteBucket$;
-    exports2.DeleteBucketAnalyticsConfiguration$ = DeleteBucketAnalyticsConfiguration$;
-    exports2.DeleteBucketAnalyticsConfigurationCommand = DeleteBucketAnalyticsConfigurationCommand;
-    exports2.DeleteBucketAnalyticsConfigurationRequest$ = DeleteBucketAnalyticsConfigurationRequest$;
-    exports2.DeleteBucketCommand = DeleteBucketCommand;
-    exports2.DeleteBucketCors$ = DeleteBucketCors$;
-    exports2.DeleteBucketCorsCommand = DeleteBucketCorsCommand;
-    exports2.DeleteBucketCorsRequest$ = DeleteBucketCorsRequest$;
-    exports2.DeleteBucketEncryption$ = DeleteBucketEncryption$;
-    exports2.DeleteBucketEncryptionCommand = DeleteBucketEncryptionCommand;
-    exports2.DeleteBucketEncryptionRequest$ = DeleteBucketEncryptionRequest$;
-    exports2.DeleteBucketIntelligentTieringConfiguration$ = DeleteBucketIntelligentTieringConfiguration$;
-    exports2.DeleteBucketIntelligentTieringConfigurationCommand = DeleteBucketIntelligentTieringConfigurationCommand;
-    exports2.DeleteBucketIntelligentTieringConfigurationRequest$ = DeleteBucketIntelligentTieringConfigurationRequest$;
-    exports2.DeleteBucketInventoryConfiguration$ = DeleteBucketInventoryConfiguration$;
-    exports2.DeleteBucketInventoryConfigurationCommand = DeleteBucketInventoryConfigurationCommand;
-    exports2.DeleteBucketInventoryConfigurationRequest$ = DeleteBucketInventoryConfigurationRequest$;
-    exports2.DeleteBucketLifecycle$ = DeleteBucketLifecycle$;
-    exports2.DeleteBucketLifecycleCommand = DeleteBucketLifecycleCommand;
-    exports2.DeleteBucketLifecycleRequest$ = DeleteBucketLifecycleRequest$;
-    exports2.DeleteBucketMetadataConfiguration$ = DeleteBucketMetadataConfiguration$;
-    exports2.DeleteBucketMetadataConfigurationCommand = DeleteBucketMetadataConfigurationCommand;
-    exports2.DeleteBucketMetadataConfigurationRequest$ = DeleteBucketMetadataConfigurationRequest$;
-    exports2.DeleteBucketMetadataTableConfiguration$ = DeleteBucketMetadataTableConfiguration$;
-    exports2.DeleteBucketMetadataTableConfigurationCommand = DeleteBucketMetadataTableConfigurationCommand;
-    exports2.DeleteBucketMetadataTableConfigurationRequest$ = DeleteBucketMetadataTableConfigurationRequest$;
-    exports2.DeleteBucketMetricsConfiguration$ = DeleteBucketMetricsConfiguration$;
-    exports2.DeleteBucketMetricsConfigurationCommand = DeleteBucketMetricsConfigurationCommand;
-    exports2.DeleteBucketMetricsConfigurationRequest$ = DeleteBucketMetricsConfigurationRequest$;
-    exports2.DeleteBucketOwnershipControls$ = DeleteBucketOwnershipControls$;
-    exports2.DeleteBucketOwnershipControlsCommand = DeleteBucketOwnershipControlsCommand;
-    exports2.DeleteBucketOwnershipControlsRequest$ = DeleteBucketOwnershipControlsRequest$;
-    exports2.DeleteBucketPolicy$ = DeleteBucketPolicy$;
-    exports2.DeleteBucketPolicyCommand = DeleteBucketPolicyCommand;
-    exports2.DeleteBucketPolicyRequest$ = DeleteBucketPolicyRequest$;
-    exports2.DeleteBucketReplication$ = DeleteBucketReplication$;
-    exports2.DeleteBucketReplicationCommand = DeleteBucketReplicationCommand;
-    exports2.DeleteBucketReplicationRequest$ = DeleteBucketReplicationRequest$;
-    exports2.DeleteBucketRequest$ = DeleteBucketRequest$;
-    exports2.DeleteBucketTagging$ = DeleteBucketTagging$;
-    exports2.DeleteBucketTaggingCommand = DeleteBucketTaggingCommand;
-    exports2.DeleteBucketTaggingRequest$ = DeleteBucketTaggingRequest$;
-    exports2.DeleteBucketWebsite$ = DeleteBucketWebsite$;
-    exports2.DeleteBucketWebsiteCommand = DeleteBucketWebsiteCommand;
-    exports2.DeleteBucketWebsiteRequest$ = DeleteBucketWebsiteRequest$;
-    exports2.DeleteMarkerEntry$ = DeleteMarkerEntry$;
-    exports2.DeleteMarkerReplication$ = DeleteMarkerReplication$;
-    exports2.DeleteMarkerReplicationStatus = DeleteMarkerReplicationStatus;
-    exports2.DeleteObject$ = DeleteObject$;
-    exports2.DeleteObjectAnnotation$ = DeleteObjectAnnotation$;
-    exports2.DeleteObjectAnnotationCommand = DeleteObjectAnnotationCommand;
-    exports2.DeleteObjectAnnotationOutput$ = DeleteObjectAnnotationOutput$;
-    exports2.DeleteObjectAnnotationRequest$ = DeleteObjectAnnotationRequest$;
-    exports2.DeleteObjectCommand = DeleteObjectCommand;
-    exports2.DeleteObjectOutput$ = DeleteObjectOutput$;
-    exports2.DeleteObjectRequest$ = DeleteObjectRequest$;
-    exports2.DeleteObjectTagging$ = DeleteObjectTagging$;
-    exports2.DeleteObjectTaggingCommand = DeleteObjectTaggingCommand;
-    exports2.DeleteObjectTaggingOutput$ = DeleteObjectTaggingOutput$;
-    exports2.DeleteObjectTaggingRequest$ = DeleteObjectTaggingRequest$;
-    exports2.DeleteObjects$ = DeleteObjects$;
-    exports2.DeleteObjectsCommand = DeleteObjectsCommand;
-    exports2.DeleteObjectsOutput$ = DeleteObjectsOutput$;
-    exports2.DeleteObjectsRequest$ = DeleteObjectsRequest$;
-    exports2.DeletePublicAccessBlock$ = DeletePublicAccessBlock$;
-    exports2.DeletePublicAccessBlockCommand = DeletePublicAccessBlockCommand;
-    exports2.DeletePublicAccessBlockRequest$ = DeletePublicAccessBlockRequest$;
-    exports2.DeletedObject$ = DeletedObject$;
-    exports2.Destination$ = Destination$;
-    exports2.DestinationResult$ = DestinationResult$;
-    exports2.EncodingType = EncodingType;
-    exports2.Encryption$ = Encryption$;
-    exports2.EncryptionConfiguration$ = EncryptionConfiguration$;
-    exports2.EncryptionType = EncryptionType;
-    exports2.EncryptionTypeMismatch = EncryptionTypeMismatch;
-    exports2.EncryptionTypeMismatch$ = EncryptionTypeMismatch$;
-    exports2.EndEvent$ = EndEvent$;
-    exports2.ErrorDetails$ = ErrorDetails$;
-    exports2.ErrorDocument$ = ErrorDocument$;
-    exports2.Event = Event;
-    exports2.EventBridgeConfiguration$ = EventBridgeConfiguration$;
-    exports2.ExistingObjectReplication$ = ExistingObjectReplication$;
-    exports2.ExistingObjectReplicationStatus = ExistingObjectReplicationStatus;
-    exports2.ExpirationState = ExpirationState;
-    exports2.ExpirationStatus = ExpirationStatus;
-    exports2.ExpressionType = ExpressionType;
-    exports2.FileHeaderInfo = FileHeaderInfo;
-    exports2.FilterRule$ = FilterRule$;
-    exports2.FilterRuleName = FilterRuleName;
-    exports2.GetBucketAbac$ = GetBucketAbac$;
-    exports2.GetBucketAbacCommand = GetBucketAbacCommand;
-    exports2.GetBucketAbacOutput$ = GetBucketAbacOutput$;
-    exports2.GetBucketAbacRequest$ = GetBucketAbacRequest$;
-    exports2.GetBucketAccelerateConfiguration$ = GetBucketAccelerateConfiguration$;
-    exports2.GetBucketAccelerateConfigurationCommand = GetBucketAccelerateConfigurationCommand;
-    exports2.GetBucketAccelerateConfigurationOutput$ = GetBucketAccelerateConfigurationOutput$;
-    exports2.GetBucketAccelerateConfigurationRequest$ = GetBucketAccelerateConfigurationRequest$;
-    exports2.GetBucketAcl$ = GetBucketAcl$;
-    exports2.GetBucketAclCommand = GetBucketAclCommand;
-    exports2.GetBucketAclOutput$ = GetBucketAclOutput$;
-    exports2.GetBucketAclRequest$ = GetBucketAclRequest$;
-    exports2.GetBucketAnalyticsConfiguration$ = GetBucketAnalyticsConfiguration$;
-    exports2.GetBucketAnalyticsConfigurationCommand = GetBucketAnalyticsConfigurationCommand;
-    exports2.GetBucketAnalyticsConfigurationOutput$ = GetBucketAnalyticsConfigurationOutput$;
-    exports2.GetBucketAnalyticsConfigurationRequest$ = GetBucketAnalyticsConfigurationRequest$;
-    exports2.GetBucketCors$ = GetBucketCors$;
-    exports2.GetBucketCorsCommand = GetBucketCorsCommand;
-    exports2.GetBucketCorsOutput$ = GetBucketCorsOutput$;
-    exports2.GetBucketCorsRequest$ = GetBucketCorsRequest$;
-    exports2.GetBucketEncryption$ = GetBucketEncryption$;
-    exports2.GetBucketEncryptionCommand = GetBucketEncryptionCommand;
-    exports2.GetBucketEncryptionOutput$ = GetBucketEncryptionOutput$;
-    exports2.GetBucketEncryptionRequest$ = GetBucketEncryptionRequest$;
-    exports2.GetBucketIntelligentTieringConfiguration$ = GetBucketIntelligentTieringConfiguration$;
-    exports2.GetBucketIntelligentTieringConfigurationCommand = GetBucketIntelligentTieringConfigurationCommand;
-    exports2.GetBucketIntelligentTieringConfigurationOutput$ = GetBucketIntelligentTieringConfigurationOutput$;
-    exports2.GetBucketIntelligentTieringConfigurationRequest$ = GetBucketIntelligentTieringConfigurationRequest$;
-    exports2.GetBucketInventoryConfiguration$ = GetBucketInventoryConfiguration$;
-    exports2.GetBucketInventoryConfigurationCommand = GetBucketInventoryConfigurationCommand;
-    exports2.GetBucketInventoryConfigurationOutput$ = GetBucketInventoryConfigurationOutput$;
-    exports2.GetBucketInventoryConfigurationRequest$ = GetBucketInventoryConfigurationRequest$;
-    exports2.GetBucketLifecycleConfiguration$ = GetBucketLifecycleConfiguration$;
-    exports2.GetBucketLifecycleConfigurationCommand = GetBucketLifecycleConfigurationCommand;
-    exports2.GetBucketLifecycleConfigurationOutput$ = GetBucketLifecycleConfigurationOutput$;
-    exports2.GetBucketLifecycleConfigurationRequest$ = GetBucketLifecycleConfigurationRequest$;
-    exports2.GetBucketLocation$ = GetBucketLocation$;
-    exports2.GetBucketLocationCommand = GetBucketLocationCommand;
-    exports2.GetBucketLocationOutput$ = GetBucketLocationOutput$;
-    exports2.GetBucketLocationRequest$ = GetBucketLocationRequest$;
-    exports2.GetBucketLogging$ = GetBucketLogging$;
-    exports2.GetBucketLoggingCommand = GetBucketLoggingCommand;
-    exports2.GetBucketLoggingOutput$ = GetBucketLoggingOutput$;
-    exports2.GetBucketLoggingRequest$ = GetBucketLoggingRequest$;
-    exports2.GetBucketMetadataConfiguration$ = GetBucketMetadataConfiguration$;
-    exports2.GetBucketMetadataConfigurationCommand = GetBucketMetadataConfigurationCommand;
-    exports2.GetBucketMetadataConfigurationOutput$ = GetBucketMetadataConfigurationOutput$;
-    exports2.GetBucketMetadataConfigurationRequest$ = GetBucketMetadataConfigurationRequest$;
-    exports2.GetBucketMetadataConfigurationResult$ = GetBucketMetadataConfigurationResult$;
-    exports2.GetBucketMetadataTableConfiguration$ = GetBucketMetadataTableConfiguration$;
-    exports2.GetBucketMetadataTableConfigurationCommand = GetBucketMetadataTableConfigurationCommand;
-    exports2.GetBucketMetadataTableConfigurationOutput$ = GetBucketMetadataTableConfigurationOutput$;
-    exports2.GetBucketMetadataTableConfigurationRequest$ = GetBucketMetadataTableConfigurationRequest$;
-    exports2.GetBucketMetadataTableConfigurationResult$ = GetBucketMetadataTableConfigurationResult$;
-    exports2.GetBucketMetricsConfiguration$ = GetBucketMetricsConfiguration$;
-    exports2.GetBucketMetricsConfigurationCommand = GetBucketMetricsConfigurationCommand;
-    exports2.GetBucketMetricsConfigurationOutput$ = GetBucketMetricsConfigurationOutput$;
-    exports2.GetBucketMetricsConfigurationRequest$ = GetBucketMetricsConfigurationRequest$;
-    exports2.GetBucketNotificationConfiguration$ = GetBucketNotificationConfiguration$;
-    exports2.GetBucketNotificationConfigurationCommand = GetBucketNotificationConfigurationCommand;
-    exports2.GetBucketNotificationConfigurationRequest$ = GetBucketNotificationConfigurationRequest$;
-    exports2.GetBucketOwnershipControls$ = GetBucketOwnershipControls$;
-    exports2.GetBucketOwnershipControlsCommand = GetBucketOwnershipControlsCommand;
-    exports2.GetBucketOwnershipControlsOutput$ = GetBucketOwnershipControlsOutput$;
-    exports2.GetBucketOwnershipControlsRequest$ = GetBucketOwnershipControlsRequest$;
-    exports2.GetBucketPolicy$ = GetBucketPolicy$;
-    exports2.GetBucketPolicyCommand = GetBucketPolicyCommand;
-    exports2.GetBucketPolicyOutput$ = GetBucketPolicyOutput$;
-    exports2.GetBucketPolicyRequest$ = GetBucketPolicyRequest$;
-    exports2.GetBucketPolicyStatus$ = GetBucketPolicyStatus$;
-    exports2.GetBucketPolicyStatusCommand = GetBucketPolicyStatusCommand;
-    exports2.GetBucketPolicyStatusOutput$ = GetBucketPolicyStatusOutput$;
-    exports2.GetBucketPolicyStatusRequest$ = GetBucketPolicyStatusRequest$;
-    exports2.GetBucketReplication$ = GetBucketReplication$;
-    exports2.GetBucketReplicationCommand = GetBucketReplicationCommand;
-    exports2.GetBucketReplicationOutput$ = GetBucketReplicationOutput$;
-    exports2.GetBucketReplicationRequest$ = GetBucketReplicationRequest$;
-    exports2.GetBucketRequestPayment$ = GetBucketRequestPayment$;
-    exports2.GetBucketRequestPaymentCommand = GetBucketRequestPaymentCommand;
-    exports2.GetBucketRequestPaymentOutput$ = GetBucketRequestPaymentOutput$;
-    exports2.GetBucketRequestPaymentRequest$ = GetBucketRequestPaymentRequest$;
-    exports2.GetBucketTagging$ = GetBucketTagging$;
-    exports2.GetBucketTaggingCommand = GetBucketTaggingCommand;
-    exports2.GetBucketTaggingOutput$ = GetBucketTaggingOutput$;
-    exports2.GetBucketTaggingRequest$ = GetBucketTaggingRequest$;
-    exports2.GetBucketVersioning$ = GetBucketVersioning$;
-    exports2.GetBucketVersioningCommand = GetBucketVersioningCommand;
-    exports2.GetBucketVersioningOutput$ = GetBucketVersioningOutput$;
-    exports2.GetBucketVersioningRequest$ = GetBucketVersioningRequest$;
-    exports2.GetBucketWebsite$ = GetBucketWebsite$;
-    exports2.GetBucketWebsiteCommand = GetBucketWebsiteCommand;
-    exports2.GetBucketWebsiteOutput$ = GetBucketWebsiteOutput$;
-    exports2.GetBucketWebsiteRequest$ = GetBucketWebsiteRequest$;
-    exports2.GetObject$ = GetObject$;
-    exports2.GetObjectAcl$ = GetObjectAcl$;
-    exports2.GetObjectAclCommand = GetObjectAclCommand;
-    exports2.GetObjectAclOutput$ = GetObjectAclOutput$;
-    exports2.GetObjectAclRequest$ = GetObjectAclRequest$;
-    exports2.GetObjectAnnotation$ = GetObjectAnnotation$;
-    exports2.GetObjectAnnotationCommand = GetObjectAnnotationCommand;
-    exports2.GetObjectAnnotationOutput$ = GetObjectAnnotationOutput$;
-    exports2.GetObjectAnnotationRequest$ = GetObjectAnnotationRequest$;
-    exports2.GetObjectAttributes$ = GetObjectAttributes$;
-    exports2.GetObjectAttributesCommand = GetObjectAttributesCommand;
-    exports2.GetObjectAttributesOutput$ = GetObjectAttributesOutput$;
-    exports2.GetObjectAttributesParts$ = GetObjectAttributesParts$;
-    exports2.GetObjectAttributesRequest$ = GetObjectAttributesRequest$;
-    exports2.GetObjectCommand = GetObjectCommand;
-    exports2.GetObjectLegalHold$ = GetObjectLegalHold$;
-    exports2.GetObjectLegalHoldCommand = GetObjectLegalHoldCommand;
-    exports2.GetObjectLegalHoldOutput$ = GetObjectLegalHoldOutput$;
-    exports2.GetObjectLegalHoldRequest$ = GetObjectLegalHoldRequest$;
-    exports2.GetObjectLockConfiguration$ = GetObjectLockConfiguration$;
-    exports2.GetObjectLockConfigurationCommand = GetObjectLockConfigurationCommand;
-    exports2.GetObjectLockConfigurationOutput$ = GetObjectLockConfigurationOutput$;
-    exports2.GetObjectLockConfigurationRequest$ = GetObjectLockConfigurationRequest$;
-    exports2.GetObjectOutput$ = GetObjectOutput$;
-    exports2.GetObjectRequest$ = GetObjectRequest$;
-    exports2.GetObjectRetention$ = GetObjectRetention$;
-    exports2.GetObjectRetentionCommand = GetObjectRetentionCommand;
-    exports2.GetObjectRetentionOutput$ = GetObjectRetentionOutput$;
-    exports2.GetObjectRetentionRequest$ = GetObjectRetentionRequest$;
-    exports2.GetObjectTagging$ = GetObjectTagging$;
-    exports2.GetObjectTaggingCommand = GetObjectTaggingCommand;
-    exports2.GetObjectTaggingOutput$ = GetObjectTaggingOutput$;
-    exports2.GetObjectTaggingRequest$ = GetObjectTaggingRequest$;
-    exports2.GetObjectTorrent$ = GetObjectTorrent$;
-    exports2.GetObjectTorrentCommand = GetObjectTorrentCommand;
-    exports2.GetObjectTorrentOutput$ = GetObjectTorrentOutput$;
-    exports2.GetObjectTorrentRequest$ = GetObjectTorrentRequest$;
-    exports2.GetPublicAccessBlock$ = GetPublicAccessBlock$;
-    exports2.GetPublicAccessBlockCommand = GetPublicAccessBlockCommand;
-    exports2.GetPublicAccessBlockOutput$ = GetPublicAccessBlockOutput$;
-    exports2.GetPublicAccessBlockRequest$ = GetPublicAccessBlockRequest$;
-    exports2.GlacierJobParameters$ = GlacierJobParameters$;
-    exports2.Grant$ = Grant$;
-    exports2.Grantee$ = Grantee$;
-    exports2.HeadBucket$ = HeadBucket$;
-    exports2.HeadBucketCommand = HeadBucketCommand;
-    exports2.HeadBucketOutput$ = HeadBucketOutput$;
-    exports2.HeadBucketRequest$ = HeadBucketRequest$;
-    exports2.HeadObject$ = HeadObject$;
-    exports2.HeadObjectCommand = HeadObjectCommand;
-    exports2.HeadObjectOutput$ = HeadObjectOutput$;
-    exports2.HeadObjectRequest$ = HeadObjectRequest$;
-    exports2.IdempotencyParameterMismatch = IdempotencyParameterMismatch;
-    exports2.IdempotencyParameterMismatch$ = IdempotencyParameterMismatch$;
-    exports2.IndexDocument$ = IndexDocument$;
-    exports2.Initiator$ = Initiator$;
-    exports2.InputSerialization$ = InputSerialization$;
-    exports2.IntelligentTieringAccessTier = IntelligentTieringAccessTier;
-    exports2.IntelligentTieringAndOperator$ = IntelligentTieringAndOperator$;
-    exports2.IntelligentTieringConfiguration$ = IntelligentTieringConfiguration$;
-    exports2.IntelligentTieringFilter$ = IntelligentTieringFilter$;
-    exports2.IntelligentTieringStatus = IntelligentTieringStatus;
-    exports2.InvalidAnnotationName = InvalidAnnotationName;
-    exports2.InvalidAnnotationName$ = InvalidAnnotationName$;
-    exports2.InvalidObjectState = InvalidObjectState;
-    exports2.InvalidObjectState$ = InvalidObjectState$;
-    exports2.InvalidPrefix = InvalidPrefix;
-    exports2.InvalidPrefix$ = InvalidPrefix$;
-    exports2.InvalidRequest = InvalidRequest;
-    exports2.InvalidRequest$ = InvalidRequest$;
-    exports2.InvalidWriteOffset = InvalidWriteOffset;
-    exports2.InvalidWriteOffset$ = InvalidWriteOffset$;
-    exports2.InventoryConfiguration$ = InventoryConfiguration$;
-    exports2.InventoryConfigurationState = InventoryConfigurationState;
-    exports2.InventoryDestination$ = InventoryDestination$;
-    exports2.InventoryEncryption$ = InventoryEncryption$;
-    exports2.InventoryFilter$ = InventoryFilter$;
-    exports2.InventoryFormat = InventoryFormat;
-    exports2.InventoryFrequency = InventoryFrequency;
-    exports2.InventoryIncludedObjectVersions = InventoryIncludedObjectVersions;
-    exports2.InventoryOptionalField = InventoryOptionalField;
-    exports2.InventoryS3BucketDestination$ = InventoryS3BucketDestination$;
-    exports2.InventorySchedule$ = InventorySchedule$;
-    exports2.InventoryTableConfiguration$ = InventoryTableConfiguration$;
-    exports2.InventoryTableConfigurationResult$ = InventoryTableConfigurationResult$;
-    exports2.InventoryTableConfigurationUpdates$ = InventoryTableConfigurationUpdates$;
-    exports2.JSONInput$ = JSONInput$;
-    exports2.JSONOutput$ = JSONOutput$;
-    exports2.JSONType = JSONType;
-    exports2.JournalTableConfiguration$ = JournalTableConfiguration$;
-    exports2.JournalTableConfigurationResult$ = JournalTableConfigurationResult$;
-    exports2.JournalTableConfigurationUpdates$ = JournalTableConfigurationUpdates$;
-    exports2.LambdaFunctionConfiguration$ = LambdaFunctionConfiguration$;
-    exports2.LifecycleExpiration$ = LifecycleExpiration$;
-    exports2.LifecycleRule$ = LifecycleRule$;
-    exports2.LifecycleRuleAndOperator$ = LifecycleRuleAndOperator$;
-    exports2.LifecycleRuleFilter$ = LifecycleRuleFilter$;
-    exports2.ListBucketAnalyticsConfigurations$ = ListBucketAnalyticsConfigurations$;
-    exports2.ListBucketAnalyticsConfigurationsCommand = ListBucketAnalyticsConfigurationsCommand;
-    exports2.ListBucketAnalyticsConfigurationsOutput$ = ListBucketAnalyticsConfigurationsOutput$;
-    exports2.ListBucketAnalyticsConfigurationsRequest$ = ListBucketAnalyticsConfigurationsRequest$;
-    exports2.ListBucketIntelligentTieringConfigurations$ = ListBucketIntelligentTieringConfigurations$;
-    exports2.ListBucketIntelligentTieringConfigurationsCommand = ListBucketIntelligentTieringConfigurationsCommand;
-    exports2.ListBucketIntelligentTieringConfigurationsOutput$ = ListBucketIntelligentTieringConfigurationsOutput$;
-    exports2.ListBucketIntelligentTieringConfigurationsRequest$ = ListBucketIntelligentTieringConfigurationsRequest$;
-    exports2.ListBucketInventoryConfigurations$ = ListBucketInventoryConfigurations$;
-    exports2.ListBucketInventoryConfigurationsCommand = ListBucketInventoryConfigurationsCommand;
-    exports2.ListBucketInventoryConfigurationsOutput$ = ListBucketInventoryConfigurationsOutput$;
-    exports2.ListBucketInventoryConfigurationsRequest$ = ListBucketInventoryConfigurationsRequest$;
-    exports2.ListBucketMetricsConfigurations$ = ListBucketMetricsConfigurations$;
-    exports2.ListBucketMetricsConfigurationsCommand = ListBucketMetricsConfigurationsCommand;
-    exports2.ListBucketMetricsConfigurationsOutput$ = ListBucketMetricsConfigurationsOutput$;
-    exports2.ListBucketMetricsConfigurationsRequest$ = ListBucketMetricsConfigurationsRequest$;
-    exports2.ListBuckets$ = ListBuckets$;
-    exports2.ListBucketsCommand = ListBucketsCommand;
-    exports2.ListBucketsOutput$ = ListBucketsOutput$;
-    exports2.ListBucketsRequest$ = ListBucketsRequest$;
-    exports2.ListDirectoryBuckets$ = ListDirectoryBuckets$;
-    exports2.ListDirectoryBucketsCommand = ListDirectoryBucketsCommand;
-    exports2.ListDirectoryBucketsOutput$ = ListDirectoryBucketsOutput$;
-    exports2.ListDirectoryBucketsRequest$ = ListDirectoryBucketsRequest$;
-    exports2.ListMultipartUploads$ = ListMultipartUploads$;
-    exports2.ListMultipartUploadsCommand = ListMultipartUploadsCommand;
-    exports2.ListMultipartUploadsOutput$ = ListMultipartUploadsOutput$;
-    exports2.ListMultipartUploadsRequest$ = ListMultipartUploadsRequest$;
-    exports2.ListObjectAnnotations$ = ListObjectAnnotations$;
-    exports2.ListObjectAnnotationsCommand = ListObjectAnnotationsCommand;
-    exports2.ListObjectAnnotationsOutput$ = ListObjectAnnotationsOutput$;
-    exports2.ListObjectAnnotationsRequest$ = ListObjectAnnotationsRequest$;
-    exports2.ListObjectVersions$ = ListObjectVersions$;
-    exports2.ListObjectVersionsCommand = ListObjectVersionsCommand;
-    exports2.ListObjectVersionsOutput$ = ListObjectVersionsOutput$;
-    exports2.ListObjectVersionsRequest$ = ListObjectVersionsRequest$;
-    exports2.ListObjects$ = ListObjects$;
-    exports2.ListObjectsCommand = ListObjectsCommand;
-    exports2.ListObjectsOutput$ = ListObjectsOutput$;
-    exports2.ListObjectsRequest$ = ListObjectsRequest$;
-    exports2.ListObjectsV2$ = ListObjectsV2$;
-    exports2.ListObjectsV2Command = ListObjectsV2Command;
-    exports2.ListObjectsV2Output$ = ListObjectsV2Output$;
-    exports2.ListObjectsV2Request$ = ListObjectsV2Request$;
-    exports2.ListParts$ = ListParts$;
-    exports2.ListPartsCommand = ListPartsCommand;
-    exports2.ListPartsOutput$ = ListPartsOutput$;
-    exports2.ListPartsRequest$ = ListPartsRequest$;
-    exports2.LocationInfo$ = LocationInfo$;
-    exports2.LocationType = LocationType;
-    exports2.LoggingEnabled$ = LoggingEnabled$;
-    exports2.MFADelete = MFADelete;
-    exports2.MFADeleteStatus = MFADeleteStatus;
-    exports2.MetadataConfiguration$ = MetadataConfiguration$;
-    exports2.MetadataConfigurationResult$ = MetadataConfigurationResult$;
-    exports2.MetadataDirective = MetadataDirective;
-    exports2.MetadataEntry$ = MetadataEntry$;
-    exports2.MetadataTableConfiguration$ = MetadataTableConfiguration$;
-    exports2.MetadataTableConfigurationResult$ = MetadataTableConfigurationResult$;
-    exports2.MetadataTableEncryptionConfiguration$ = MetadataTableEncryptionConfiguration$;
-    exports2.Metrics$ = Metrics$;
-    exports2.MetricsAndOperator$ = MetricsAndOperator$;
-    exports2.MetricsConfiguration$ = MetricsConfiguration$;
-    exports2.MetricsFilter$ = MetricsFilter$;
-    exports2.MetricsStatus = MetricsStatus;
-    exports2.MultipartUpload$ = MultipartUpload$;
-    exports2.NoSuchAnnotation = NoSuchAnnotation;
-    exports2.NoSuchAnnotation$ = NoSuchAnnotation$;
-    exports2.NoSuchBucket = NoSuchBucket;
-    exports2.NoSuchBucket$ = NoSuchBucket$;
-    exports2.NoSuchKey = NoSuchKey;
-    exports2.NoSuchKey$ = NoSuchKey$;
-    exports2.NoSuchUpload = NoSuchUpload;
-    exports2.NoSuchUpload$ = NoSuchUpload$;
-    exports2.NoncurrentVersionExpiration$ = NoncurrentVersionExpiration$;
-    exports2.NoncurrentVersionTransition$ = NoncurrentVersionTransition$;
-    exports2.NotFound = NotFound;
-    exports2.NotFound$ = NotFound$;
-    exports2.NotificationConfiguration$ = NotificationConfiguration$;
-    exports2.NotificationConfigurationFilter$ = NotificationConfigurationFilter$;
-    exports2.ObjectAlreadyInActiveTierError = ObjectAlreadyInActiveTierError;
-    exports2.ObjectAlreadyInActiveTierError$ = ObjectAlreadyInActiveTierError$;
-    exports2.ObjectAttributes = ObjectAttributes;
-    exports2.ObjectCannedACL = ObjectCannedACL;
-    exports2.ObjectEncryption$ = ObjectEncryption$;
-    exports2.ObjectIdentifier$ = ObjectIdentifier$;
-    exports2.ObjectLockConfiguration$ = ObjectLockConfiguration$;
-    exports2.ObjectLockEnabled = ObjectLockEnabled;
-    exports2.ObjectLockLegalHold$ = ObjectLockLegalHold$;
-    exports2.ObjectLockLegalHoldStatus = ObjectLockLegalHoldStatus;
-    exports2.ObjectLockMode = ObjectLockMode;
-    exports2.ObjectLockRetention$ = ObjectLockRetention$;
-    exports2.ObjectLockRetentionMode = ObjectLockRetentionMode;
-    exports2.ObjectLockRule$ = ObjectLockRule$;
-    exports2.ObjectNotInActiveTierError = ObjectNotInActiveTierError;
-    exports2.ObjectNotInActiveTierError$ = ObjectNotInActiveTierError$;
-    exports2.ObjectOwnership = ObjectOwnership;
-    exports2.ObjectPart$ = ObjectPart$;
-    exports2.ObjectStorageClass = ObjectStorageClass;
-    exports2.ObjectVersion$ = ObjectVersion$;
-    exports2.ObjectVersionStorageClass = ObjectVersionStorageClass;
-    exports2.OptionalObjectAttributes = OptionalObjectAttributes;
-    exports2.OutputLocation$ = OutputLocation$;
-    exports2.OutputSerialization$ = OutputSerialization$;
-    exports2.Owner$ = Owner$;
-    exports2.OwnerOverride = OwnerOverride;
-    exports2.OwnershipControls$ = OwnershipControls$;
-    exports2.OwnershipControlsRule$ = OwnershipControlsRule$;
-    exports2.ParquetInput$ = ParquetInput$;
-    exports2.Part$ = Part$;
-    exports2.PartitionDateSource = PartitionDateSource;
-    exports2.PartitionedPrefix$ = PartitionedPrefix$;
-    exports2.Payer = Payer;
-    exports2.Permission = Permission;
-    exports2.PolicyStatus$ = PolicyStatus$;
-    exports2.Progress$ = Progress$;
-    exports2.ProgressEvent$ = ProgressEvent$;
-    exports2.Protocol = Protocol;
-    exports2.PublicAccessBlockConfiguration$ = PublicAccessBlockConfiguration$;
-    exports2.PutBucketAbac$ = PutBucketAbac$;
-    exports2.PutBucketAbacCommand = PutBucketAbacCommand;
-    exports2.PutBucketAbacRequest$ = PutBucketAbacRequest$;
-    exports2.PutBucketAccelerateConfiguration$ = PutBucketAccelerateConfiguration$;
-    exports2.PutBucketAccelerateConfigurationCommand = PutBucketAccelerateConfigurationCommand;
-    exports2.PutBucketAccelerateConfigurationRequest$ = PutBucketAccelerateConfigurationRequest$;
-    exports2.PutBucketAcl$ = PutBucketAcl$;
-    exports2.PutBucketAclCommand = PutBucketAclCommand;
-    exports2.PutBucketAclRequest$ = PutBucketAclRequest$;
-    exports2.PutBucketAnalyticsConfiguration$ = PutBucketAnalyticsConfiguration$;
-    exports2.PutBucketAnalyticsConfigurationCommand = PutBucketAnalyticsConfigurationCommand;
-    exports2.PutBucketAnalyticsConfigurationRequest$ = PutBucketAnalyticsConfigurationRequest$;
-    exports2.PutBucketCors$ = PutBucketCors$;
-    exports2.PutBucketCorsCommand = PutBucketCorsCommand;
-    exports2.PutBucketCorsRequest$ = PutBucketCorsRequest$;
-    exports2.PutBucketEncryption$ = PutBucketEncryption$;
-    exports2.PutBucketEncryptionCommand = PutBucketEncryptionCommand;
-    exports2.PutBucketEncryptionRequest$ = PutBucketEncryptionRequest$;
-    exports2.PutBucketIntelligentTieringConfiguration$ = PutBucketIntelligentTieringConfiguration$;
-    exports2.PutBucketIntelligentTieringConfigurationCommand = PutBucketIntelligentTieringConfigurationCommand;
-    exports2.PutBucketIntelligentTieringConfigurationRequest$ = PutBucketIntelligentTieringConfigurationRequest$;
-    exports2.PutBucketInventoryConfiguration$ = PutBucketInventoryConfiguration$;
-    exports2.PutBucketInventoryConfigurationCommand = PutBucketInventoryConfigurationCommand;
-    exports2.PutBucketInventoryConfigurationRequest$ = PutBucketInventoryConfigurationRequest$;
-    exports2.PutBucketLifecycleConfiguration$ = PutBucketLifecycleConfiguration$;
-    exports2.PutBucketLifecycleConfigurationCommand = PutBucketLifecycleConfigurationCommand;
-    exports2.PutBucketLifecycleConfigurationOutput$ = PutBucketLifecycleConfigurationOutput$;
-    exports2.PutBucketLifecycleConfigurationRequest$ = PutBucketLifecycleConfigurationRequest$;
-    exports2.PutBucketLogging$ = PutBucketLogging$;
-    exports2.PutBucketLoggingCommand = PutBucketLoggingCommand;
-    exports2.PutBucketLoggingRequest$ = PutBucketLoggingRequest$;
-    exports2.PutBucketMetricsConfiguration$ = PutBucketMetricsConfiguration$;
-    exports2.PutBucketMetricsConfigurationCommand = PutBucketMetricsConfigurationCommand;
-    exports2.PutBucketMetricsConfigurationRequest$ = PutBucketMetricsConfigurationRequest$;
-    exports2.PutBucketNotificationConfiguration$ = PutBucketNotificationConfiguration$;
-    exports2.PutBucketNotificationConfigurationCommand = PutBucketNotificationConfigurationCommand;
-    exports2.PutBucketNotificationConfigurationRequest$ = PutBucketNotificationConfigurationRequest$;
-    exports2.PutBucketOwnershipControls$ = PutBucketOwnershipControls$;
-    exports2.PutBucketOwnershipControlsCommand = PutBucketOwnershipControlsCommand;
-    exports2.PutBucketOwnershipControlsRequest$ = PutBucketOwnershipControlsRequest$;
-    exports2.PutBucketPolicy$ = PutBucketPolicy$;
-    exports2.PutBucketPolicyCommand = PutBucketPolicyCommand;
-    exports2.PutBucketPolicyRequest$ = PutBucketPolicyRequest$;
-    exports2.PutBucketReplication$ = PutBucketReplication$;
-    exports2.PutBucketReplicationCommand = PutBucketReplicationCommand;
-    exports2.PutBucketReplicationRequest$ = PutBucketReplicationRequest$;
-    exports2.PutBucketRequestPayment$ = PutBucketRequestPayment$;
-    exports2.PutBucketRequestPaymentCommand = PutBucketRequestPaymentCommand;
-    exports2.PutBucketRequestPaymentRequest$ = PutBucketRequestPaymentRequest$;
-    exports2.PutBucketTagging$ = PutBucketTagging$;
-    exports2.PutBucketTaggingCommand = PutBucketTaggingCommand;
-    exports2.PutBucketTaggingRequest$ = PutBucketTaggingRequest$;
-    exports2.PutBucketVersioning$ = PutBucketVersioning$;
-    exports2.PutBucketVersioningCommand = PutBucketVersioningCommand;
-    exports2.PutBucketVersioningRequest$ = PutBucketVersioningRequest$;
-    exports2.PutBucketWebsite$ = PutBucketWebsite$;
-    exports2.PutBucketWebsiteCommand = PutBucketWebsiteCommand;
-    exports2.PutBucketWebsiteRequest$ = PutBucketWebsiteRequest$;
-    exports2.PutObject$ = PutObject$;
-    exports2.PutObjectAcl$ = PutObjectAcl$;
-    exports2.PutObjectAclCommand = PutObjectAclCommand;
-    exports2.PutObjectAclOutput$ = PutObjectAclOutput$;
-    exports2.PutObjectAclRequest$ = PutObjectAclRequest$;
-    exports2.PutObjectAnnotation$ = PutObjectAnnotation$;
-    exports2.PutObjectAnnotationCommand = PutObjectAnnotationCommand;
-    exports2.PutObjectAnnotationOutput$ = PutObjectAnnotationOutput$;
-    exports2.PutObjectAnnotationRequest$ = PutObjectAnnotationRequest$;
-    exports2.PutObjectCommand = PutObjectCommand2;
-    exports2.PutObjectLegalHold$ = PutObjectLegalHold$;
-    exports2.PutObjectLegalHoldCommand = PutObjectLegalHoldCommand;
-    exports2.PutObjectLegalHoldOutput$ = PutObjectLegalHoldOutput$;
-    exports2.PutObjectLegalHoldRequest$ = PutObjectLegalHoldRequest$;
-    exports2.PutObjectLockConfiguration$ = PutObjectLockConfiguration$;
-    exports2.PutObjectLockConfigurationCommand = PutObjectLockConfigurationCommand;
-    exports2.PutObjectLockConfigurationOutput$ = PutObjectLockConfigurationOutput$;
-    exports2.PutObjectLockConfigurationRequest$ = PutObjectLockConfigurationRequest$;
-    exports2.PutObjectOutput$ = PutObjectOutput$;
-    exports2.PutObjectRequest$ = PutObjectRequest$;
-    exports2.PutObjectRetention$ = PutObjectRetention$;
-    exports2.PutObjectRetentionCommand = PutObjectRetentionCommand;
-    exports2.PutObjectRetentionOutput$ = PutObjectRetentionOutput$;
-    exports2.PutObjectRetentionRequest$ = PutObjectRetentionRequest$;
-    exports2.PutObjectTagging$ = PutObjectTagging$;
-    exports2.PutObjectTaggingCommand = PutObjectTaggingCommand;
-    exports2.PutObjectTaggingOutput$ = PutObjectTaggingOutput$;
-    exports2.PutObjectTaggingRequest$ = PutObjectTaggingRequest$;
-    exports2.PutPublicAccessBlock$ = PutPublicAccessBlock$;
-    exports2.PutPublicAccessBlockCommand = PutPublicAccessBlockCommand;
-    exports2.PutPublicAccessBlockRequest$ = PutPublicAccessBlockRequest$;
-    exports2.QueueConfiguration$ = QueueConfiguration$;
-    exports2.QuoteFields = QuoteFields;
-    exports2.RecordExpiration$ = RecordExpiration$;
-    exports2.RecordsEvent$ = RecordsEvent$;
-    exports2.Redirect$ = Redirect$;
-    exports2.RedirectAllRequestsTo$ = RedirectAllRequestsTo$;
-    exports2.RenameObject$ = RenameObject$;
-    exports2.RenameObjectCommand = RenameObjectCommand;
-    exports2.RenameObjectOutput$ = RenameObjectOutput$;
-    exports2.RenameObjectRequest$ = RenameObjectRequest$;
-    exports2.ReplicaModifications$ = ReplicaModifications$;
-    exports2.ReplicaModificationsStatus = ReplicaModificationsStatus;
-    exports2.ReplicationConfiguration$ = ReplicationConfiguration$;
-    exports2.ReplicationRule$ = ReplicationRule$;
-    exports2.ReplicationRuleAndOperator$ = ReplicationRuleAndOperator$;
-    exports2.ReplicationRuleFilter$ = ReplicationRuleFilter$;
-    exports2.ReplicationRuleStatus = ReplicationRuleStatus;
-    exports2.ReplicationStatus = ReplicationStatus;
-    exports2.ReplicationTime$ = ReplicationTime$;
-    exports2.ReplicationTimeStatus = ReplicationTimeStatus;
-    exports2.ReplicationTimeValue$ = ReplicationTimeValue$;
-    exports2.RequestCharged = RequestCharged;
-    exports2.RequestPayer = RequestPayer;
-    exports2.RequestPaymentConfiguration$ = RequestPaymentConfiguration$;
-    exports2.RequestProgress$ = RequestProgress$;
-    exports2.RestoreObject$ = RestoreObject$;
-    exports2.RestoreObjectCommand = RestoreObjectCommand;
-    exports2.RestoreObjectOutput$ = RestoreObjectOutput$;
-    exports2.RestoreObjectRequest$ = RestoreObjectRequest$;
-    exports2.RestoreRequest$ = RestoreRequest$;
-    exports2.RestoreRequestType = RestoreRequestType;
-    exports2.RestoreStatus$ = RestoreStatus$;
-    exports2.RoutingRule$ = RoutingRule$;
-    exports2.S3 = S3;
-    exports2.S3Client = S3Client2;
-    exports2.S3KeyFilter$ = S3KeyFilter$;
-    exports2.S3Location$ = S3Location$;
-    exports2.S3ServiceException = S3ServiceException;
-    exports2.S3ServiceException$ = S3ServiceException$;
-    exports2.S3TablesBucketType = S3TablesBucketType;
-    exports2.S3TablesDestination$ = S3TablesDestination$;
-    exports2.S3TablesDestinationResult$ = S3TablesDestinationResult$;
-    exports2.SSEKMS$ = SSEKMS$;
-    exports2.SSEKMSEncryption$ = SSEKMSEncryption$;
-    exports2.SSES3$ = SSES3$;
-    exports2.ScanRange$ = ScanRange$;
-    exports2.SelectObjectContent$ = SelectObjectContent$;
-    exports2.SelectObjectContentCommand = SelectObjectContentCommand;
-    exports2.SelectObjectContentEventStream$ = SelectObjectContentEventStream$;
-    exports2.SelectObjectContentOutput$ = SelectObjectContentOutput$;
-    exports2.SelectObjectContentRequest$ = SelectObjectContentRequest$;
-    exports2.SelectParameters$ = SelectParameters$;
-    exports2.ServerSideEncryption = ServerSideEncryption;
-    exports2.ServerSideEncryptionByDefault$ = ServerSideEncryptionByDefault$;
-    exports2.ServerSideEncryptionConfiguration$ = ServerSideEncryptionConfiguration$;
-    exports2.ServerSideEncryptionRule$ = ServerSideEncryptionRule$;
-    exports2.SessionCredentials$ = SessionCredentials$;
-    exports2.SessionMode = SessionMode;
-    exports2.SimplePrefix$ = SimplePrefix$;
-    exports2.SourceSelectionCriteria$ = SourceSelectionCriteria$;
-    exports2.SseKmsEncryptedObjects$ = SseKmsEncryptedObjects$;
-    exports2.SseKmsEncryptedObjectsStatus = SseKmsEncryptedObjectsStatus;
-    exports2.Stats$ = Stats$;
-    exports2.StatsEvent$ = StatsEvent$;
-    exports2.StorageClass = StorageClass;
-    exports2.StorageClassAnalysis$ = StorageClassAnalysis$;
-    exports2.StorageClassAnalysisDataExport$ = StorageClassAnalysisDataExport$;
-    exports2.StorageClassAnalysisSchemaVersion = StorageClassAnalysisSchemaVersion;
-    exports2.TableSseAlgorithm = TableSseAlgorithm;
-    exports2.Tag$ = Tag$2;
-    exports2.Tagging$ = Tagging$;
-    exports2.TaggingDirective = TaggingDirective;
-    exports2.TargetGrant$ = TargetGrant$;
-    exports2.TargetObjectKeyFormat$ = TargetObjectKeyFormat$;
-    exports2.Tier = Tier;
-    exports2.Tiering$ = Tiering$;
-    exports2.TooManyParts = TooManyParts;
-    exports2.TooManyParts$ = TooManyParts$;
-    exports2.TopicConfiguration$ = TopicConfiguration$;
-    exports2.Transition$ = Transition$;
-    exports2.TransitionDefaultMinimumObjectSize = TransitionDefaultMinimumObjectSize;
-    exports2.TransitionStorageClass = TransitionStorageClass;
-    exports2.Type = Type;
-    exports2.UnsupportedMediaType = UnsupportedMediaType;
-    exports2.UnsupportedMediaType$ = UnsupportedMediaType$;
-    exports2.UpdateBucketMetadataAnnotationTableConfiguration$ = UpdateBucketMetadataAnnotationTableConfiguration$;
-    exports2.UpdateBucketMetadataAnnotationTableConfigurationCommand = UpdateBucketMetadataAnnotationTableConfigurationCommand;
-    exports2.UpdateBucketMetadataAnnotationTableConfigurationRequest$ = UpdateBucketMetadataAnnotationTableConfigurationRequest$;
-    exports2.UpdateBucketMetadataInventoryTableConfiguration$ = UpdateBucketMetadataInventoryTableConfiguration$;
-    exports2.UpdateBucketMetadataInventoryTableConfigurationCommand = UpdateBucketMetadataInventoryTableConfigurationCommand;
-    exports2.UpdateBucketMetadataInventoryTableConfigurationRequest$ = UpdateBucketMetadataInventoryTableConfigurationRequest$;
-    exports2.UpdateBucketMetadataJournalTableConfiguration$ = UpdateBucketMetadataJournalTableConfiguration$;
-    exports2.UpdateBucketMetadataJournalTableConfigurationCommand = UpdateBucketMetadataJournalTableConfigurationCommand;
-    exports2.UpdateBucketMetadataJournalTableConfigurationRequest$ = UpdateBucketMetadataJournalTableConfigurationRequest$;
-    exports2.UpdateObjectEncryption$ = UpdateObjectEncryption$;
-    exports2.UpdateObjectEncryptionCommand = UpdateObjectEncryptionCommand;
-    exports2.UpdateObjectEncryptionRequest$ = UpdateObjectEncryptionRequest$;
-    exports2.UpdateObjectEncryptionResponse$ = UpdateObjectEncryptionResponse$;
-    exports2.UploadPart$ = UploadPart$;
-    exports2.UploadPartCommand = UploadPartCommand;
-    exports2.UploadPartCopy$ = UploadPartCopy$;
-    exports2.UploadPartCopyCommand = UploadPartCopyCommand;
-    exports2.UploadPartCopyOutput$ = UploadPartCopyOutput$;
-    exports2.UploadPartCopyRequest$ = UploadPartCopyRequest$;
-    exports2.UploadPartOutput$ = UploadPartOutput$;
-    exports2.UploadPartRequest$ = UploadPartRequest$;
-    exports2.VersioningConfiguration$ = VersioningConfiguration$;
-    exports2.WebsiteConfiguration$ = WebsiteConfiguration$;
-    exports2.WriteGetObjectResponse$ = WriteGetObjectResponse$;
-    exports2.WriteGetObjectResponseCommand = WriteGetObjectResponseCommand;
-    exports2.WriteGetObjectResponseRequest$ = WriteGetObjectResponseRequest$;
-    exports2._Error$ = _Error$;
-    exports2._Object$ = _Object$;
-    exports2.errorTypeRegistries = errorTypeRegistries5;
-    exports2.paginateListBuckets = paginateListBuckets;
-    exports2.paginateListDirectoryBuckets = paginateListDirectoryBuckets;
-    exports2.paginateListObjectAnnotations = paginateListObjectAnnotations;
-    exports2.paginateListObjectsV2 = paginateListObjectsV2;
-    exports2.paginateListParts = paginateListParts;
-    exports2.waitForBucketExists = waitForBucketExists;
-    exports2.waitForBucketNotExists = waitForBucketNotExists;
-    exports2.waitForObjectExists = waitForObjectExists;
-    exports2.waitForObjectNotExists = waitForObjectNotExists;
-    exports2.waitUntilBucketExists = waitUntilBucketExists;
-    exports2.waitUntilBucketNotExists = waitUntilBucketNotExists;
-    exports2.waitUntilObjectExists = waitUntilObjectExists;
-    exports2.waitUntilObjectNotExists = waitUntilObjectNotExists;
+    exports.AbacStatus$ = AbacStatus$;
+    exports.AbortIncompleteMultipartUpload$ = AbortIncompleteMultipartUpload$;
+    exports.AbortMultipartUpload$ = AbortMultipartUpload$;
+    exports.AbortMultipartUploadCommand = AbortMultipartUploadCommand;
+    exports.AbortMultipartUploadOutput$ = AbortMultipartUploadOutput$;
+    exports.AbortMultipartUploadRequest$ = AbortMultipartUploadRequest$;
+    exports.AccelerateConfiguration$ = AccelerateConfiguration$;
+    exports.AccessControlPolicy$ = AccessControlPolicy$;
+    exports.AccessControlTranslation$ = AccessControlTranslation$;
+    exports.AccessDenied = AccessDenied;
+    exports.AccessDenied$ = AccessDenied$;
+    exports.AnalyticsAndOperator$ = AnalyticsAndOperator$;
+    exports.AnalyticsConfiguration$ = AnalyticsConfiguration$;
+    exports.AnalyticsExportDestination$ = AnalyticsExportDestination$;
+    exports.AnalyticsFilter$ = AnalyticsFilter$;
+    exports.AnalyticsS3BucketDestination$ = AnalyticsS3BucketDestination$;
+    exports.AnalyticsS3ExportFileFormat = AnalyticsS3ExportFileFormat;
+    exports.AnnotationConfigurationState = AnnotationConfigurationState;
+    exports.AnnotationDirective = AnnotationDirective;
+    exports.AnnotationEntry$ = AnnotationEntry$;
+    exports.AnnotationLimitExceeded = AnnotationLimitExceeded;
+    exports.AnnotationLimitExceeded$ = AnnotationLimitExceeded$;
+    exports.AnnotationNameTooLong = AnnotationNameTooLong;
+    exports.AnnotationNameTooLong$ = AnnotationNameTooLong$;
+    exports.AnnotationTableConfiguration$ = AnnotationTableConfiguration$;
+    exports.AnnotationTableConfigurationResult$ = AnnotationTableConfigurationResult$;
+    exports.AnnotationTableConfigurationUpdates$ = AnnotationTableConfigurationUpdates$;
+    exports.ArchiveStatus = ArchiveStatus;
+    exports.BlockedEncryptionTypes$ = BlockedEncryptionTypes$;
+    exports.Bucket$ = Bucket$;
+    exports.BucketAbacStatus = BucketAbacStatus;
+    exports.BucketAccelerateStatus = BucketAccelerateStatus;
+    exports.BucketAlreadyExists = BucketAlreadyExists;
+    exports.BucketAlreadyExists$ = BucketAlreadyExists$;
+    exports.BucketAlreadyOwnedByYou = BucketAlreadyOwnedByYou;
+    exports.BucketAlreadyOwnedByYou$ = BucketAlreadyOwnedByYou$;
+    exports.BucketCannedACL = BucketCannedACL;
+    exports.BucketInfo$ = BucketInfo$;
+    exports.BucketLifecycleConfiguration$ = BucketLifecycleConfiguration$;
+    exports.BucketLocationConstraint = BucketLocationConstraint;
+    exports.BucketLoggingStatus$ = BucketLoggingStatus$;
+    exports.BucketLogsPermission = BucketLogsPermission;
+    exports.BucketNamespace = BucketNamespace;
+    exports.BucketType = BucketType;
+    exports.BucketVersioningStatus = BucketVersioningStatus;
+    exports.CORSConfiguration$ = CORSConfiguration$;
+    exports.CORSRule$ = CORSRule$;
+    exports.CSVInput$ = CSVInput$;
+    exports.CSVOutput$ = CSVOutput$;
+    exports.Checksum$ = Checksum$;
+    exports.ChecksumAlgorithm = ChecksumAlgorithm2;
+    exports.ChecksumMode = ChecksumMode;
+    exports.ChecksumType = ChecksumType;
+    exports.CommonPrefix$ = CommonPrefix$;
+    exports.CompleteMultipartUpload$ = CompleteMultipartUpload$;
+    exports.CompleteMultipartUploadCommand = CompleteMultipartUploadCommand;
+    exports.CompleteMultipartUploadOutput$ = CompleteMultipartUploadOutput$;
+    exports.CompleteMultipartUploadRequest$ = CompleteMultipartUploadRequest$;
+    exports.CompletedMultipartUpload$ = CompletedMultipartUpload$;
+    exports.CompletedPart$ = CompletedPart$;
+    exports.CompressionType = CompressionType;
+    exports.Condition$ = Condition$;
+    exports.ContinuationEvent$ = ContinuationEvent$;
+    exports.CopyObject$ = CopyObject$;
+    exports.CopyObjectCommand = CopyObjectCommand;
+    exports.CopyObjectOutput$ = CopyObjectOutput$;
+    exports.CopyObjectRequest$ = CopyObjectRequest$;
+    exports.CopyObjectResult$ = CopyObjectResult$;
+    exports.CopyPartResult$ = CopyPartResult$;
+    exports.CreateBucket$ = CreateBucket$;
+    exports.CreateBucketCommand = CreateBucketCommand;
+    exports.CreateBucketConfiguration$ = CreateBucketConfiguration$;
+    exports.CreateBucketMetadataConfiguration$ = CreateBucketMetadataConfiguration$;
+    exports.CreateBucketMetadataConfigurationCommand = CreateBucketMetadataConfigurationCommand;
+    exports.CreateBucketMetadataConfigurationRequest$ = CreateBucketMetadataConfigurationRequest$;
+    exports.CreateBucketMetadataTableConfiguration$ = CreateBucketMetadataTableConfiguration$;
+    exports.CreateBucketMetadataTableConfigurationCommand = CreateBucketMetadataTableConfigurationCommand;
+    exports.CreateBucketMetadataTableConfigurationRequest$ = CreateBucketMetadataTableConfigurationRequest$;
+    exports.CreateBucketOutput$ = CreateBucketOutput$;
+    exports.CreateBucketRequest$ = CreateBucketRequest$;
+    exports.CreateMultipartUpload$ = CreateMultipartUpload$;
+    exports.CreateMultipartUploadCommand = CreateMultipartUploadCommand;
+    exports.CreateMultipartUploadOutput$ = CreateMultipartUploadOutput$;
+    exports.CreateMultipartUploadRequest$ = CreateMultipartUploadRequest$;
+    exports.CreateSession$ = CreateSession$;
+    exports.CreateSessionCommand = CreateSessionCommand;
+    exports.CreateSessionOutput$ = CreateSessionOutput$;
+    exports.CreateSessionRequest$ = CreateSessionRequest$;
+    exports.DataRedundancy = DataRedundancy;
+    exports.DefaultRetention$ = DefaultRetention$;
+    exports.Delete$ = Delete$;
+    exports.DeleteBucket$ = DeleteBucket$;
+    exports.DeleteBucketAnalyticsConfiguration$ = DeleteBucketAnalyticsConfiguration$;
+    exports.DeleteBucketAnalyticsConfigurationCommand = DeleteBucketAnalyticsConfigurationCommand;
+    exports.DeleteBucketAnalyticsConfigurationRequest$ = DeleteBucketAnalyticsConfigurationRequest$;
+    exports.DeleteBucketCommand = DeleteBucketCommand;
+    exports.DeleteBucketCors$ = DeleteBucketCors$;
+    exports.DeleteBucketCorsCommand = DeleteBucketCorsCommand;
+    exports.DeleteBucketCorsRequest$ = DeleteBucketCorsRequest$;
+    exports.DeleteBucketEncryption$ = DeleteBucketEncryption$;
+    exports.DeleteBucketEncryptionCommand = DeleteBucketEncryptionCommand;
+    exports.DeleteBucketEncryptionRequest$ = DeleteBucketEncryptionRequest$;
+    exports.DeleteBucketIntelligentTieringConfiguration$ = DeleteBucketIntelligentTieringConfiguration$;
+    exports.DeleteBucketIntelligentTieringConfigurationCommand = DeleteBucketIntelligentTieringConfigurationCommand;
+    exports.DeleteBucketIntelligentTieringConfigurationRequest$ = DeleteBucketIntelligentTieringConfigurationRequest$;
+    exports.DeleteBucketInventoryConfiguration$ = DeleteBucketInventoryConfiguration$;
+    exports.DeleteBucketInventoryConfigurationCommand = DeleteBucketInventoryConfigurationCommand;
+    exports.DeleteBucketInventoryConfigurationRequest$ = DeleteBucketInventoryConfigurationRequest$;
+    exports.DeleteBucketLifecycle$ = DeleteBucketLifecycle$;
+    exports.DeleteBucketLifecycleCommand = DeleteBucketLifecycleCommand;
+    exports.DeleteBucketLifecycleRequest$ = DeleteBucketLifecycleRequest$;
+    exports.DeleteBucketMetadataConfiguration$ = DeleteBucketMetadataConfiguration$;
+    exports.DeleteBucketMetadataConfigurationCommand = DeleteBucketMetadataConfigurationCommand;
+    exports.DeleteBucketMetadataConfigurationRequest$ = DeleteBucketMetadataConfigurationRequest$;
+    exports.DeleteBucketMetadataTableConfiguration$ = DeleteBucketMetadataTableConfiguration$;
+    exports.DeleteBucketMetadataTableConfigurationCommand = DeleteBucketMetadataTableConfigurationCommand;
+    exports.DeleteBucketMetadataTableConfigurationRequest$ = DeleteBucketMetadataTableConfigurationRequest$;
+    exports.DeleteBucketMetricsConfiguration$ = DeleteBucketMetricsConfiguration$;
+    exports.DeleteBucketMetricsConfigurationCommand = DeleteBucketMetricsConfigurationCommand;
+    exports.DeleteBucketMetricsConfigurationRequest$ = DeleteBucketMetricsConfigurationRequest$;
+    exports.DeleteBucketOwnershipControls$ = DeleteBucketOwnershipControls$;
+    exports.DeleteBucketOwnershipControlsCommand = DeleteBucketOwnershipControlsCommand;
+    exports.DeleteBucketOwnershipControlsRequest$ = DeleteBucketOwnershipControlsRequest$;
+    exports.DeleteBucketPolicy$ = DeleteBucketPolicy$;
+    exports.DeleteBucketPolicyCommand = DeleteBucketPolicyCommand;
+    exports.DeleteBucketPolicyRequest$ = DeleteBucketPolicyRequest$;
+    exports.DeleteBucketReplication$ = DeleteBucketReplication$;
+    exports.DeleteBucketReplicationCommand = DeleteBucketReplicationCommand;
+    exports.DeleteBucketReplicationRequest$ = DeleteBucketReplicationRequest$;
+    exports.DeleteBucketRequest$ = DeleteBucketRequest$;
+    exports.DeleteBucketTagging$ = DeleteBucketTagging$;
+    exports.DeleteBucketTaggingCommand = DeleteBucketTaggingCommand;
+    exports.DeleteBucketTaggingRequest$ = DeleteBucketTaggingRequest$;
+    exports.DeleteBucketWebsite$ = DeleteBucketWebsite$;
+    exports.DeleteBucketWebsiteCommand = DeleteBucketWebsiteCommand;
+    exports.DeleteBucketWebsiteRequest$ = DeleteBucketWebsiteRequest$;
+    exports.DeleteMarkerEntry$ = DeleteMarkerEntry$;
+    exports.DeleteMarkerReplication$ = DeleteMarkerReplication$;
+    exports.DeleteMarkerReplicationStatus = DeleteMarkerReplicationStatus;
+    exports.DeleteObject$ = DeleteObject$;
+    exports.DeleteObjectAnnotation$ = DeleteObjectAnnotation$;
+    exports.DeleteObjectAnnotationCommand = DeleteObjectAnnotationCommand;
+    exports.DeleteObjectAnnotationOutput$ = DeleteObjectAnnotationOutput$;
+    exports.DeleteObjectAnnotationRequest$ = DeleteObjectAnnotationRequest$;
+    exports.DeleteObjectCommand = DeleteObjectCommand;
+    exports.DeleteObjectOutput$ = DeleteObjectOutput$;
+    exports.DeleteObjectRequest$ = DeleteObjectRequest$;
+    exports.DeleteObjectTagging$ = DeleteObjectTagging$;
+    exports.DeleteObjectTaggingCommand = DeleteObjectTaggingCommand;
+    exports.DeleteObjectTaggingOutput$ = DeleteObjectTaggingOutput$;
+    exports.DeleteObjectTaggingRequest$ = DeleteObjectTaggingRequest$;
+    exports.DeleteObjects$ = DeleteObjects$;
+    exports.DeleteObjectsCommand = DeleteObjectsCommand;
+    exports.DeleteObjectsOutput$ = DeleteObjectsOutput$;
+    exports.DeleteObjectsRequest$ = DeleteObjectsRequest$;
+    exports.DeletePublicAccessBlock$ = DeletePublicAccessBlock$;
+    exports.DeletePublicAccessBlockCommand = DeletePublicAccessBlockCommand;
+    exports.DeletePublicAccessBlockRequest$ = DeletePublicAccessBlockRequest$;
+    exports.DeletedObject$ = DeletedObject$;
+    exports.Destination$ = Destination$;
+    exports.DestinationResult$ = DestinationResult$;
+    exports.EncodingType = EncodingType;
+    exports.Encryption$ = Encryption$;
+    exports.EncryptionConfiguration$ = EncryptionConfiguration$;
+    exports.EncryptionType = EncryptionType;
+    exports.EncryptionTypeMismatch = EncryptionTypeMismatch;
+    exports.EncryptionTypeMismatch$ = EncryptionTypeMismatch$;
+    exports.EndEvent$ = EndEvent$;
+    exports.ErrorDetails$ = ErrorDetails$;
+    exports.ErrorDocument$ = ErrorDocument$;
+    exports.Event = Event;
+    exports.EventBridgeConfiguration$ = EventBridgeConfiguration$;
+    exports.ExistingObjectReplication$ = ExistingObjectReplication$;
+    exports.ExistingObjectReplicationStatus = ExistingObjectReplicationStatus;
+    exports.ExpirationState = ExpirationState;
+    exports.ExpirationStatus = ExpirationStatus;
+    exports.ExpressionType = ExpressionType;
+    exports.FileHeaderInfo = FileHeaderInfo;
+    exports.FilterRule$ = FilterRule$;
+    exports.FilterRuleName = FilterRuleName;
+    exports.GetBucketAbac$ = GetBucketAbac$;
+    exports.GetBucketAbacCommand = GetBucketAbacCommand;
+    exports.GetBucketAbacOutput$ = GetBucketAbacOutput$;
+    exports.GetBucketAbacRequest$ = GetBucketAbacRequest$;
+    exports.GetBucketAccelerateConfiguration$ = GetBucketAccelerateConfiguration$;
+    exports.GetBucketAccelerateConfigurationCommand = GetBucketAccelerateConfigurationCommand;
+    exports.GetBucketAccelerateConfigurationOutput$ = GetBucketAccelerateConfigurationOutput$;
+    exports.GetBucketAccelerateConfigurationRequest$ = GetBucketAccelerateConfigurationRequest$;
+    exports.GetBucketAcl$ = GetBucketAcl$;
+    exports.GetBucketAclCommand = GetBucketAclCommand;
+    exports.GetBucketAclOutput$ = GetBucketAclOutput$;
+    exports.GetBucketAclRequest$ = GetBucketAclRequest$;
+    exports.GetBucketAnalyticsConfiguration$ = GetBucketAnalyticsConfiguration$;
+    exports.GetBucketAnalyticsConfigurationCommand = GetBucketAnalyticsConfigurationCommand;
+    exports.GetBucketAnalyticsConfigurationOutput$ = GetBucketAnalyticsConfigurationOutput$;
+    exports.GetBucketAnalyticsConfigurationRequest$ = GetBucketAnalyticsConfigurationRequest$;
+    exports.GetBucketCors$ = GetBucketCors$;
+    exports.GetBucketCorsCommand = GetBucketCorsCommand;
+    exports.GetBucketCorsOutput$ = GetBucketCorsOutput$;
+    exports.GetBucketCorsRequest$ = GetBucketCorsRequest$;
+    exports.GetBucketEncryption$ = GetBucketEncryption$;
+    exports.GetBucketEncryptionCommand = GetBucketEncryptionCommand;
+    exports.GetBucketEncryptionOutput$ = GetBucketEncryptionOutput$;
+    exports.GetBucketEncryptionRequest$ = GetBucketEncryptionRequest$;
+    exports.GetBucketIntelligentTieringConfiguration$ = GetBucketIntelligentTieringConfiguration$;
+    exports.GetBucketIntelligentTieringConfigurationCommand = GetBucketIntelligentTieringConfigurationCommand;
+    exports.GetBucketIntelligentTieringConfigurationOutput$ = GetBucketIntelligentTieringConfigurationOutput$;
+    exports.GetBucketIntelligentTieringConfigurationRequest$ = GetBucketIntelligentTieringConfigurationRequest$;
+    exports.GetBucketInventoryConfiguration$ = GetBucketInventoryConfiguration$;
+    exports.GetBucketInventoryConfigurationCommand = GetBucketInventoryConfigurationCommand;
+    exports.GetBucketInventoryConfigurationOutput$ = GetBucketInventoryConfigurationOutput$;
+    exports.GetBucketInventoryConfigurationRequest$ = GetBucketInventoryConfigurationRequest$;
+    exports.GetBucketLifecycleConfiguration$ = GetBucketLifecycleConfiguration$;
+    exports.GetBucketLifecycleConfigurationCommand = GetBucketLifecycleConfigurationCommand;
+    exports.GetBucketLifecycleConfigurationOutput$ = GetBucketLifecycleConfigurationOutput$;
+    exports.GetBucketLifecycleConfigurationRequest$ = GetBucketLifecycleConfigurationRequest$;
+    exports.GetBucketLocation$ = GetBucketLocation$;
+    exports.GetBucketLocationCommand = GetBucketLocationCommand;
+    exports.GetBucketLocationOutput$ = GetBucketLocationOutput$;
+    exports.GetBucketLocationRequest$ = GetBucketLocationRequest$;
+    exports.GetBucketLogging$ = GetBucketLogging$;
+    exports.GetBucketLoggingCommand = GetBucketLoggingCommand;
+    exports.GetBucketLoggingOutput$ = GetBucketLoggingOutput$;
+    exports.GetBucketLoggingRequest$ = GetBucketLoggingRequest$;
+    exports.GetBucketMetadataConfiguration$ = GetBucketMetadataConfiguration$;
+    exports.GetBucketMetadataConfigurationCommand = GetBucketMetadataConfigurationCommand;
+    exports.GetBucketMetadataConfigurationOutput$ = GetBucketMetadataConfigurationOutput$;
+    exports.GetBucketMetadataConfigurationRequest$ = GetBucketMetadataConfigurationRequest$;
+    exports.GetBucketMetadataConfigurationResult$ = GetBucketMetadataConfigurationResult$;
+    exports.GetBucketMetadataTableConfiguration$ = GetBucketMetadataTableConfiguration$;
+    exports.GetBucketMetadataTableConfigurationCommand = GetBucketMetadataTableConfigurationCommand;
+    exports.GetBucketMetadataTableConfigurationOutput$ = GetBucketMetadataTableConfigurationOutput$;
+    exports.GetBucketMetadataTableConfigurationRequest$ = GetBucketMetadataTableConfigurationRequest$;
+    exports.GetBucketMetadataTableConfigurationResult$ = GetBucketMetadataTableConfigurationResult$;
+    exports.GetBucketMetricsConfiguration$ = GetBucketMetricsConfiguration$;
+    exports.GetBucketMetricsConfigurationCommand = GetBucketMetricsConfigurationCommand;
+    exports.GetBucketMetricsConfigurationOutput$ = GetBucketMetricsConfigurationOutput$;
+    exports.GetBucketMetricsConfigurationRequest$ = GetBucketMetricsConfigurationRequest$;
+    exports.GetBucketNotificationConfiguration$ = GetBucketNotificationConfiguration$;
+    exports.GetBucketNotificationConfigurationCommand = GetBucketNotificationConfigurationCommand;
+    exports.GetBucketNotificationConfigurationRequest$ = GetBucketNotificationConfigurationRequest$;
+    exports.GetBucketOwnershipControls$ = GetBucketOwnershipControls$;
+    exports.GetBucketOwnershipControlsCommand = GetBucketOwnershipControlsCommand;
+    exports.GetBucketOwnershipControlsOutput$ = GetBucketOwnershipControlsOutput$;
+    exports.GetBucketOwnershipControlsRequest$ = GetBucketOwnershipControlsRequest$;
+    exports.GetBucketPolicy$ = GetBucketPolicy$;
+    exports.GetBucketPolicyCommand = GetBucketPolicyCommand;
+    exports.GetBucketPolicyOutput$ = GetBucketPolicyOutput$;
+    exports.GetBucketPolicyRequest$ = GetBucketPolicyRequest$;
+    exports.GetBucketPolicyStatus$ = GetBucketPolicyStatus$;
+    exports.GetBucketPolicyStatusCommand = GetBucketPolicyStatusCommand;
+    exports.GetBucketPolicyStatusOutput$ = GetBucketPolicyStatusOutput$;
+    exports.GetBucketPolicyStatusRequest$ = GetBucketPolicyStatusRequest$;
+    exports.GetBucketReplication$ = GetBucketReplication$;
+    exports.GetBucketReplicationCommand = GetBucketReplicationCommand;
+    exports.GetBucketReplicationOutput$ = GetBucketReplicationOutput$;
+    exports.GetBucketReplicationRequest$ = GetBucketReplicationRequest$;
+    exports.GetBucketRequestPayment$ = GetBucketRequestPayment$;
+    exports.GetBucketRequestPaymentCommand = GetBucketRequestPaymentCommand;
+    exports.GetBucketRequestPaymentOutput$ = GetBucketRequestPaymentOutput$;
+    exports.GetBucketRequestPaymentRequest$ = GetBucketRequestPaymentRequest$;
+    exports.GetBucketTagging$ = GetBucketTagging$;
+    exports.GetBucketTaggingCommand = GetBucketTaggingCommand;
+    exports.GetBucketTaggingOutput$ = GetBucketTaggingOutput$;
+    exports.GetBucketTaggingRequest$ = GetBucketTaggingRequest$;
+    exports.GetBucketVersioning$ = GetBucketVersioning$;
+    exports.GetBucketVersioningCommand = GetBucketVersioningCommand;
+    exports.GetBucketVersioningOutput$ = GetBucketVersioningOutput$;
+    exports.GetBucketVersioningRequest$ = GetBucketVersioningRequest$;
+    exports.GetBucketWebsite$ = GetBucketWebsite$;
+    exports.GetBucketWebsiteCommand = GetBucketWebsiteCommand;
+    exports.GetBucketWebsiteOutput$ = GetBucketWebsiteOutput$;
+    exports.GetBucketWebsiteRequest$ = GetBucketWebsiteRequest$;
+    exports.GetObject$ = GetObject$;
+    exports.GetObjectAcl$ = GetObjectAcl$;
+    exports.GetObjectAclCommand = GetObjectAclCommand;
+    exports.GetObjectAclOutput$ = GetObjectAclOutput$;
+    exports.GetObjectAclRequest$ = GetObjectAclRequest$;
+    exports.GetObjectAnnotation$ = GetObjectAnnotation$;
+    exports.GetObjectAnnotationCommand = GetObjectAnnotationCommand;
+    exports.GetObjectAnnotationOutput$ = GetObjectAnnotationOutput$;
+    exports.GetObjectAnnotationRequest$ = GetObjectAnnotationRequest$;
+    exports.GetObjectAttributes$ = GetObjectAttributes$;
+    exports.GetObjectAttributesCommand = GetObjectAttributesCommand;
+    exports.GetObjectAttributesOutput$ = GetObjectAttributesOutput$;
+    exports.GetObjectAttributesParts$ = GetObjectAttributesParts$;
+    exports.GetObjectAttributesRequest$ = GetObjectAttributesRequest$;
+    exports.GetObjectCommand = GetObjectCommand;
+    exports.GetObjectLegalHold$ = GetObjectLegalHold$;
+    exports.GetObjectLegalHoldCommand = GetObjectLegalHoldCommand;
+    exports.GetObjectLegalHoldOutput$ = GetObjectLegalHoldOutput$;
+    exports.GetObjectLegalHoldRequest$ = GetObjectLegalHoldRequest$;
+    exports.GetObjectLockConfiguration$ = GetObjectLockConfiguration$;
+    exports.GetObjectLockConfigurationCommand = GetObjectLockConfigurationCommand;
+    exports.GetObjectLockConfigurationOutput$ = GetObjectLockConfigurationOutput$;
+    exports.GetObjectLockConfigurationRequest$ = GetObjectLockConfigurationRequest$;
+    exports.GetObjectOutput$ = GetObjectOutput$;
+    exports.GetObjectRequest$ = GetObjectRequest$;
+    exports.GetObjectRetention$ = GetObjectRetention$;
+    exports.GetObjectRetentionCommand = GetObjectRetentionCommand;
+    exports.GetObjectRetentionOutput$ = GetObjectRetentionOutput$;
+    exports.GetObjectRetentionRequest$ = GetObjectRetentionRequest$;
+    exports.GetObjectTagging$ = GetObjectTagging$;
+    exports.GetObjectTaggingCommand = GetObjectTaggingCommand;
+    exports.GetObjectTaggingOutput$ = GetObjectTaggingOutput$;
+    exports.GetObjectTaggingRequest$ = GetObjectTaggingRequest$;
+    exports.GetObjectTorrent$ = GetObjectTorrent$;
+    exports.GetObjectTorrentCommand = GetObjectTorrentCommand;
+    exports.GetObjectTorrentOutput$ = GetObjectTorrentOutput$;
+    exports.GetObjectTorrentRequest$ = GetObjectTorrentRequest$;
+    exports.GetPublicAccessBlock$ = GetPublicAccessBlock$;
+    exports.GetPublicAccessBlockCommand = GetPublicAccessBlockCommand;
+    exports.GetPublicAccessBlockOutput$ = GetPublicAccessBlockOutput$;
+    exports.GetPublicAccessBlockRequest$ = GetPublicAccessBlockRequest$;
+    exports.GlacierJobParameters$ = GlacierJobParameters$;
+    exports.Grant$ = Grant$;
+    exports.Grantee$ = Grantee$;
+    exports.HeadBucket$ = HeadBucket$;
+    exports.HeadBucketCommand = HeadBucketCommand;
+    exports.HeadBucketOutput$ = HeadBucketOutput$;
+    exports.HeadBucketRequest$ = HeadBucketRequest$;
+    exports.HeadObject$ = HeadObject$;
+    exports.HeadObjectCommand = HeadObjectCommand;
+    exports.HeadObjectOutput$ = HeadObjectOutput$;
+    exports.HeadObjectRequest$ = HeadObjectRequest$;
+    exports.IdempotencyParameterMismatch = IdempotencyParameterMismatch;
+    exports.IdempotencyParameterMismatch$ = IdempotencyParameterMismatch$;
+    exports.IndexDocument$ = IndexDocument$;
+    exports.Initiator$ = Initiator$;
+    exports.InputSerialization$ = InputSerialization$;
+    exports.IntelligentTieringAccessTier = IntelligentTieringAccessTier;
+    exports.IntelligentTieringAndOperator$ = IntelligentTieringAndOperator$;
+    exports.IntelligentTieringConfiguration$ = IntelligentTieringConfiguration$;
+    exports.IntelligentTieringFilter$ = IntelligentTieringFilter$;
+    exports.IntelligentTieringStatus = IntelligentTieringStatus;
+    exports.InvalidAnnotationName = InvalidAnnotationName;
+    exports.InvalidAnnotationName$ = InvalidAnnotationName$;
+    exports.InvalidObjectState = InvalidObjectState;
+    exports.InvalidObjectState$ = InvalidObjectState$;
+    exports.InvalidPrefix = InvalidPrefix;
+    exports.InvalidPrefix$ = InvalidPrefix$;
+    exports.InvalidRequest = InvalidRequest;
+    exports.InvalidRequest$ = InvalidRequest$;
+    exports.InvalidWriteOffset = InvalidWriteOffset;
+    exports.InvalidWriteOffset$ = InvalidWriteOffset$;
+    exports.InventoryConfiguration$ = InventoryConfiguration$;
+    exports.InventoryConfigurationState = InventoryConfigurationState;
+    exports.InventoryDestination$ = InventoryDestination$;
+    exports.InventoryEncryption$ = InventoryEncryption$;
+    exports.InventoryFilter$ = InventoryFilter$;
+    exports.InventoryFormat = InventoryFormat;
+    exports.InventoryFrequency = InventoryFrequency;
+    exports.InventoryIncludedObjectVersions = InventoryIncludedObjectVersions;
+    exports.InventoryOptionalField = InventoryOptionalField;
+    exports.InventoryS3BucketDestination$ = InventoryS3BucketDestination$;
+    exports.InventorySchedule$ = InventorySchedule$;
+    exports.InventoryTableConfiguration$ = InventoryTableConfiguration$;
+    exports.InventoryTableConfigurationResult$ = InventoryTableConfigurationResult$;
+    exports.InventoryTableConfigurationUpdates$ = InventoryTableConfigurationUpdates$;
+    exports.JSONInput$ = JSONInput$;
+    exports.JSONOutput$ = JSONOutput$;
+    exports.JSONType = JSONType;
+    exports.JournalTableConfiguration$ = JournalTableConfiguration$;
+    exports.JournalTableConfigurationResult$ = JournalTableConfigurationResult$;
+    exports.JournalTableConfigurationUpdates$ = JournalTableConfigurationUpdates$;
+    exports.LambdaFunctionConfiguration$ = LambdaFunctionConfiguration$;
+    exports.LifecycleExpiration$ = LifecycleExpiration$;
+    exports.LifecycleRule$ = LifecycleRule$;
+    exports.LifecycleRuleAndOperator$ = LifecycleRuleAndOperator$;
+    exports.LifecycleRuleFilter$ = LifecycleRuleFilter$;
+    exports.ListBucketAnalyticsConfigurations$ = ListBucketAnalyticsConfigurations$;
+    exports.ListBucketAnalyticsConfigurationsCommand = ListBucketAnalyticsConfigurationsCommand;
+    exports.ListBucketAnalyticsConfigurationsOutput$ = ListBucketAnalyticsConfigurationsOutput$;
+    exports.ListBucketAnalyticsConfigurationsRequest$ = ListBucketAnalyticsConfigurationsRequest$;
+    exports.ListBucketIntelligentTieringConfigurations$ = ListBucketIntelligentTieringConfigurations$;
+    exports.ListBucketIntelligentTieringConfigurationsCommand = ListBucketIntelligentTieringConfigurationsCommand;
+    exports.ListBucketIntelligentTieringConfigurationsOutput$ = ListBucketIntelligentTieringConfigurationsOutput$;
+    exports.ListBucketIntelligentTieringConfigurationsRequest$ = ListBucketIntelligentTieringConfigurationsRequest$;
+    exports.ListBucketInventoryConfigurations$ = ListBucketInventoryConfigurations$;
+    exports.ListBucketInventoryConfigurationsCommand = ListBucketInventoryConfigurationsCommand;
+    exports.ListBucketInventoryConfigurationsOutput$ = ListBucketInventoryConfigurationsOutput$;
+    exports.ListBucketInventoryConfigurationsRequest$ = ListBucketInventoryConfigurationsRequest$;
+    exports.ListBucketMetricsConfigurations$ = ListBucketMetricsConfigurations$;
+    exports.ListBucketMetricsConfigurationsCommand = ListBucketMetricsConfigurationsCommand;
+    exports.ListBucketMetricsConfigurationsOutput$ = ListBucketMetricsConfigurationsOutput$;
+    exports.ListBucketMetricsConfigurationsRequest$ = ListBucketMetricsConfigurationsRequest$;
+    exports.ListBuckets$ = ListBuckets$;
+    exports.ListBucketsCommand = ListBucketsCommand;
+    exports.ListBucketsOutput$ = ListBucketsOutput$;
+    exports.ListBucketsRequest$ = ListBucketsRequest$;
+    exports.ListDirectoryBuckets$ = ListDirectoryBuckets$;
+    exports.ListDirectoryBucketsCommand = ListDirectoryBucketsCommand;
+    exports.ListDirectoryBucketsOutput$ = ListDirectoryBucketsOutput$;
+    exports.ListDirectoryBucketsRequest$ = ListDirectoryBucketsRequest$;
+    exports.ListMultipartUploads$ = ListMultipartUploads$;
+    exports.ListMultipartUploadsCommand = ListMultipartUploadsCommand;
+    exports.ListMultipartUploadsOutput$ = ListMultipartUploadsOutput$;
+    exports.ListMultipartUploadsRequest$ = ListMultipartUploadsRequest$;
+    exports.ListObjectAnnotations$ = ListObjectAnnotations$;
+    exports.ListObjectAnnotationsCommand = ListObjectAnnotationsCommand;
+    exports.ListObjectAnnotationsOutput$ = ListObjectAnnotationsOutput$;
+    exports.ListObjectAnnotationsRequest$ = ListObjectAnnotationsRequest$;
+    exports.ListObjectVersions$ = ListObjectVersions$;
+    exports.ListObjectVersionsCommand = ListObjectVersionsCommand;
+    exports.ListObjectVersionsOutput$ = ListObjectVersionsOutput$;
+    exports.ListObjectVersionsRequest$ = ListObjectVersionsRequest$;
+    exports.ListObjects$ = ListObjects$;
+    exports.ListObjectsCommand = ListObjectsCommand;
+    exports.ListObjectsOutput$ = ListObjectsOutput$;
+    exports.ListObjectsRequest$ = ListObjectsRequest$;
+    exports.ListObjectsV2$ = ListObjectsV2$;
+    exports.ListObjectsV2Command = ListObjectsV2Command;
+    exports.ListObjectsV2Output$ = ListObjectsV2Output$;
+    exports.ListObjectsV2Request$ = ListObjectsV2Request$;
+    exports.ListParts$ = ListParts$;
+    exports.ListPartsCommand = ListPartsCommand;
+    exports.ListPartsOutput$ = ListPartsOutput$;
+    exports.ListPartsRequest$ = ListPartsRequest$;
+    exports.LocationInfo$ = LocationInfo$;
+    exports.LocationType = LocationType;
+    exports.LoggingEnabled$ = LoggingEnabled$;
+    exports.MFADelete = MFADelete;
+    exports.MFADeleteStatus = MFADeleteStatus;
+    exports.MetadataConfiguration$ = MetadataConfiguration$;
+    exports.MetadataConfigurationResult$ = MetadataConfigurationResult$;
+    exports.MetadataDirective = MetadataDirective;
+    exports.MetadataEntry$ = MetadataEntry$;
+    exports.MetadataTableConfiguration$ = MetadataTableConfiguration$;
+    exports.MetadataTableConfigurationResult$ = MetadataTableConfigurationResult$;
+    exports.MetadataTableEncryptionConfiguration$ = MetadataTableEncryptionConfiguration$;
+    exports.Metrics$ = Metrics$;
+    exports.MetricsAndOperator$ = MetricsAndOperator$;
+    exports.MetricsConfiguration$ = MetricsConfiguration$;
+    exports.MetricsFilter$ = MetricsFilter$;
+    exports.MetricsStatus = MetricsStatus;
+    exports.MultipartUpload$ = MultipartUpload$;
+    exports.NoSuchAnnotation = NoSuchAnnotation;
+    exports.NoSuchAnnotation$ = NoSuchAnnotation$;
+    exports.NoSuchBucket = NoSuchBucket;
+    exports.NoSuchBucket$ = NoSuchBucket$;
+    exports.NoSuchKey = NoSuchKey;
+    exports.NoSuchKey$ = NoSuchKey$;
+    exports.NoSuchUpload = NoSuchUpload;
+    exports.NoSuchUpload$ = NoSuchUpload$;
+    exports.NoncurrentVersionExpiration$ = NoncurrentVersionExpiration$;
+    exports.NoncurrentVersionTransition$ = NoncurrentVersionTransition$;
+    exports.NotFound = NotFound;
+    exports.NotFound$ = NotFound$;
+    exports.NotificationConfiguration$ = NotificationConfiguration$;
+    exports.NotificationConfigurationFilter$ = NotificationConfigurationFilter$;
+    exports.ObjectAlreadyInActiveTierError = ObjectAlreadyInActiveTierError;
+    exports.ObjectAlreadyInActiveTierError$ = ObjectAlreadyInActiveTierError$;
+    exports.ObjectAttributes = ObjectAttributes;
+    exports.ObjectCannedACL = ObjectCannedACL;
+    exports.ObjectEncryption$ = ObjectEncryption$;
+    exports.ObjectIdentifier$ = ObjectIdentifier$;
+    exports.ObjectLockConfiguration$ = ObjectLockConfiguration$;
+    exports.ObjectLockEnabled = ObjectLockEnabled;
+    exports.ObjectLockLegalHold$ = ObjectLockLegalHold$;
+    exports.ObjectLockLegalHoldStatus = ObjectLockLegalHoldStatus;
+    exports.ObjectLockMode = ObjectLockMode;
+    exports.ObjectLockRetention$ = ObjectLockRetention$;
+    exports.ObjectLockRetentionMode = ObjectLockRetentionMode;
+    exports.ObjectLockRule$ = ObjectLockRule$;
+    exports.ObjectNotInActiveTierError = ObjectNotInActiveTierError;
+    exports.ObjectNotInActiveTierError$ = ObjectNotInActiveTierError$;
+    exports.ObjectOwnership = ObjectOwnership;
+    exports.ObjectPart$ = ObjectPart$;
+    exports.ObjectStorageClass = ObjectStorageClass;
+    exports.ObjectVersion$ = ObjectVersion$;
+    exports.ObjectVersionStorageClass = ObjectVersionStorageClass;
+    exports.OptionalObjectAttributes = OptionalObjectAttributes;
+    exports.OutputLocation$ = OutputLocation$;
+    exports.OutputSerialization$ = OutputSerialization$;
+    exports.Owner$ = Owner$;
+    exports.OwnerOverride = OwnerOverride;
+    exports.OwnershipControls$ = OwnershipControls$;
+    exports.OwnershipControlsRule$ = OwnershipControlsRule$;
+    exports.ParquetInput$ = ParquetInput$;
+    exports.Part$ = Part$;
+    exports.PartitionDateSource = PartitionDateSource;
+    exports.PartitionedPrefix$ = PartitionedPrefix$;
+    exports.Payer = Payer;
+    exports.Permission = Permission;
+    exports.PolicyStatus$ = PolicyStatus$;
+    exports.Progress$ = Progress$;
+    exports.ProgressEvent$ = ProgressEvent$;
+    exports.Protocol = Protocol;
+    exports.PublicAccessBlockConfiguration$ = PublicAccessBlockConfiguration$;
+    exports.PutBucketAbac$ = PutBucketAbac$;
+    exports.PutBucketAbacCommand = PutBucketAbacCommand;
+    exports.PutBucketAbacRequest$ = PutBucketAbacRequest$;
+    exports.PutBucketAccelerateConfiguration$ = PutBucketAccelerateConfiguration$;
+    exports.PutBucketAccelerateConfigurationCommand = PutBucketAccelerateConfigurationCommand;
+    exports.PutBucketAccelerateConfigurationRequest$ = PutBucketAccelerateConfigurationRequest$;
+    exports.PutBucketAcl$ = PutBucketAcl$;
+    exports.PutBucketAclCommand = PutBucketAclCommand;
+    exports.PutBucketAclRequest$ = PutBucketAclRequest$;
+    exports.PutBucketAnalyticsConfiguration$ = PutBucketAnalyticsConfiguration$;
+    exports.PutBucketAnalyticsConfigurationCommand = PutBucketAnalyticsConfigurationCommand;
+    exports.PutBucketAnalyticsConfigurationRequest$ = PutBucketAnalyticsConfigurationRequest$;
+    exports.PutBucketCors$ = PutBucketCors$;
+    exports.PutBucketCorsCommand = PutBucketCorsCommand;
+    exports.PutBucketCorsRequest$ = PutBucketCorsRequest$;
+    exports.PutBucketEncryption$ = PutBucketEncryption$;
+    exports.PutBucketEncryptionCommand = PutBucketEncryptionCommand;
+    exports.PutBucketEncryptionRequest$ = PutBucketEncryptionRequest$;
+    exports.PutBucketIntelligentTieringConfiguration$ = PutBucketIntelligentTieringConfiguration$;
+    exports.PutBucketIntelligentTieringConfigurationCommand = PutBucketIntelligentTieringConfigurationCommand;
+    exports.PutBucketIntelligentTieringConfigurationRequest$ = PutBucketIntelligentTieringConfigurationRequest$;
+    exports.PutBucketInventoryConfiguration$ = PutBucketInventoryConfiguration$;
+    exports.PutBucketInventoryConfigurationCommand = PutBucketInventoryConfigurationCommand;
+    exports.PutBucketInventoryConfigurationRequest$ = PutBucketInventoryConfigurationRequest$;
+    exports.PutBucketLifecycleConfiguration$ = PutBucketLifecycleConfiguration$;
+    exports.PutBucketLifecycleConfigurationCommand = PutBucketLifecycleConfigurationCommand;
+    exports.PutBucketLifecycleConfigurationOutput$ = PutBucketLifecycleConfigurationOutput$;
+    exports.PutBucketLifecycleConfigurationRequest$ = PutBucketLifecycleConfigurationRequest$;
+    exports.PutBucketLogging$ = PutBucketLogging$;
+    exports.PutBucketLoggingCommand = PutBucketLoggingCommand;
+    exports.PutBucketLoggingRequest$ = PutBucketLoggingRequest$;
+    exports.PutBucketMetricsConfiguration$ = PutBucketMetricsConfiguration$;
+    exports.PutBucketMetricsConfigurationCommand = PutBucketMetricsConfigurationCommand;
+    exports.PutBucketMetricsConfigurationRequest$ = PutBucketMetricsConfigurationRequest$;
+    exports.PutBucketNotificationConfiguration$ = PutBucketNotificationConfiguration$;
+    exports.PutBucketNotificationConfigurationCommand = PutBucketNotificationConfigurationCommand;
+    exports.PutBucketNotificationConfigurationRequest$ = PutBucketNotificationConfigurationRequest$;
+    exports.PutBucketOwnershipControls$ = PutBucketOwnershipControls$;
+    exports.PutBucketOwnershipControlsCommand = PutBucketOwnershipControlsCommand;
+    exports.PutBucketOwnershipControlsRequest$ = PutBucketOwnershipControlsRequest$;
+    exports.PutBucketPolicy$ = PutBucketPolicy$;
+    exports.PutBucketPolicyCommand = PutBucketPolicyCommand;
+    exports.PutBucketPolicyRequest$ = PutBucketPolicyRequest$;
+    exports.PutBucketReplication$ = PutBucketReplication$;
+    exports.PutBucketReplicationCommand = PutBucketReplicationCommand;
+    exports.PutBucketReplicationRequest$ = PutBucketReplicationRequest$;
+    exports.PutBucketRequestPayment$ = PutBucketRequestPayment$;
+    exports.PutBucketRequestPaymentCommand = PutBucketRequestPaymentCommand;
+    exports.PutBucketRequestPaymentRequest$ = PutBucketRequestPaymentRequest$;
+    exports.PutBucketTagging$ = PutBucketTagging$;
+    exports.PutBucketTaggingCommand = PutBucketTaggingCommand;
+    exports.PutBucketTaggingRequest$ = PutBucketTaggingRequest$;
+    exports.PutBucketVersioning$ = PutBucketVersioning$;
+    exports.PutBucketVersioningCommand = PutBucketVersioningCommand;
+    exports.PutBucketVersioningRequest$ = PutBucketVersioningRequest$;
+    exports.PutBucketWebsite$ = PutBucketWebsite$;
+    exports.PutBucketWebsiteCommand = PutBucketWebsiteCommand;
+    exports.PutBucketWebsiteRequest$ = PutBucketWebsiteRequest$;
+    exports.PutObject$ = PutObject$;
+    exports.PutObjectAcl$ = PutObjectAcl$;
+    exports.PutObjectAclCommand = PutObjectAclCommand;
+    exports.PutObjectAclOutput$ = PutObjectAclOutput$;
+    exports.PutObjectAclRequest$ = PutObjectAclRequest$;
+    exports.PutObjectAnnotation$ = PutObjectAnnotation$;
+    exports.PutObjectAnnotationCommand = PutObjectAnnotationCommand;
+    exports.PutObjectAnnotationOutput$ = PutObjectAnnotationOutput$;
+    exports.PutObjectAnnotationRequest$ = PutObjectAnnotationRequest$;
+    exports.PutObjectCommand = PutObjectCommand2;
+    exports.PutObjectLegalHold$ = PutObjectLegalHold$;
+    exports.PutObjectLegalHoldCommand = PutObjectLegalHoldCommand;
+    exports.PutObjectLegalHoldOutput$ = PutObjectLegalHoldOutput$;
+    exports.PutObjectLegalHoldRequest$ = PutObjectLegalHoldRequest$;
+    exports.PutObjectLockConfiguration$ = PutObjectLockConfiguration$;
+    exports.PutObjectLockConfigurationCommand = PutObjectLockConfigurationCommand;
+    exports.PutObjectLockConfigurationOutput$ = PutObjectLockConfigurationOutput$;
+    exports.PutObjectLockConfigurationRequest$ = PutObjectLockConfigurationRequest$;
+    exports.PutObjectOutput$ = PutObjectOutput$;
+    exports.PutObjectRequest$ = PutObjectRequest$;
+    exports.PutObjectRetention$ = PutObjectRetention$;
+    exports.PutObjectRetentionCommand = PutObjectRetentionCommand;
+    exports.PutObjectRetentionOutput$ = PutObjectRetentionOutput$;
+    exports.PutObjectRetentionRequest$ = PutObjectRetentionRequest$;
+    exports.PutObjectTagging$ = PutObjectTagging$;
+    exports.PutObjectTaggingCommand = PutObjectTaggingCommand;
+    exports.PutObjectTaggingOutput$ = PutObjectTaggingOutput$;
+    exports.PutObjectTaggingRequest$ = PutObjectTaggingRequest$;
+    exports.PutPublicAccessBlock$ = PutPublicAccessBlock$;
+    exports.PutPublicAccessBlockCommand = PutPublicAccessBlockCommand;
+    exports.PutPublicAccessBlockRequest$ = PutPublicAccessBlockRequest$;
+    exports.QueueConfiguration$ = QueueConfiguration$;
+    exports.QuoteFields = QuoteFields;
+    exports.RecordExpiration$ = RecordExpiration$;
+    exports.RecordsEvent$ = RecordsEvent$;
+    exports.Redirect$ = Redirect$;
+    exports.RedirectAllRequestsTo$ = RedirectAllRequestsTo$;
+    exports.RenameObject$ = RenameObject$;
+    exports.RenameObjectCommand = RenameObjectCommand;
+    exports.RenameObjectOutput$ = RenameObjectOutput$;
+    exports.RenameObjectRequest$ = RenameObjectRequest$;
+    exports.ReplicaModifications$ = ReplicaModifications$;
+    exports.ReplicaModificationsStatus = ReplicaModificationsStatus;
+    exports.ReplicationConfiguration$ = ReplicationConfiguration$;
+    exports.ReplicationRule$ = ReplicationRule$;
+    exports.ReplicationRuleAndOperator$ = ReplicationRuleAndOperator$;
+    exports.ReplicationRuleFilter$ = ReplicationRuleFilter$;
+    exports.ReplicationRuleStatus = ReplicationRuleStatus;
+    exports.ReplicationStatus = ReplicationStatus;
+    exports.ReplicationTime$ = ReplicationTime$;
+    exports.ReplicationTimeStatus = ReplicationTimeStatus;
+    exports.ReplicationTimeValue$ = ReplicationTimeValue$;
+    exports.RequestCharged = RequestCharged;
+    exports.RequestPayer = RequestPayer;
+    exports.RequestPaymentConfiguration$ = RequestPaymentConfiguration$;
+    exports.RequestProgress$ = RequestProgress$;
+    exports.RestoreObject$ = RestoreObject$;
+    exports.RestoreObjectCommand = RestoreObjectCommand;
+    exports.RestoreObjectOutput$ = RestoreObjectOutput$;
+    exports.RestoreObjectRequest$ = RestoreObjectRequest$;
+    exports.RestoreRequest$ = RestoreRequest$;
+    exports.RestoreRequestType = RestoreRequestType;
+    exports.RestoreStatus$ = RestoreStatus$;
+    exports.RoutingRule$ = RoutingRule$;
+    exports.S3 = S3;
+    exports.S3Client = S3Client2;
+    exports.S3KeyFilter$ = S3KeyFilter$;
+    exports.S3Location$ = S3Location$;
+    exports.S3ServiceException = S3ServiceException;
+    exports.S3ServiceException$ = S3ServiceException$;
+    exports.S3TablesBucketType = S3TablesBucketType;
+    exports.S3TablesDestination$ = S3TablesDestination$;
+    exports.S3TablesDestinationResult$ = S3TablesDestinationResult$;
+    exports.SSEKMS$ = SSEKMS$;
+    exports.SSEKMSEncryption$ = SSEKMSEncryption$;
+    exports.SSES3$ = SSES3$;
+    exports.ScanRange$ = ScanRange$;
+    exports.SelectObjectContent$ = SelectObjectContent$;
+    exports.SelectObjectContentCommand = SelectObjectContentCommand;
+    exports.SelectObjectContentEventStream$ = SelectObjectContentEventStream$;
+    exports.SelectObjectContentOutput$ = SelectObjectContentOutput$;
+    exports.SelectObjectContentRequest$ = SelectObjectContentRequest$;
+    exports.SelectParameters$ = SelectParameters$;
+    exports.ServerSideEncryption = ServerSideEncryption;
+    exports.ServerSideEncryptionByDefault$ = ServerSideEncryptionByDefault$;
+    exports.ServerSideEncryptionConfiguration$ = ServerSideEncryptionConfiguration$;
+    exports.ServerSideEncryptionRule$ = ServerSideEncryptionRule$;
+    exports.SessionCredentials$ = SessionCredentials$;
+    exports.SessionMode = SessionMode;
+    exports.SimplePrefix$ = SimplePrefix$;
+    exports.SourceSelectionCriteria$ = SourceSelectionCriteria$;
+    exports.SseKmsEncryptedObjects$ = SseKmsEncryptedObjects$;
+    exports.SseKmsEncryptedObjectsStatus = SseKmsEncryptedObjectsStatus;
+    exports.Stats$ = Stats$;
+    exports.StatsEvent$ = StatsEvent$;
+    exports.StorageClass = StorageClass;
+    exports.StorageClassAnalysis$ = StorageClassAnalysis$;
+    exports.StorageClassAnalysisDataExport$ = StorageClassAnalysisDataExport$;
+    exports.StorageClassAnalysisSchemaVersion = StorageClassAnalysisSchemaVersion;
+    exports.TableSseAlgorithm = TableSseAlgorithm;
+    exports.Tag$ = Tag$2;
+    exports.Tagging$ = Tagging$;
+    exports.TaggingDirective = TaggingDirective;
+    exports.TargetGrant$ = TargetGrant$;
+    exports.TargetObjectKeyFormat$ = TargetObjectKeyFormat$;
+    exports.Tier = Tier;
+    exports.Tiering$ = Tiering$;
+    exports.TooManyParts = TooManyParts;
+    exports.TooManyParts$ = TooManyParts$;
+    exports.TopicConfiguration$ = TopicConfiguration$;
+    exports.Transition$ = Transition$;
+    exports.TransitionDefaultMinimumObjectSize = TransitionDefaultMinimumObjectSize;
+    exports.TransitionStorageClass = TransitionStorageClass;
+    exports.Type = Type;
+    exports.UnsupportedMediaType = UnsupportedMediaType;
+    exports.UnsupportedMediaType$ = UnsupportedMediaType$;
+    exports.UpdateBucketMetadataAnnotationTableConfiguration$ = UpdateBucketMetadataAnnotationTableConfiguration$;
+    exports.UpdateBucketMetadataAnnotationTableConfigurationCommand = UpdateBucketMetadataAnnotationTableConfigurationCommand;
+    exports.UpdateBucketMetadataAnnotationTableConfigurationRequest$ = UpdateBucketMetadataAnnotationTableConfigurationRequest$;
+    exports.UpdateBucketMetadataInventoryTableConfiguration$ = UpdateBucketMetadataInventoryTableConfiguration$;
+    exports.UpdateBucketMetadataInventoryTableConfigurationCommand = UpdateBucketMetadataInventoryTableConfigurationCommand;
+    exports.UpdateBucketMetadataInventoryTableConfigurationRequest$ = UpdateBucketMetadataInventoryTableConfigurationRequest$;
+    exports.UpdateBucketMetadataJournalTableConfiguration$ = UpdateBucketMetadataJournalTableConfiguration$;
+    exports.UpdateBucketMetadataJournalTableConfigurationCommand = UpdateBucketMetadataJournalTableConfigurationCommand;
+    exports.UpdateBucketMetadataJournalTableConfigurationRequest$ = UpdateBucketMetadataJournalTableConfigurationRequest$;
+    exports.UpdateObjectEncryption$ = UpdateObjectEncryption$;
+    exports.UpdateObjectEncryptionCommand = UpdateObjectEncryptionCommand;
+    exports.UpdateObjectEncryptionRequest$ = UpdateObjectEncryptionRequest$;
+    exports.UpdateObjectEncryptionResponse$ = UpdateObjectEncryptionResponse$;
+    exports.UploadPart$ = UploadPart$;
+    exports.UploadPartCommand = UploadPartCommand;
+    exports.UploadPartCopy$ = UploadPartCopy$;
+    exports.UploadPartCopyCommand = UploadPartCopyCommand;
+    exports.UploadPartCopyOutput$ = UploadPartCopyOutput$;
+    exports.UploadPartCopyRequest$ = UploadPartCopyRequest$;
+    exports.UploadPartOutput$ = UploadPartOutput$;
+    exports.UploadPartRequest$ = UploadPartRequest$;
+    exports.VersioningConfiguration$ = VersioningConfiguration$;
+    exports.WebsiteConfiguration$ = WebsiteConfiguration$;
+    exports.WriteGetObjectResponse$ = WriteGetObjectResponse$;
+    exports.WriteGetObjectResponseCommand = WriteGetObjectResponseCommand;
+    exports.WriteGetObjectResponseRequest$ = WriteGetObjectResponseRequest$;
+    exports._Error$ = _Error$;
+    exports._Object$ = _Object$;
+    exports.errorTypeRegistries = errorTypeRegistries5;
+    exports.paginateListBuckets = paginateListBuckets;
+    exports.paginateListDirectoryBuckets = paginateListDirectoryBuckets;
+    exports.paginateListObjectAnnotations = paginateListObjectAnnotations;
+    exports.paginateListObjectsV2 = paginateListObjectsV2;
+    exports.paginateListParts = paginateListParts;
+    exports.waitForBucketExists = waitForBucketExists;
+    exports.waitForBucketNotExists = waitForBucketNotExists;
+    exports.waitForObjectExists = waitForObjectExists;
+    exports.waitForObjectNotExists = waitForObjectNotExists;
+    exports.waitUntilBucketExists = waitUntilBucketExists;
+    exports.waitUntilBucketNotExists = waitUntilBucketNotExists;
+    exports.waitUntilObjectExists = waitUntilObjectExists;
+    exports.waitUntilObjectNotExists = waitUntilObjectNotExists;
   }
 });
 
 // node_modules/@aws-sdk/s3-request-presigner/dist-cjs/index.js
 var require_dist_cjs17 = __commonJS({
-  "node_modules/@aws-sdk/s3-request-presigner/dist-cjs/index.js"(exports2) {
+  "node_modules/@aws-sdk/s3-request-presigner/dist-cjs/index.js"(exports) {
     var { formatUrl: formatUrl2 } = (init_util2(), __toCommonJS(util_exports));
     var { getEndpointFromInstructions: getEndpointFromInstructions2 } = (init_endpoints(), __toCommonJS(endpoints_exports));
     var { HttpRequest: HttpRequest2 } = (init_protocols(), __toCommonJS(protocols_exports));
@@ -35346,17 +35348,10 @@ var require_dist_cjs17 = __commonJS({
       const { presigned } = output;
       return formatUrl2(presigned);
     };
-    exports2.S3RequestPresigner = S3RequestPresigner;
-    exports2.getSignedUrl = getSignedUrl2;
+    exports.S3RequestPresigner = S3RequestPresigner;
+    exports.getSignedUrl = getSignedUrl2;
   }
 });
-
-// scripts/.entries/upload.ts
-var upload_exports = {};
-__export(upload_exports, {
-  default: () => upload_default
-});
-module.exports = __toCommonJS(upload_exports);
 
 // netlify/functions/upload-url.ts
 var import_client_s3 = __toESM(require_dist_cjs16(), 1);
@@ -35601,4 +35596,6 @@ function respondWith(result, res) {
 async function upload_default(req, res) {
   return runHandler(handler, req, res);
 }
-module.exports = module.exports ? module.exports.default : module.exports;
+export {
+  upload_default as default
+};
