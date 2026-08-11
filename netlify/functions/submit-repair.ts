@@ -1,6 +1,8 @@
 import { Handler } from '@netlify/functions';
 
 const ALLOWED_ORIGINS = [
+  ...(process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean) || []),
+  'https://john20deals.vercel.app',
   'https://john20deals.netlify.app',
   'https://john20-deals.netlify.app',
   'http://localhost:3000',

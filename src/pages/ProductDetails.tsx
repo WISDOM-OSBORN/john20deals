@@ -4,9 +4,11 @@ import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../lib/utils';
-import { ShoppingCart, ArrowLeft, RefreshCw, X, Upload } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, RefreshCw, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProductReviews from '../components/ProductReviews';
+import ImageUploadButtons from '../components/ImageUploadButtons';
+import { uploadImage } from '../lib/upload';
 import { Helmet } from 'react-helmet-async';
 
 interface Product {
@@ -36,32 +38,14 @@ export default function ProductDetails() {
   const [swapUploading, setSwapUploading] = useState(false);
   const [swapImages, setSwapImages] = useState<string[]>([]);
   
-  const handleSwapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSwapUpload = async (file: File) => {
     try {
       setSwapUploading(true);
-      if (!e.target.files || e.target.files.length === 0) return;
-      const file = e.target.files[0];
-      
-      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
-      const urlResponse = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name, contentType: file.type }),
-      });
-      if (!urlResponse.ok) throw new Error('Failed to get upload URL');
-      const { uploadUrl, publicUrl } = await urlResponse.json();
-      
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type }
-      });
-      if (!uploadResponse.ok) throw new Error('Failed to upload file');
-      
-      setSwapImages(prev => [...prev, publicUrl].slice(0, 3));
+      const url = await uploadImage(file);
+      setSwapImages(prev => [...prev, url].slice(0, 3));
       toast.success('Image uploaded successfully');
-    } catch (error) {
-      toast.error('Failed to upload image');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to upload image');
     } finally {
       setSwapUploading(false);
     }
@@ -331,7 +315,7 @@ export default function ProductDetails() {
               
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Upload Images (Max 3)</label>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   {swapImages.map((img, i) => (
                     <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group">
                       <img src={img} className="w-full h-full object-cover" />
@@ -340,14 +324,13 @@ export default function ProductDetails() {
                       </button>
                     </div>
                   ))}
-                  {swapImages.length < 3 && (
-                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
-                      <Upload className="w-5 h-5 text-slate-400 mb-1" />
-                      <span className="text-[10px] text-slate-500">Add Photo</span>
-                      <input type="file" accept="image/*" onChange={handleSwapUpload} className="hidden" disabled={swapUploading} />
-                    </label>
-                  )}
                 </div>
+                {swapImages.length < 3 && (
+                  <div className="mt-3">
+                    <ImageUploadButtons onFile={handleSwapUpload} disabled={swapUploading} />
+                  </div>
+                )}
+                {swapUploading && <p className="text-xs text-slate-400 mt-2">Uploading...</p>}
               </div>
               
               <div className="pt-4 border-t border-slate-200 dark:border-slate-700">

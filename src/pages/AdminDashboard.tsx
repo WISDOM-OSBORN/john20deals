@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Upload, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench, MessageCircle, Search } from 'lucide-react';
+import { Plus, Trash2, Edit, Package, ShoppingBag, DollarSign, Tag, Info, Layers, X, CheckCircle, Clock, User, MapPin, Truck, RefreshCw, Wrench, MessageCircle, Search } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import toast from 'react-hot-toast';
 import { createNotification } from '../lib/notifications';
 import StatCard from '../components/StatCard';
+import ImageUploadButtons from '../components/ImageUploadButtons';
+import { uploadImage } from '../lib/upload';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Helmet } from 'react-helmet-async';
 
@@ -221,70 +223,10 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, imageIndex: 1 | 2 = 1) => {
+  const handleImageUpload = async (file: File, imageIndex: 1 | 2 = 1) => {
     try {
       setUploading(true);
-      if (!e.target.files || e.target.files.length === 0) {
-        throw new Error('You must select an image to upload.');
-      }
-
-      const file = e.target.files[0];
-
-      if (file.size > 10 * 1024 * 1024) {
-        throw new Error('File is too large. Maximum size is 10 MB.');
-      }
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('Only JPEG, PNG, WEBP and GIF images are allowed.');
-      }
-      
-      // 1. Get presigned URL from our backend
-      const apiEndpoint = import.meta.env.PROD ? '/.netlify/functions/upload-url' : '/api/upload';
-      const urlResponse = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type,
-          expectedSize: file.size
-        }),
-      });
-
-      if (!urlResponse.ok) {
-        let errorMessage = 'Failed to get upload URL';
-        try {
-          const errorData = await urlResponse.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          errorMessage = `Server returned ${urlResponse.status}: ${urlResponse.statusText}. Please check if the function is deployed correctly.`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      let uploadUrl, publicUrl;
-      try {
-        const data = await urlResponse.json();
-        uploadUrl = data.uploadUrl;
-        publicUrl = data.publicUrl;
-      } catch (e) {
-        throw new Error('Server returned an invalid response. Ensure the backend function is deployed correctly.');
-      }
-
-      // 2. Upload directly to Cloudflare R2 using the presigned URL
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type
-        },
-        body: file,
-      });
-
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        throw new Error(`Upload failed status ${uploadResponse.status}: ${errorText}`);
-      }
+      const publicUrl = await uploadImage(file);
 
       if (imageIndex === 1) {
         setImageUrl(publicUrl);
@@ -1712,21 +1654,10 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       )}
-                      <label className="flex-1 cursor-pointer">
-                        <div className="flex flex-col items-center justify-center w-full h-24 px-4 transition bg-slate-50 border-2 border-slate-200 border-dashed rounded-2xl hover:border-blue-400 hover:bg-blue-50/30 group">
-                          <Upload className="w-6 h-6 text-slate-400 group-hover:text-blue-500 mb-2 transition-colors" />
-                          <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 text-center">
-                            {uploading ? 'Uploading...' : 'Upload Primary'}
-                          </span>
-                          <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 1)}
-                            className="hidden"
-                            disabled={uploading}
-                          />
-                        </div>
-                      </label>
+                      <div className="flex-1">
+                        <ImageUploadButtons onFile={(f) => handleImageUpload(f, 1)} disabled={uploading} compact />
+                        {uploading && <p className="text-xs text-slate-400 mt-2">Uploading...</p>}
+                      </div>
                     </div>
                     <div className="relative">
                       <Info className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -1757,21 +1688,10 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       )}
-                      <label className="flex-1 cursor-pointer">
-                        <div className="flex flex-col items-center justify-center w-full h-24 px-4 transition bg-slate-50 border-2 border-slate-200 border-dashed rounded-2xl hover:border-blue-400 hover:bg-blue-50/30 group">
-                          <Upload className="w-6 h-6 text-slate-400 group-hover:text-blue-500 mb-2 transition-colors" />
-                          <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 text-center">
-                            {uploading ? 'Uploading...' : 'Upload Secondary'}
-                          </span>
-                          <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 2)}
-                            className="hidden"
-                            disabled={uploading}
-                          />
-                        </div>
-                      </label>
+                      <div className="flex-1">
+                        <ImageUploadButtons onFile={(f) => handleImageUpload(f, 2)} disabled={uploading} compact />
+                        {uploading && <p className="text-xs text-slate-400 mt-2">Uploading...</p>}
+                      </div>
                     </div>
                     <div className="relative">
                       <Info className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

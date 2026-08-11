@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { uploadImage } from '../lib/upload';
-import { ArrowLeft, Upload, X, Tag, Smartphone, Laptop, Camera, Headphones, Watch } from 'lucide-react';
+import ImageUploadButtons from '../components/ImageUploadButtons';
+import { ArrowLeft, X, Tag, Smartphone, Laptop, Camera, Headphones, Watch } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
@@ -24,11 +25,10 @@ export default function Sell() {
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+  const handleUpload = async (file: File) => {
     setUploading(true);
     try {
-      const url = await uploadImage(e.target.files[0]);
+      const url = await uploadImage(file);
       setImages(prev => [...prev, url].slice(0, 3));
       toast.success('Image uploaded');
     } catch (err: any) {
@@ -156,14 +156,13 @@ export default function Sell() {
                   </button>
                 </div>
               ))}
-              {images.length < 3 && (
-                <label className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
-                  <Upload className="w-5 h-5 text-slate-400 mb-1" />
-                  <span className="text-[10px] text-slate-500">{uploading ? '...' : 'Add Photo'}</span>
-                  <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
-                </label>
-              )}
             </div>
+            {images.length < 3 && (
+              <div className="mt-3 max-w-xs">
+                <ImageUploadButtons onFile={handleUpload} disabled={uploading} compact />
+              </div>
+            )}
+            {uploading && <p className="text-xs text-slate-400 mt-2">Uploading...</p>}
           </div>
 
           <button type="submit" disabled={submitting} className="w-full py-4 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
