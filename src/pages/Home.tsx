@@ -236,68 +236,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Success Stories / Case Studies */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Real Success Stories</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">See how customers buy, sell, swap, and repair with John20 Deals.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
-            {
-              tag: 'Sell',
-              icon: Briefcase,
-              quote: 'I sold my two-year-old laptop and got top value within days. The team tested it, paid me, and the whole process was stress-free.',
-              name: 'Kwame A.',
-              detail: 'Sold a gently used laptop from Tema',
-            },
-            {
-              tag: 'Swap',
-              icon: Smartphone,
-              quote: 'Traded in my old phone for a newer model and only paid the difference. The trade-in value offered was way better than anywhere else.',
-              name: 'Ama B.',
-              detail: 'Upgraded her smartphone via Swap',
-            },
-            {
-              tag: 'Repair',
-              icon: Hammer,
-              quote: 'Cracked screen fixed in under 24 hours. My device was delivered back to me looking brand new, with a clear upfront quote.',
-              name: 'Kojo D.',
-              detail: 'Got a same-week screen repair in Accra',
-            },
-          ].map((story) => (
-            <div key={story.name} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <span className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-lg ${
-                  story.tag === 'Sell' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                  story.tag === 'Swap' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                }`}>
-                  {story.tag}
-                </span>
-                <span className={`bg-slate-50 dark:bg-slate-800 w-12 h-12 rounded-2xl flex items-center justify-center ${
-                  story.tag === 'Sell' ? 'text-green-600 dark:text-green-400' :
-                  story.tag === 'Swap' ? 'text-purple-600 dark:text-purple-400' :
-                  'text-orange-600 dark:text-orange-400'
-                }`}>
-                  <story.icon className="h-6 w-6" />
-                </span>
-              </div>
-              <p className="text-slate-600 dark:text-slate-300 leading-relaxed flex-grow mb-5">"{story.quote}"</p>
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center font-black text-blue-600 dark:text-blue-400 text-sm">
-                  {story.name.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-bold text-slate-900 dark:text-white text-sm">{story.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{story.detail}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Featured Products Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
@@ -359,6 +297,85 @@ export default function Home() {
             <p className="text-slate-500 dark:text-slate-400">Check back later for featured products.</p>
           </div>
         )}
+      </section>
+
+      {/* Success Stories / Case Studies (marquee) */}
+      <section className="overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Real Success Stories</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">See how customers buy, sell, swap, and repair with John20 Deals.</p>
+        </div>
+        <div className="relative w-full overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-slate-50 dark:from-slate-950 z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-slate-50 dark:from-slate-950 z-10 pointer-events-none"></div>
+          <div className="flex w-max animate-marquee py-2">
+            {[0, 1].map((set) => (
+              <div key={set} className="flex gap-5 pr-5 w-max">
+                {[
+                  {
+                    tag: 'Sell',
+                    icon: Briefcase,
+                    quote: 'I sold my two-year-old laptop and got top value within days. The team tested it, paid me, and the whole process was stress-free.',
+                    name: 'Kwame A.',
+                    detail: 'Sold a gently used laptop from Tema',
+                  },
+                  {
+                    tag: 'Swap',
+                    icon: Smartphone,
+                    quote: 'Traded in my old phone for a newer model and only paid the difference. The trade-in value offered was way better than anywhere else.',
+                    name: 'Ama B.',
+                    detail: 'Upgraded her smartphone via Swap',
+                  },
+                  {
+                    tag: 'Repair',
+                    icon: Hammer,
+                    quote: 'Cracked screen fixed in under 24 hours. My device was delivered back to me looking brand new, with a clear upfront quote.',
+                    name: 'Kojo D.',
+                    detail: 'Got a same-week screen repair in Accra',
+                  },
+                  {
+                    tag: 'Sell',
+                    icon: Briefcase,
+                    quote: 'Traded in my PlayStation and accessories for top store credit. Seamless and professional from start to finish.',
+                    name: 'Esi M.',
+                    detail: 'Turned old console into store credit',
+                  },
+                  {
+                    tag: 'Repair',
+                    icon: Hammer,
+                    quote: 'Battery replaced on my laptop in hours. The shop even followed up after delivery to make sure everything was working.',
+                    name: 'Nana K.',
+                    detail: 'Quick battery replacement in Accra',
+                  },
+                ].map((story) => (
+                  <div key={story.name} className="w-[320px] sm:w-[380px] shrink-0 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex gap-4 items-start hover:shadow-lg transition-shadow">
+                    <span className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center ${
+                      story.tag === 'Sell' ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' :
+                      story.tag === 'Swap' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :
+                      'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                    }`}>
+                      <story.icon className="h-6 w-6" />
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                          story.tag === 'Sell' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          story.tag === 'Swap' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                          'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                        }`}>
+                          {story.tag}
+                        </span>
+                        <span className="font-bold text-sm text-slate-900 dark:text-white">{story.name}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">"{story.quote}"</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{story.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );
