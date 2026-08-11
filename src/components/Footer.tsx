@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Ghost, Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
+import { Mail, Phone, MapPin, Ghost } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -52,28 +52,6 @@ export default function Footer() {
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
               Your Smart Tech Plug. We provide high-quality gadgets, computers, and accessories to power your digital life.
             </p>
-            <div className="flex flex-col gap-3">
-              <a href="https://snapchat.com/add/john_darkwah20" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors">
-                <Ghost className="h-5 w-5" />
-                <span className="text-sm">john_darkwah20</span>
-              </a>
-              <a href="https://wa.me/+233505694171" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-green-400 transition-colors">
-                <MessageCircle className="h-5 w-5" />
-                <span className="text-sm">WhatsApp</span>
-              </a>
-              <a href="https://instagram.com/john20deals" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-pink-500 transition-colors">
-                <Instagram className="h-5 w-5" />
-                <span className="text-sm">john20deals</span>
-              </a>
-                            <a href="https://facebook.com/john20deals" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-blue-500 transition-colors">
-                <Facebook className="h-5 w-5" />
-                <span className="text-sm">John20 Deals</span>
-              </a>
-              <a href="https://tiktok.com/@john20deals" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-400 hover:text-indigo-400 transition-colors">
-                <Music className="h-5 w-5" />
-                <span className="text-sm">@john20deals</span>
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -102,6 +80,12 @@ export default function Footer() {
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-blue-500 shrink-0" />
                 <span>johndarkwah20@gmail.com</span>
+              </li>
+              <li>
+                <a href="https://snapchat.com/add/john_darkwah20" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-400 hover:text-yellow-400 transition-colors">
+                  <Ghost className="h-5 w-5 text-blue-500 shrink-0" />
+                  <span className="text-sm">john_darkwah20</span>
+                </a>
               </li>
             </ul>
           </div>
