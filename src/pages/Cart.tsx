@@ -3,14 +3,16 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../lib/utils';
 import { Trash2, Plus, Minus, MessageCircle, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [address, setAddress] = useState('');
 
@@ -74,6 +76,7 @@ export default function Cart() {
     // 4. Clear Cart
     clearCart();
     toast.success('Order initiated! Redirecting to WhatsApp...');
+    navigate(`/order-success?type=order&ref=${orderRef}`);
   };
 
   if (items.length === 0) {
@@ -100,7 +103,9 @@ export default function Cart() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <Helmet>
         <title>Shopping Cart | John20 Deals</title>
+        <meta name="description" content="Review the items in your cart and place your order with John20 Deals. Fast delivery across Ghana." />
       </Helmet>
+      <Breadcrumbs items={[{ name: 'Shopping Cart' }]} />
       <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Shopping Cart</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Truck, ShoppingBag, Tag, RefreshCw, Wrench } from 'lucide-react';
+import { ArrowRight, Star, Truck, ShoppingBag, Tag, RefreshCw, Wrench, Briefcase, Smartphone, Hammer } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';
@@ -85,7 +85,7 @@ export default function Home() {
         <meta name="description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana. Quality tech at unbeatable prices." />
         <meta property="og:title" content="John20 Deals | Your Smart Tech Plug" />
         <meta property="og:description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana." />
-        <meta property="og:image" content="https://john20deals.netlify.app/logo.svg" />
+        <meta property="og:image" content="https://john20deals.vercel.app/logo.svg" />
       </Helmet>
       {/* Our Services */}
       <section className="relative py-16 overflow-hidden bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-800">
@@ -232,6 +232,68 @@ export default function Home() {
                 <h3 className="text-white font-bold text-lg">{cat.name}</h3>
               </div>
             </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Success Stories / Case Studies */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Real Success Stories</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">See how customers buy, sell, swap, and repair with John20 Deals.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            {
+              tag: 'Sell',
+              icon: Briefcase,
+              quote: 'I sold my two-year-old laptop and got top value within days. The team tested it, paid me, and the whole process was stress-free.',
+              name: 'Kwame A.',
+              detail: 'Sold a gently used laptop from Tema',
+            },
+            {
+              tag: 'Swap',
+              icon: Smartphone,
+              quote: 'Traded in my old phone for a newer model and only paid the difference. The trade-in value offered was way better than anywhere else.',
+              name: 'Ama B.',
+              detail: 'Upgraded her smartphone via Swap',
+            },
+            {
+              tag: 'Repair',
+              icon: Hammer,
+              quote: 'Cracked screen fixed in under 24 hours. My device was delivered back to me looking brand new, with a clear upfront quote.',
+              name: 'Kojo D.',
+              detail: 'Got a same-week screen repair in Accra',
+            },
+          ].map((story) => (
+            <div key={story.name} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <span className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-lg ${
+                  story.tag === 'Sell' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                  story.tag === 'Swap' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                }`}>
+                  {story.tag}
+                </span>
+                <span className={`bg-slate-50 dark:bg-slate-800 w-12 h-12 rounded-2xl flex items-center justify-center ${
+                  story.tag === 'Sell' ? 'text-green-600 dark:text-green-400' :
+                  story.tag === 'Swap' ? 'text-purple-600 dark:text-purple-400' :
+                  'text-orange-600 dark:text-orange-400'
+                }`}>
+                  <story.icon className="h-6 w-6" />
+                </span>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed flex-grow mb-5">"{story.quote}"</p>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center font-black text-blue-600 dark:text-blue-400 text-sm">
+                  {story.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900 dark:text-white text-sm">{story.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{story.detail}</p>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </section>

@@ -20,6 +20,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Sell from './pages/Sell';
 import Repair from './pages/Repair';
+import OrderSuccess from './pages/OrderSuccess';
+import NotFound from './pages/NotFound';
 
 import SignUp from './pages/SignUp';
 
@@ -52,6 +54,8 @@ function App() {
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/order-success" element={<OrderSuccess />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Layout>
             </WishlistProvider>

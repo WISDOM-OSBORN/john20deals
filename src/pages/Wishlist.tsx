@@ -1,5 +1,6 @@
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/ProductCard';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -11,9 +12,11 @@ export default function Wishlist() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Helmet>
         <title>My Wishlist | John20 Deals</title>
+        <meta name="description" content="View the gadgets and accessories you've saved to your John20 Deals wishlist." />
       </Helmet>
       
-      <div className="flex items-center gap-3 mb-8">
+      <Breadcrumbs items={[{ name: 'My Wishlist' }]} />
+      <div className="flex items-center gap-3 mb-8 mt-[-24px]">
         <div className="bg-red-50 dark:bg-red-900/30 p-3 rounded-2xl">
           <Heart className="h-6 w-6 text-red-500 fill-current" />
         </div>

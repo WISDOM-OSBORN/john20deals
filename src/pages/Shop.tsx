@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import ProductCard from '../components/ProductCard';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { Search, Filter, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -148,6 +149,7 @@ export default function Shop() {
       {/* Header & Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
         <div>
+          <Breadcrumbs items={[{ name: 'Shop' }]} />
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Shop</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
             {totalCount} products found

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { uploadImage } from '../lib/upload';
 import ImageUploadButtons from '../components/ImageUploadButtons';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { ArrowLeft, X, Tag, Smartphone, Laptop, Camera, Headphones, Watch } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
@@ -69,7 +70,7 @@ export default function Sell() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Failed to submit');
       toast.success('Sell request submitted! We will contact you with a quote.');
-      navigate('/profile');
+      navigate('/order-success?type=sell');
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -87,6 +88,8 @@ export default function Sell() {
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back
       </button>
+
+      <Breadcrumbs items={[{ name: 'Sell Your Device' }]} />
 
       <div className="text-center mb-8">
         <div className="bg-green-50 dark:bg-green-900/30 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">

@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../lib/utils';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { fetchNotifications, markNotificationsRead, NotificationRow } from '../lib/notifications';
 
 interface Order {
@@ -134,6 +135,7 @@ export default function Profile() {
       <Helmet>
         <title>My Dashboard | John20 Deals</title>
       </Helmet>
+      <Breadcrumbs items={[{ name: 'My Dashboard' }]} />
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Dashboard</h1>

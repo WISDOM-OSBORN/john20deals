@@ -4,10 +4,11 @@ import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../lib/utils';
-import { ShoppingCart, ArrowLeft, RefreshCw, X } from 'lucide-react';
+import { ShoppingCart, RefreshCw, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProductReviews from '../components/ProductReviews';
 import ImageUploadButtons from '../components/ImageUploadButtons';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { uploadImage } from '../lib/upload';
 import { Helmet } from 'react-helmet-async';
 
@@ -82,6 +83,7 @@ export default function ProductDetails() {
       toast.success('Swap request sent! The shop will contact you.');
       setShowSwapModal(false);
       setSwapImages([]);
+      navigate('/order-success?type=swap');
     } catch (error) {
       toast.error('Failed to submit swap request');
     } finally {
@@ -154,14 +156,30 @@ export default function ProductDetails() {
         <meta property="og:title" content={`${product.name} | John20 Deals`} />
         <meta property="og:description" content={product.description || `Buy ${product.name} at John20 Deals.`} />
         <meta property="og:image" content={product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} />
+        <meta property="og:url" content={`https://john20deals.vercel.app/product/${product.id}`} />
+        <meta property="og:type" content="product" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            image: product.image_url,
+            description: product.description || undefined,
+            sku: `PT-${product.id.slice(0, 8).toUpperCase()}`,
+            category: product.category,
+            brand: { '@type': 'Brand', name: 'John20 Deals' },
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'GHS',
+              price: product.price,
+              availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+              url: `https://john20deals.vercel.app/product/${product.id}`,
+              seller: { '@type': 'Organization', name: 'John20 Deals' }
+            }
+          })}
+        </script>
       </Helmet>
-      <button 
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mb-8 transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back to Shop
-      </button>
-
+      <Breadcrumbs items={[{ name: 'Shop', to: '/shop' }, { name: product.name }]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Image Gallery */}
         <div className="flex flex-col gap-4">

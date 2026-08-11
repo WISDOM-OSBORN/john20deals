@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <Helmet>
+        <title>Signing In | John20 Deals</title>
+      </Helmet>
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-slate-500 dark:text-slate-400">Completing sign in...</p>

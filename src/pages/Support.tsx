@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { HelpCircle, ChevronDown, ChevronUp, Shield, Truck, CreditCard, RefreshCw } from 'lucide-react';
+import { HelpCircle, ChevronDown, ChevronUp, Shield, Truck, CreditCard, RefreshCw, MapPin, Navigation } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function Support() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -33,7 +34,19 @@ export default function Support() {
       <Helmet>
         <title>Help & Support | John20 Deals</title>
         <meta name="description" content="Get help and support for your John20 Deals orders. FAQs, shipping info, and contact details." />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqs.map((faq) => ({
+              '@type': 'Question',
+              name: faq.question,
+              acceptedAnswer: { '@type': 'Answer', text: faq.answer }
+            }))
+          })}
+        </script>
       </Helmet>
+      <Breadcrumbs items={[{ name: 'Help & Support' }]} />
       <div className="text-center mb-12">
         <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-4">Help & Support</h1>
         <p className="text-slate-500 dark:text-slate-400 text-lg">Everything you need to know about shopping with John20 Deals.</p>
@@ -93,6 +106,48 @@ export default function Support() {
               )}
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Find Us / Directions */}
+      <div className="mt-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-md">
+        <div className="p-8 border-b border-slate-100 dark:border-slate-800">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+            <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" /> Find Us
+          </h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">We're based in the Accra - Tema corridor. Visit us for pickup, trade-ins, or repairs.</p>
+        </div>
+        <div className="p-6">
+          <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 mb-6">
+            <iframe
+              title="John20 Deals location - Accra, Ghana"
+              src="https://www.google.com/maps?q=Accra%2C+Ghana&z=11&output=embed"
+              width="100%"
+              height="320"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=Accra%2C+Ghana"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+            >
+              <Navigation className="h-5 w-5" /> Get Directions
+            </a>
+            <a
+              href="https://wa.me/233505694171"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              WhatsApp Us For Exact Location
+            </a>
+          </div>
         </div>
       </div>
 
