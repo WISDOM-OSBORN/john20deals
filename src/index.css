@@ -2,12 +2,18 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  html, body {
+    overflow-x: clip;
+  }
   body {
     @apply bg-slate-50 text-slate-900 transition-colors duration-200;
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
   .dark body {
     @apply bg-slate-950 text-slate-50;
+  }
+  img {
+    max-width: 100%;
   }
 }
 

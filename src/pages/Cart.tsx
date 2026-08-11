@@ -113,7 +113,7 @@ export default function Cart() {
         <div className="lg:col-span-2 space-y-6">
           {items.map((item) => (
             <div key={item.id} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex gap-4 items-center">
-              <div className="h-24 w-24 bg-slate-50 dark:bg-slate-800 rounded-xl flex-shrink-0 overflow-hidden">
+              <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-slate-800 rounded-xl flex-shrink-0 overflow-hidden">
                 <img 
                   src={item.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} 
                   alt={item.name} 
@@ -121,7 +121,7 @@ export default function Cart() {
                 />
               </div>
               
-              <div className="flex-grow">
+              <div className="flex-grow min-w-0">
                 <h3 className="font-bold text-slate-900 dark:text-white mb-1 line-clamp-1">{item.name}</h3>
                 {item.condition && (
                   <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">

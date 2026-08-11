@@ -78,7 +78,7 @@ export default function OrderSuccess() {
           >
             <MessageCircle className="h-5 w-5" /> {config.cta}
           </a>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
               to="/shop"
               className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all"

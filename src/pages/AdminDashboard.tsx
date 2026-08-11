@@ -979,7 +979,7 @@ export default function AdminDashboard() {
                   {subscribers.length} Subscribers
                 </span>
               </div>
-              <div className="max-h-[600px] overflow-y-auto">
+              <div className="max-h-[600px] overflow-x-auto overflow-y-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 sticky top-0 z-10">
                     <tr>
