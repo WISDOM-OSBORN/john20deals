@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CheckCircle2, ShoppingBag, Tag, Wrench, RefreshCw, MessageCircle, Home, ShoppingCart } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import { WHATSAPP_NUMBER } from '../lib/utils';
 
 interface SuccessConfig {
   icon: LucideIcon;
@@ -71,7 +72,7 @@ export default function OrderSuccess() {
 
         <div className="space-y-3">
           <a
-            href={`https://wa.me/233505694171${ref ? `?text=Hello John20 Deals, I just placed ${type === 'order' ? 'order' : 'a request'} ref %23${ref}.` : ''}`}
+            href={`https://wa.me/${WHATSAPP_NUMBER}${ref ? `?text=Hello John20 Deals, I just placed ${type === 'order' ? 'order' : 'a request'} ref %23${ref}.` : ''}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 bg-green-500 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-green-600 transition-all shadow-lg shadow-green-500/20"

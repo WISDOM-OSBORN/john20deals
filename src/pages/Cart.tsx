@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { formatCurrency } from '../lib/utils';
+import { formatCurrency, WHATSAPP_NUMBER } from '../lib/utils';
 import { Trash2, Plus, Minus, MessageCircle, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -67,7 +67,7 @@ export default function Cart() {
     }
 
     // 3. Redirect to WhatsApp
-    const adminPhone = '233505694171'; // Updated admin number
+    const adminPhone = WHATSAPP_NUMBER;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodedMessage}`;
     

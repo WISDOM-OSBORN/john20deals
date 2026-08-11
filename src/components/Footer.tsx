@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Ghost } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import { WHATSAPP_NUMBER } from '../lib/utils';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -75,7 +76,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-blue-500 shrink-0" />
-                <span>+233505694171</span>
+                <span>+{WHATSAPP_NUMBER}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-blue-500 shrink-0" />
@@ -119,7 +120,7 @@ export default function Footer() {
           <div className="flex gap-4 text-xs text-slate-500">
             <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-            <a href="https://wa.me/233505694171" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors font-bold text-green-500">Chat with us</a>
+            <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors font-bold text-green-500">Chat with us</a>
           </div>
         </div>
       </div>

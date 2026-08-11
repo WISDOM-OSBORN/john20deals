@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, Shield, Truck, CreditCard, RefreshCw, MapPin, Navigation } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { WHATSAPP_NUMBER } from '../lib/utils';
 
 export default function Support() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -140,7 +141,7 @@ export default function Support() {
               <Navigation className="h-5 w-5" /> Get Directions
             </a>
             <a
-              href="https://wa.me/233505694171"
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
@@ -155,7 +156,7 @@ export default function Support() {
         <h2 className="text-2xl font-bold mb-2">Still have questions?</h2>
         <p className="text-blue-100 mb-6">We're available 24/7 on WhatsApp to assist you.</p>
         <a 
-          href="https://wa.me/233505694171" 
+          href={`https://wa.me/${WHATSAPP_NUMBER}`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all"

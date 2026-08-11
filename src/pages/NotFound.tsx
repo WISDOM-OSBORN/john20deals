@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Home, ShoppingBag, MessageCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import { WHATSAPP_NUMBER } from '../lib/utils';
 
 export default function NotFound() {
   return (
@@ -28,7 +29,7 @@ export default function NotFound() {
           <ShoppingBag className="h-5 w-5" /> Browse the Shop
         </Link>
         <a
-          href="https://wa.me/233505694171"
+          href={`https://wa.me/${WHATSAPP_NUMBER}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 bg-green-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-600 transition-all shadow-lg shadow-green-500/20"
