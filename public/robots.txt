@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /auth/callback
+Sitemap: https://john20deals.com/sitemap.xml

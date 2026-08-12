@@ -82,10 +82,11 @@ export default function Home() {
     <div className="space-y-12 pb-12">
       <Helmet>
         <title>John20 Deals | Your Smart Tech Plug</title>
-        <meta name="description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana. Quality tech at unbeatable prices." />
+        <link rel="canonical" href="https://john20deals.com/" />
+        <meta name="description" content="Buy refurbished laptops, phones and gadgets in Accra, Ghana. Quality tech at unbeatable prices with fast nationwide delivery, trade-ins and expert repairs." />
         <meta property="og:title" content="John20 Deals | Your Smart Tech Plug" />
-        <meta property="og:description" content="Discover the latest gadgets, high-performance computers, and premium accessories in Ghana." />
-        <meta property="og:image" content="https://john20deals.vercel.app/logo.svg" />
+        <meta property="og:description" content="Buy refurbished laptops, phones and gadgets in Accra, Ghana. Quality tech at unbeatable prices." />
+        <meta property="og:image" content="https://john20deals.com/logo.svg" />
       </Helmet>
       {/* Our Services */}
       <section className="relative py-16 overflow-hidden bg-slate-50 dark:bg-slate-900/30 border-b border-slate-200 dark:border-slate-800">
@@ -102,7 +103,7 @@ export default function Home() {
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">All in One <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Tech Plug</span></h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-              Discover the latest gadgets, high-performance computers, and premium accessories. Quality tech at unbeatable prices.
+              Buy refurbished laptops, phones and gadgets in Accra, Ghana — quality tech at unbeatable prices, with trade-ins, expert repairs and fast nationwide delivery.
             </p>
           </div>
           

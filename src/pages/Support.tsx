@@ -35,6 +35,7 @@ export default function Support() {
       <Helmet>
         <title>Help & Support | John20 Deals</title>
         <meta name="description" content="Get help and support for your John20 Deals orders. FAQs, shipping info, and contact details." />
+        <link rel="canonical" href="https://john20deals.com/support" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

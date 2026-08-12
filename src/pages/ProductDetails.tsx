@@ -156,8 +156,9 @@ export default function ProductDetails() {
         <meta property="og:title" content={`${product.name} | John20 Deals`} />
         <meta property="og:description" content={product.description || `Buy ${product.name} at John20 Deals.`} />
         <meta property="og:image" content={product.image_url || 'https://placehold.co/600x600/f8fafc/94a3b8?text=Image'} />
-        <meta property="og:url" content={`https://john20deals.vercel.app/product/${product.id}`} />
+        <meta property="og:url" content={`https://john20deals.com/product/${product.id}`} />
         <meta property="og:type" content="product" />
+        <link rel="canonical" href={`https://john20deals.com/product/${product.id}`} />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
@@ -173,7 +174,7 @@ export default function ProductDetails() {
               priceCurrency: 'GHS',
               price: product.price,
               availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-              url: `https://john20deals.vercel.app/product/${product.id}`,
+              url: `https://john20deals.com/product/${product.id}`,
               seller: { '@type': 'Organization', name: 'John20 Deals' }
             }
           })}

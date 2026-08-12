@@ -77,7 +77,8 @@ export default function Repair() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Helmet>
         <title>Book a Repair | John20 Deals</title>
-        <meta name="description" content="Book an expert repair for your gadgets and devices with John20 Deals." />
+        <meta name="description" content="Book expert phone and laptop repair in Accra and Tema, Ghana. Screen replacements, battery fixes and more with honest upfront quotes." />
+        <link rel="canonical" href="https://john20deals.com/repair" />
       </Helmet>
 
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6 transition-colors">
@@ -92,7 +93,7 @@ export default function Repair() {
         </div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Book a Repair</h1>
         <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          Describe the problem and our expert technicians will diagnose and fix your device.
+          Phone and laptop repair in Accra & Tema, Ghana. Describe the problem and our expert technicians will diagnose and fix your device with an honest, upfront quote.
         </p>
       </div>
 

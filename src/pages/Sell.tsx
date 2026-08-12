@@ -82,7 +82,8 @@ export default function Sell() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Helmet>
         <title>Sell Your Device | John20 Deals</title>
-        <meta name="description" content="Sell your old gadgets and devices to John20 Deals. Get top value for your tech." />
+        <meta name="description" content="Sell your used phone, laptop or tablet in Accra, Ghana for cash. Get an instant quote from our team and get paid fast for your old tech." />
+        <link rel="canonical" href="https://john20deals.com/sell" />
       </Helmet>
 
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6 transition-colors">
@@ -97,7 +98,7 @@ export default function Sell() {
         </div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Sell Your Device</h1>
         <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          Tell us about your device and we'll give you a quote. Get top value for your old tech.
+          Sell your used phone, laptop or tablet in Accra, Ghana and get an instant quote. Get top value for your old tech and get paid fast.
         </p>
       </div>
 

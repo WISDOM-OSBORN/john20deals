@@ -144,7 +144,8 @@ export default function Shop() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <Helmet>
         <title>Shop | John20 Deals</title>
-        <meta name="description" content="Browse our wide selection of gadgets, laptops, phones, and accessories." />
+        <meta name="description" content="Shop laptops, smartphones and accessories in Ghana. Buy refurbished tech at the best prices in Accra with fast nationwide delivery and easy WhatsApp checkout." />
+        <link rel="canonical" href="https://john20deals.com/shop" />
       </Helmet>
       {/* Header & Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
@@ -221,6 +222,12 @@ export default function Shop() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mb-6 max-w-3xl text-sm text-slate-500 dark:text-slate-400">
+        <p>
+          Quality tech at honest prices — shop laptops, smartphones and accessories online in Ghana. Every item is tested locally in Accra, and we deliver nationwide with easy WhatsApp checkout, trade-ins and cash-on-delivery options.
+        </p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
